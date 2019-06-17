@@ -1,0 +1,257 @@
+---
+title: ' Dealing with noisy count data: strategies for tackling over-dispersion, using R '
+subtitle: 'Chris Mainey PhD Student ? UCL Intelligence Analyst ? University Hospital Birmingham NHS FT  christopher.mainey.14@ucl.ac.uk  chris.mainey@uhb.nhs.uk	'
+author: Chris Mainey
+date: 2019-05-20
+output:
+  xaringan::moon_reader:
+  lib_dir: libs
+  nature:
+    highlightStyle: github
+    highlightLines: true
+    countIncrementalSlides: false
+---
+
+
+
+<div id="dealing-with-noisy-count-data-strategies-for-tackling-over-dispersion-using-r" class="section level1">
+<h1>Dealing with noisy count data: strategies for tackling over-dispersion, using R</h1>
+<div id="chris-mainey" class="section level2">
+<h2>Chris Mainey</h2>
+<div id="phd-student---ucl" class="section level3">
+<h3>PhD Student - UCL</h3>
+</div>
+<div id="intelligence-analyst---university-hospital-birmingham-nhs-ft" class="section level3">
+<h3>Intelligence Analyst - University Hospital Birmingham NHS FT</h3>
+<p><a href="mailto:christopher.mainey.14@ucl.ac.uk" class="email">christopher.mainey.14@ucl.ac.uk</a> <a href="mailto:chris.mainey@uhb.nhs.uk" class="email">chris.mainey@uhb.nhs.uk</a></p>
+</div>
+</div>
+</div>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
+<ul>
+<li>Count data</li>
+<li>Poisson model</li>
+<li>Over-dispersion
+<ul>
+<li>Scaling</li>
+<li>Mixture models</li>
+<li>Multi-level models</li>
+</ul></li>
+<li>I use R mostly, so most examples will be in R!</li>
+</ul>
+</div>
+<div id="regression-simplified" class="section level1">
+<h1>Regression (simplified)</h1>
+<p>.pull-left[
+<img src="assets/img/image2.png" />]</p>
+<p>.pull-right[
+<strong>Want to predict Y, using X:</strong>
+<span class="math display">\[ y = \alpha + \beta x + \varepsilon\]</span>
++ <span class="math inline">\(\alpha\)</span>&lt;U+F061&gt; = Intercept
++ <span class="math inline">\(\beta\)</span> = Coefficient (how much x affects y)
++ <span class="math inline">\(\varepsilon\)</span>= Error (Residual)</p>
+<ul>
+<li>This is a linear regression, which has an exact solution. The solutions discussed in the following slides are more complicated as they are estimated, with no exact solution.
+]</li>
+</ul>
+</div>
+<div id="properties-of-count-data" class="section level1">
+<h1>Properties of count data</h1>
+<ul>
+<li>Discrete
+<ul>
+<li>E.g. 10 or 11 patients, but not 10.5</li>
+</ul></li>
+<li>Range from zero to infinity
+<ul>
+<li>Usually can?t have a negative count</li>
+</ul></li>
+<li>Occur in a fixed time period, with a known average rate.</li>
+<li>Not normally distributed</li>
+</ul>
+</div>
+<div id="poisson-distribution-increasing-mean-count" class="section level1">
+<h1>Poisson Distribution, increasing mean count</h1>
+<p><img src="assets/img/image6.png" /></p>
+<hr />
+</div>
+<div id="what-is-overdispersion-od" class="section level1">
+<h1>What is overdispersion (OD)?</h1>
+<ul>
+<li>Poisson dist. assumes Mean = variance</li>
+<li>If variance &gt; mean, Poisons model will underestimate the variance:
+<ul>
+<li>SE &amp; CIs too small, ?Significance? overstated</li>
+</ul></li>
+<li>Many mechanisms, including:
+<ul>
+<li>Mis-specification (lack of predictors, poorly parameterised)</li>
+<li>Presence of outliers</li>
+<li>Variation between response probabilities</li>
+</ul></li>
+</ul>
+</div>
+<div id="options-with-poisson-models" class="section level1">
+<h1>Options with Poisson models:</h1>
+<ul>
+<li>Fit simple model and ignore OD</li>
+<li>Fit model, then use techniques to scale/estimate OD and correct
+<ul>
+<li>Robust SE or Bootstrap</li>
+</ul></li>
+<li>Use a model that accounts for this:
+<ul>
+<li>Scaled Poisson or related</li>
+<li>Complex variance structure</li>
+</ul></li>
+</ul>
+</div>
+<div id="bootstrap" class="section level1">
+<h1>Bootstrap</h1>
+<ul>
+<li>Resampling with replacement ? (Efron 1979)</li>
+<li>Create sampling distribution of mean</li>
+<li>Handy, because this is normally distributed (if parametric bootstrap)</li>
+<li>R: ?boot? package or ? car::Boot ? is a convenience wrapper for glm.</li>
+</ul>
+</div>
+<div id="funnel-plot-with-od-adjusted-limits" class="section level1">
+<h1>Funnel plot with OD-adjusted limits</h1>
+<ul>
+<li>Funnel control limits at 2 &amp; 3 s in left panel, inflated by additive scale factor t 2 in right panel
+<img src="assets/img/image10.png" /></li>
+</ul>
+</div>
+<div id="mixture-models-cameron-trivedi-2013-rabe-hesketh-and-skrondal-2012" class="section level1">
+<h1>?Mixture? models (Cameron &amp; Trivedi, 2013), (Rabe-Hesketh and Skrondal, 2012)</h1>
+<ul>
+<li>Two distributions used</li>
+<li>?Between? &amp; ?Within? variance</li>
+<li>Commonly Negative Binomial (NB1)
+<ul>
+<li>NB1 group-specific mean, multiplicative</li>
+<li>NB2 gamma/Poisson, quadratic</li>
+</ul></li>
+<li>Weight the mean differently, NB2 gives higher weight to smaller counts</li>
+</ul>
+</div>
+<div id="mixture-mixed-models-goldstein-2010" class="section level1">
+<h1>Mixture &gt; Mixed Models (Goldstein 2010)</h1>
+<ul>
+<li>Sometimes a model structure has implicit levels</li>
+<li>Variance can be partitioned between levels:
+<ul>
+<li>E.g. patients within GP practises submitting to a trial</li>
+<li>Patients followed up at several points over time</li>
+</ul></li>
+<li>Breaks the normal regression assumption of ?independence? and ?homoscedasticity
+<ul>
+<li>Can lead to OD</li>
+</ul></li>
+</ul>
+</div>
+<div id="random-intercept-model" class="section level1">
+<h1>Random intercept Model</h1>
+<p><embed src="assets/img/image11.emf" /></p>
+</div>
+<div id="random-intercept-model-1" class="section level1">
+<h1>Random intercept Model</h1>
+<p><embed src="assets/img/image13.emf" /></p>
+</div>
+<div id="other-options" class="section level1">
+<h1>Other options</h1>
+<ul>
+<li>Principle Components / Factor Analysis</li>
+<li>Generalised Additive Models</li>
+<li>Tree-based models / Random Forests</li>
+</ul>
+</div>
+<div id="generalised-additive-models-hastie-tibshirani-1986" class="section level1">
+<h1>Generalised Additive Models (Hastie &amp;Tibshirani, 1986)</h1>
+<ul>
+<li>Smooth functions of variables:</li>
+<li>Lost of options for smoothers:
+<ul>
+<li>Cubic Spline</li>
+<li>Thin-plate Splines</li>
+<li>Tensor products</li>
+</ul></li>
+<li>Need to estimate degree of smoothness and penalty term</li>
+</ul>
+</div>
+<div id="gams" class="section level1">
+<h1>GAMs</h1>
+<ul>
+<li>In R, most popular package mgcv (Wood, 2017)
+<ul>
+<li>mgcv::gam(y ~ s(x, bs=?cr?))</li>
+<li>s() is a smoother construct</li>
+</ul></li>
+<li>Estimates smooth parameters as part of model</li>
+<li>Parametric terms can still be used</li>
+<li>Random Effects can be included if simple
+<ul>
+<li>Called by gamm4 or gamm (using lme4 or nlme )</li>
+</ul></li>
+</ul>
+</div>
+<div id="gam-pros-and-cons" class="section level1">
+<h1>GAM Pros and Cons</h1>
+<ul>
+<li>Smooth functions often represent data better than raw values</li>
+<li>Requires choosing a smoother, R can estimate parameters including knots and penalty</li>
+<li>Can reduce overdispersion due to noise</li>
+<li>Can be heavy on degrees of freedom</li>
+<li>Need to be careful of over-fitting</li>
+<li>More complex regression mechanisms</li>
+</ul>
+</div>
+<div id="random-forests-2" class="section level1">
+<h1>Random Forests (2)</h1>
+<ul>
+<li>Combine tree-based methods with Bootstrapping
+<ul>
+<li>Random sample of both data &amp; parameters</li>
+</ul></li>
+<li>Pros and cons:
+<ul>
+<li>Predict very well</li>
+<li>Less likely to over-fit</li>
+<li>Linearity or distribution not really an issue</li>
+</ul></li>
+<li>Hard to visualise/understand
+<ul>
+<li>Not able to use random effects</li>
+</ul></li>
+</ul>
+</div>
+<div id="best-options-for-incident-data" class="section level1">
+<h1>Best options for Incident data?</h1>
+<ul>
+<li>Definite clustering:
+<ul>
+<li>Random-intercepts</li>
+</ul></li>
+<li>Collinearity / Noisy data
+<ul>
+<li>Generalised Additive Models</li>
+</ul></li>
+<li>Marginal model ? use additive-OD model</li>
+</ul>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<ul>
+<li>GOLDSTEIN, H. (2010). Multilevel Statistical Models , John Wiley &amp; Sons Inc.</li>
+<li>GREVEN , S. &amp; KNEIB, T. 2010. On the behaviour of marginal and conditional AIC in linear mixed models. <em>Biometrika,</em> 97 <strong>,</strong> 773-789.</li>
+<li>HASTIE, T. &amp; TIBSHIRANI, R. 1986. Generalized Additive Models. Statist. Sci. 1 no . 3, 297–310. <a href="doi:10.1214/ss/1177013604" class="uri">doi:10.1214/ss/1177013604</a>.</li>
+<li>HUBER , P. J. 1967 The behavior of maximum likelihood estimates under nonstandard conditions. Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability, Volume 1: Statistics, Berkeley , Calif.: University of California Press, 221-233.</li>
+<li>MCCULLAGH, P. &amp; NELDER, J. A. 1983. <em>Generalized linear models,</em> London, Chapman &amp; Hall .</li>
+<li>NELDER , J. A. &amp; WEDDERBURN, R. W. M. 1972. Generalized Linear Models. <em>Journal of the Royal Statistical Society. Series A (General),</em> 135 <strong>,</strong> 370-384 .</li>
+<li>RABE-HESKETH, S. &amp; SKRONDAL, A. 2012. Multilevel and Longitudinal Modeling Using Stata, Volumes I and II, Third Edition. 3rd ed.: Taylor &amp; Francis .</li>
+<li>SPEIGELHALTER, D.J., 2005a. Funnel plots for comparing institutional performance. <em>Stat Med,</em> <strong>24</strong> (8), pp. 1185-1202 VER HOEF, J. M. &amp; BOVENG, P. L. 2007. Quasi-Poisson vs. negative binomial regression: how should we model overdispersed count data? <em>Ecology,</em> 88 <strong>,</strong> 2766-72 .</li>
+<li>SPIEGELHALTER, D.J., 2005b. Handling over-dispersion of performance indicators. <em>Qual Saf Health Care,</em> <strong>14</strong> (5), pp. 347-351.</li>
+<li>WOOD , S. N. 2017. <em>Generalized Additive Models: An Introduction with R, Second Edition,</em> Florida, USA, CRC Press .</li>
+</ul>
+</div>

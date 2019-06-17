@@ -1,0 +1,69 @@
+---
+title: Dealing with Overdispersion
+author: Chris Mainey
+date: '2019-05-20'
+slug: dealing-with-overdispersion
+categories: 
+- ovedispersion
+- r
+draft: true
+tags: 
+- r
+- overdispersion
+- count data
+- mixed models
+summary: Overdispersion is a phenomenon affecting count data.  This post explains what it is, and how to adjust for it.
+bibliography: ../../content/post/references.bib
+image:
+  caption: ''
+  focal_point: ''
+math: true
+output:
+  blogdown::html_page:
+    toc: true
+    number_sections: true
+    toc_depth: 1
+---
+
+# What is overdispersion?
+
+This post discusses 'overdispersion' ('OD' in this post), a term commonly seen when using count data (such as the NHS mortality indicator [SHMI](www.digital.nhs.uk/SHMI).  I will discuss what it is, how it affects our data and our interpretations as well as some options for dealing with it.  It is related to an earlier post on [Funnel plots](https://mainard.co.uk/post/introduction-to-funnel-plots/), as these plot need adjustment in the presence of OD.  It will help explain the adjustment used in that post, as well as other (and in my opinion, better) approaches.
+
+To understand the context, we have to think about count data.  Count data are real, numeric values (sometimes referred to as 'discrete'), they can only be whole numbers.  They are bounded at (cannot go below) zero.  So we can have a count of 2 or 3, but not 2.5, and we can have 0 or more events, but not -1 events.
+
+These properties of counts mean that they are naturally skewed (the distribution is not symetrical) when the mean count is low.  They are therefore not normally distributed (see below).  
+
+```{r distributions}
+set.seed(123)
+dist <- data.frame(Normal1 = rnorm(1000, 1, 2),
+                   Normal2 = rnorm(1000, 2, 2),
+                   Normal5 = rnorm(1000, 5, 2),
+                   Normal10 = rnorm(1000, 10, 2),
+                   Poisson1 = rpois(1000, 1),
+                   Poisson2 = rpois(1000, 2),
+                   Poisson5 = rpois(1000, 5),
+                   Poisson10 = rpois(1000, 10)
+)
+
+library(ggplot2)                   
+library(tidyr)
+
+dist<-gather(dist, key="key", value="value")
+dist$key <- factor(dist$key, ordered = TRUE)
+dist$key <- forcats::fct_inorder(dist$key)
+dist$dist <- as.integer(stringr::str_detect(dist$key, "Normal"))
+
+ggplot(dist, aes(x=value, col=key, fill = key))+
+  geom_histogram(alpha=0.5,position = "identity")+
+  facet_wrap(~dist)
+
+```
+
+
+
+They are commonly modelled using the Poisson distribution.  Forgive the mathsy description, but it's the best way:
+
+$$ Pr(Y = y) = \frac{\mu^y e^-\mu^\lambda }{y!} $$
+
+
+

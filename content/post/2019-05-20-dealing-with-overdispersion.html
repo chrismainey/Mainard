@@ -1,0 +1,66 @@
+---
+title: Dealing with Overdispersion
+author: Chris Mainey
+date: '2019-05-20'
+slug: dealing-with-overdispersion
+categories: 
+- ovedispersion
+- r
+draft: true
+tags: 
+- r
+- overdispersion
+- count data
+- mixed models
+summary: Overdispersion is a phenomenon affecting count data.  This post explains what it is, and how to adjust for it.
+bibliography: ../../content/post/references.bib
+image:
+  caption: ''
+  focal_point: ''
+math: true
+output:
+  blogdown::html_page:
+    toc: true
+    number_sections: true
+    toc_depth: 1
+---
+
+
+<div id="TOC">
+<ul>
+<li><a href="#what-is-overdispersion"><span class="toc-section-number">1</span> What is overdispersion?</a></li>
+</ul>
+</div>
+
+<div id="what-is-overdispersion" class="section level1">
+<h1><span class="header-section-number">1</span> What is overdispersion?</h1>
+<p>This post discusses ‘overdispersion’ (‘OD’ in this post), a term commonly seen when using count data (such as the NHS mortality indicator <a href="www.digital.nhs.uk/SHMI">SHMI</a>. I will discuss what it is, how it affects our data and our interpretations as well as some options for dealing with it. It is related to an earlier post on <a href="https://mainard.co.uk/post/introduction-to-funnel-plots/">Funnel plots</a>, as these plot need adjustment in the presence of OD. It will help explain the adjustment used in that post, as well as other (and in my opinion, better) approaches.</p>
+<p>To understand the context, we have to think about count data. Count data are real, numeric values (sometimes referred to as ‘discrete’), they can only be whole numbers. They are bounded at (cannot go below) zero. So we can have a count of 2 or 3, but not 2.5, and we can have 0 or more events, but not -1 events.</p>
+<p>These properties of counts mean that they are naturally skewed (the distribution is not symetrical) when the mean count is low. They are therefore not normally distributed (see below).</p>
+<pre class="r"><code>set.seed(123)
+dist &lt;- data.frame(Normal1 = rnorm(1000, 1, 2),
+                   Normal2 = rnorm(1000, 2, 2),
+                   Normal5 = rnorm(1000, 5, 2),
+                   Normal10 = rnorm(1000, 10, 2),
+                   Poisson1 = rpois(1000, 1),
+                   Poisson2 = rpois(1000, 2),
+                   Poisson5 = rpois(1000, 5),
+                   Poisson10 = rpois(1000, 10)
+)
+
+library(ggplot2)                   
+library(tidyr)
+
+dist&lt;-gather(dist, key=&quot;key&quot;, value=&quot;value&quot;)
+dist$key &lt;- factor(dist$key, ordered = TRUE)
+dist$key &lt;- forcats::fct_inorder(dist$key)
+dist$dist &lt;- as.integer(stringr::str_detect(dist$key, &quot;Normal&quot;))
+
+ggplot(dist, aes(x=value, col=key, fill = key))+
+  geom_histogram(alpha=0.5,position = &quot;identity&quot;)+
+  facet_wrap(~dist)</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/2019-05-20-dealing-with-overdispersion_files/figure-html/distributions-1.png" width="672" /></p>
+<p>They are commonly modelled using the Poisson distribution. Forgive the mathsy description, but it’s the best way:</p>
+<p><span class="math display">\[ Pr(Y = y) = \frac{\mu^y e^-\mu^\lambda }{y!} \]</span></p>
+</div>

@@ -1,0 +1,408 @@
+---
+title: ' Dealing with noisy count data: strategies for tackling over-dispersion, using R '
+subtitle: 'Chris Mainey PhD Student ? UCL Intelligence Analyst ? University Hospital Birmingham NHS FT  christopher.mainey.14@ucl.ac.uk  chris.mainey@uhb.nhs.uk	'
+author: Chris Mainey
+date: 2019-05-20
+output:
+  xaringan::moon_reader:
+  lib_dir: libs
+  nature:
+    highlightStyle: github
+    highlightLines: true
+    countIncrementalSlides: false
+---
+
+# Dealing with noisy count data: strategies for tackling over-dispersion, using R 
+
+## Chris Mainey 
+### PhD Student - UCL 
+### Intelligence Analyst - University Hospital Birmingham NHS FT
+
+christopher.mainey.14@ucl.ac.uk  chris.mainey@uhb.nhs.uk
+
+
+#  Summary 
+
++ Count data
++ Poisson model
++ Over-dispersion
+	+ Scaling
+	+ Mixture models
+	+ Multi-level models
++ I use R mostly, so most examples will be in R!
+
+---
+#  R Evangelism?. 
+
++ R is an open-source statistical programming language
+	+ Free
+	+ Collaborative
++ One of the leading data science languages
++ Thousands of `packages`, often written by researchers
++ Integrates well with other environments
++ Can write into `markdown` or `kniter` documents or embed in web-players using `Shiny`
++ Strong graphical capabilities
+
+![](assets/img/image3.png)
+
+---
+#  Regression (simplified) 
+
+.pull-left[
+![](assets/img/image2.png)
+]
+
+.pull-right[
+**Want to predict Y, using X:**
+$$ y = \alpha + \beta x + \varepsilon$$
++ $\alpha$<U+F061> = Intercept
++ $\beta$ = Coefficient (how much x affects y)
++ $\varepsilon$= Error (Residual)
+
++ This is a linear regression, which has an exact solution. The solutions discussed in the following slides are more complicated as they are estimated, with no exact solution.
+]
+
+---
+#  Count data 
+
++ My PhD work is related counts of ?incidents? reported in NHS hospitals
+	+ Poorly recorded
+	+ Few obvious predictors
++ Counts are common in health and economic data, (often ?panel? data)
++ Usually formed from aggregates:
+	+ Attenders at a clinic
+	+ Number of readmission to hospital etc.
+
+---
+#  Properties of count data 
+
++ Discrete
+	+ E.g. 10 or 11 patients, but not 10.5
++ Range from zero to infinity
+	+ Usually can?t have a negative count
++ Occur in a fixed time period, with a known average rate.
++ Not normally distributed
+
+---
+#  Poisson Distribution 
+
++ Probability of count occurring in a fixed interval:
++ where *<U+F06D>* is the expected average count, is Euler?s number (the base of the natural logarithm: ~2.71828), and is the factorial of .
++ Depending on notation used, ? is often <U+03BB> , and used interchangeably.
+
+---
+#  Poisson Distribution, increasing mean count 
+
+![](assets/img/image6.png)
+
+---
+
+
+---
+#  Basic Poisson count models 
+
++ **Generalized linear model (GLM):**
++ is the expected , ** is a link-function from the exponential family of distributions, is the th row of a model matrix and *<U+F062>* is a vector of unknown parameters (model coefficients) (Wood, 2017).
++ **Poisson model:**
++ With is the intercept, model coefficient of predictor for line of model matrix .  This extends to predictor variables.
+
+---
+#  What is overdispersion (OD)? 
+
++ Poisson dist. assumes  Mean = variance
++ If variance > mean, Poisons model will underestimate the variance:
+	+ SE & CIs too small, ?Significance? overstated
++ Many mechanisms, including:
+	+ Mis-specification (lack of predictors, poorly parameterised)
+	+ Presence of outliers
+	+ Variation between response probabilities
+
+---
+#  Testing for overdispersion 
+
++ Ratio of sum of squared Pearson residuals to residual degrees of freedom
+	+ Approximately distributed
++ Number of R functions:
+	+ AER::dispersiontest()
+	+ s jstats::overdisp()
++ Home-brewed:
+
+sum(residuals(model, type="pearson")^2) / model$df.residual
+
+---
+#  Options with Poisson models: 
+
++ Fit simple model and ignore OD
++ Fit model, then use techniques to scale/estimate OD and correct
+	+ Robust SE  or Bootstrap
++ Use a model that accounts for this:
+	+ Scaled Poisson or related
+	+ Complex variance structure
+
+---
+#  Robust SE 
+
++ One method is to use the ?sandwich? variance estimators, proposed by Huber.
++ ?Robust? option in Stata, few lines of code in R
+
+l ibrary(sandwich)
+
+cov.m1 <- **vcovHC** (m1, type="HC0")
+
+std.err <- **sqrt** ( **diag** (cov.m1))
+
+r.est <- **cbind** (Estimate= **coef** (m1), "Robust SE" = std.err, "Pr(>|z|)" = 2 * **pnorm** ( **abs** ( **coef** (m1)/std.err), lower.tail=FALSE), LL = **coef** (m1) - 1.96 * std.err, UL = **coef** (m1) + 1.96 * std.err) 
++ https://stats.idre.ucla.edu/r/dae/poisson-regression / Good example page
+[https://stats.idre.ucla.edu/r/dae/poisson-regression](https://stats.idre.ucla.edu/r/dae/poisson-regression/)
+[/](https://stats.idre.ucla.edu/r/dae/poisson-regression/)
+
+---
+#  Bootstrap 
+
++ Resampling with replacement ? (Efron 1979)
++ Create sampling distribution of mean
++ Handy, because this is normally distributed (if parametric bootstrap)
++ R: ?boot? package or ? car::Boot ? is a convenience wrapper for glm.
+
+---
+#  Additive Random effects (Spiegelhalter, 2005a) 
+
++ Development of work for meta-analysis (DerSimonian and Laird 1986)
++ Used by CQC (CQC, 2014)
++ Transform to z-scores
++ Assess distribution and truncate (?Winsorization?)
++ Calculated difference in variance
++ Presented as adjusted z-scores or by adjusting control limits on SPC chart.
+
+---
+#  Funnel plot with OD-adjusted limits 
+
++ Funnel control limits at 2 & 3 s in left panel, inflated by additive scale factor t 2 in right panel
+![](assets/img/image10.png)
+
+---
+#  Scaling 
+
++ Scale residual variance
+	+ Quasi-Poisson
+	+ Mixture models
++ Quasi-likelihood (Nelder & Wedderburn 1979)
+	+ Simpler mean-variance relationship, not full distribution
+	+ Estimating Equations, as no likelihood to maximise
+	+ Built-in ?family? in R, use:
+		+ ??family=?quasipoisson??
+
+---
+#  ?Mixture? models (Cameron & Trivedi, 2013), (Rabe-Hesketh and Skrondal, 2012) 
+
++ Two distributions used
++ ?Between? & ?Within? variance
++ Commonly Negative Binomial (NB1)
+	+ NB1 group-specific mean, multiplicative
+	+ NB2 gamma/Poisson, quadratic
++ Weight the mean differently, NB2 gives higher weight to smaller counts
+
+---
+#  Other scaled models 
+
++ Generalized Poisson ?  more complex scale factor
++ Conway-Maxwell Poisson ? distribution on scale factor
++ glmmTMB, COMPoisson, VGAM
++ Various assumptions about mean/variance
+	+ All authors have particular cases in mind.
+	+ Challenging to know why one is better
+
+---
+#  Mixture > Mixed Models (Goldstein 2010) 
+
++ Sometimes a model structure has implicit levels
++ Variance can be partitioned between levels:
+	+ E.g. patients within GP practises submitting to a trial
+	+ Patients followed up at several points over time
++ Breaks the normal regression assumption of ?independence? and ?homoscedasticity
+	+ Can lead to OD
+
+---
+#  Mixed models (simplified) 
+
++ As per glms, but with extra component for variance:
+
+With structure similar to GLMs, but with an additional parameter: , the random effect, for *j* th cluster.  Random effects are assumed to be normally distributed with mean 0 and a dispersion matrix depending on unknown variance components (Breslow and Clayton, 1993 )
+
+No additional <U+F062> , but variance component J
+
+---
+#  Random intercept Model 
+
+![](assets/img/image11.emf)
+
+---
+#  Random intercept Model 
+
+![](assets/img/image12.emf)
+
+---
+#  Random intercept Model 
+
+![](assets/img/image13.emf)
+
+---
+#  R options 
+
++ l me4: glmer is the most common package, but many others, including:
+	+ MASS::glmmPQL
+	+ MCMCglmm
+	+ glmmTMB::glmmTMB
+	+ Stan
+
+m1 <- glmer(y~x+(1|f),data=d,family=poisson)
+
+---
+#  Other options 
+
++ Principle Components / Factor Analysis
++ Generalised Additive Models
++ Tree-based models / Random Forests
+
+---
+#  PCA general principle 
+
++ Assume that variables are proxies for underlying ?components,? e.g.
+	+ Multiple questions in psychological questionnaires
++ Rank how much variance each components explain
++ ?Rotate? axis to components and use ?loadings? to examine which components correlate with predictors
+
+---
+#  Generalised Additive Models (Hastie &Tibshirani, 1986) 
+
++ Smooth functions of variables:
++ Lost of options for smoothers:
+	+ Cubic Spline
+	+ Thin-plate Splines
+	+ Tensor products
++ Need to estimate degree of smoothness and penalty term
+
+---
+#  What is a Spline? 
+
++ Piecewise polynomials
++ Joined at ?knot-points?
+	+ Continuous at second-derivative
++ Represented as basis functions
+
+(Wood 2017)
+![](assets/img/image14.png)
+
+---
+#  GAMs 
+
++ In R, most popular package mgcv  (Wood, 2017)
+	+ mgcv::gam(y ~ s(x, bs=?cr?))
+	+ s() is a smoother construct
++ Estimates smooth parameters as part of model
++ Parametric terms can still be used
++ Random Effects can be included if simple
+	+ Called by gamm4 or gamm (using lme4 or nlme )
+
+---
+#  Choosing the number of knots (k) 
+
++ k=10, Natural-cubic spline
++ -  Reasonable smooth fit
++ k=20, Natural-cubic spline
++ - Too ?wiggly?
++ AIC of glm = 5638.552, 	 AIC(k=10) = 5603.204, 	 AIC(k=20) = 5585.923
++ **Beware of over-fitting smoothers based on AIC alone!**
++ gam( numvisit ~ badh + (age , bs =? cr ?, k=?), data= badhealth , family =" poisson ")
+![](assets/img/image15.png)
+
+
+---
+#  GAM Pros and Cons 
+
++ Smooth functions often represent data better than raw values
++ Requires choosing a smoother, R can estimate parameters including knots and penalty
++ Can reduce overdispersion due to noise
++ Can be heavy on degrees of freedom
++ Need to be careful of over-fitting
++ More complex regression mechanisms
+
+---
+#  Random Forests (1)  (Breiman, 2001)  
+
++ Regression Trees (Breiman et al 1984) : rpart
+	+ partition on greatest variance
++ Tendency to over-fit
+	+ Early stopping (pruning) used
+	+ Cross-validated
++ fit<-rpart(Price ~ Mileage + Type + Country, cu.summary )
++ rpart.plot(fit)
+![](assets/img/image16.png)
+
+---
+#  Random Forests (2) 
+
++ Combine tree-based methods with Bootstrapping
+	+ Random sample of both data & parameters
++ Pros and cons:
+	+ Predict very well
+	+ Less likely to over-fit
+	+ Linearity or distribution not really an issue
++ Hard to visualise/understand
+	+ Not able to use random effects
+
+---
+#  How do we compare them? 
+
++ ??All models are wrong, but some are useful?? (George Box)
++ For models with a likelihood:
+	+ AIC (Akaike, 1998)   - AIC(), or part of summary() , bbmle package has nice ICtab function and QAIC
+	+ Likelihood ratio test for nested models (Rabe-Hesketh and Skrondal, 2012)
+	+ Beware the boundary effect!
+	+ Marginal or Conditional (Greven & Kneib, 2010) cAIC4 and mgcv packages
++ Prediction Error ? caret, ModelMetrics packages
+	+ Root Mean Squared error
+	+ Mean Absolute Error
++ ?Significance??  -  Not well defined
+	+ lme4 authors regard significance test for random effects as wrong, due to distribution
+
+---
+#  Best options for Incident data? 
+
++ Definite clustering:
+	+ Random-intercepts
++ Collinearity / Noisy data
+	+ Generalised Additive Models
++ Marginal model ? use additive-OD model
+
+---
+#  References 
+
++ AKAIKE, H. 1998. Information Theory and an Extension of the Maximum Likelihood Principle. *In:* PARZEN, E., TANABE, K. & KITAGAWA, G. (eds.) *Selected Papers of Hirotugu Akaike.* New York, NY: Springer New York .
++ BAE, S., FAMOYE, F., WULU, J. T., BARTOLUCCI, A. A. & SINGH, K. P. 2005. A rich family of generalized Poisson regression models with applications. *Mathematics and Computers in Simulation,* 69 **,** 4-11 .
++ BREIMAN, L . (2001) Random Forests. *Machine* *Learning*  45 : 5. https:// doi.org/10.1023/A:1010933404324
++ BREIMAN L., FRIEDMAN J . H., OLSHEN R. A., and STONE, C. J. (1984) *Classification and Regression Trees.* Wadsworth .
++ BRESLOW, N. E. and D. G. CLAYTON (1993). "Approximate Inference in Generalized Linear Mixed Models." Journal of the American Statistical Association  **88** (421): 9-25.
++ BURNHAM , K. P. & ANDERSON, D. R. 2004. Multimodel Inference: Understanding AIC and BIC in Model Selection. *Sociological Methods & Research,* 33 **,** 261-304 .
++ CARE QUALITY COMMISSION (CQC) 2014. NHS acute hospitals Statistical methodology. *Intelligent Monitoring.* *http://* *www.cqc.org.uk/sites/default/files/Intelligent%20Monitoring%20Statistical%20Methodology%20July%20FINAL%20PDF.pdf* **
++ CAMERON , A. C. & TRIVEDI, P. K. 2013b. Generalized Count Regression. *In:* CAMERON, C. A. & TRIVEDI, P. K. (eds.) *Regression Analysis of Count Data.* 2 ed. Cambridge: Cambridge University Press .
++ EFRON , B. 1979. Bootstrap Methods: Another Look at the Jackknife. *The Annals of Statistics,* 7 **,** 1-26 .
++ FAMOYE, F. 1993. Restricted generalized poisson regression model. *Communications in Statistics - Theory and Methods,* 22 **,** 1335-1354 .
+[https://](http://www.cqc.org.uk/sites/default/files/Intelligent%20Monitoring%20Statistical%20Methodology%20July%20FINAL%20PDF.pdf)
+[doi.org/10.1023/A:1010933404324](https://doi.org/10.1023/A:1010933404324)
+[http://](http://www.cqc.org.uk/sites/default/files/Intelligent%20Monitoring%20Statistical%20Methodology%20July%20FINAL%20PDF.pdf)
+[www.cqc.org.uk/sites/default/files/Intelligent%20Monitoring%20Statistical%20Methodology%20July%20FINAL%20PDF.pdf](https://doi.org/10.1023/A:1010933404324)
+
+---
+#  References 
+
++ GOLDSTEIN, H. (2010). Multilevel Statistical Models , John Wiley & Sons Inc.
++ GREVEN , S. & KNEIB, T. 2010. On the behaviour of marginal and conditional AIC in linear mixed models. *Biometrika,* 97 **,** 773-789.
++ HASTIE, T. & TIBSHIRANI, R. 1986. Generalized Additive Models. Statist. Sci. 1 no . 3, 297--310. doi:10.1214/ss/1177013604.
++ HUBER , P. J. 1967 The behavior of maximum likelihood estimates under nonstandard conditions.  Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability, Volume 1: Statistics, Berkeley , Calif.: University of California Press, 221-233.
++ MCCULLAGH, P. & NELDER, J. A. 1983. *Generalized linear models,* London, Chapman & Hall .
++ NELDER , J. A. & WEDDERBURN, R. W. M. 1972. Generalized Linear Models. *Journal of the Royal Statistical Society. Series A (General),* 135 **,** 370-384 .
++ RABE-HESKETH, S. & SKRONDAL, A. 2012. Multilevel and Longitudinal Modeling Using Stata, Volumes I and II, Third Edition. 3rd ed.: Taylor & Francis .
++ SPEIGELHALTER, D.J., 2005a. Funnel plots for comparing institutional performance. *Stat Med,* **24** (8), pp. 1185-1202 VER HOEF, J. M. & BOVENG, P. L. 2007. Quasi-Poisson vs. negative binomial regression: how should we model overdispersed count data? *Ecology,* 88 **,** 2766-72 .
++ SPIEGELHALTER, D.J., 2005b. Handling over-dispersion of performance indicators. *Qual Saf Health Care,* **14** (5), pp. 347-351.
++ WOOD , S. N. 2017. *Generalized Additive Models: An Introduction with R, Second Edition,* Florida, USA, CRC Press .

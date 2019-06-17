@@ -1,0 +1,171 @@
+---
+title: SQL Server Database connections in R
+author: Chris Mainey
+date: '2019-06-07'
+slug: database-connections-in-r
+categories:
+  - r
+  - database
+  - tidyverse
+tags:
+  - r
+  - database
+  - dplyr
+  - tidyverse
+image:
+  caption: ''
+  focal_point: ''
+draft: false
+---
+
+
+
+<div id="getting-data-into-r" class="section level1">
+<h1>Getting data into R</h1>
+<p>One of the things I found most difficult when learning <code>R</code> was getting data from our SQL Servers into <code>R</code> to analyse. It is easy to load csv files, or pull example datasets from packages, but a little more knowledge is required to connect to external databases. I think this is a common problem for my NHS colleagues when learning <code>R</code> and probably for others too. This post is a brief introduction to the two main ways to do pull data in to <code>R</code> using <code>RODBC</code> and using <code>dplyr</code>‘s ’DBI-compliant’ database connections.<br />
+I’ll be talking about connections with Microsoft SQL Server (over a local network), but this can also extend to other types of database by using different drivers, or other network set-ups using the right authentication.</p>
+</div>
+<div id="where-is-the-data-stored" class="section level1">
+<h1>Where is the data stored?</h1>
+<p>If you are using SQL Server to store you data, it is written into files on the database server and accessed using SQL scripts in your chosen interface (I use SQL Server Management Studios). Whilst the data are stored on disk on the SQL Server, <code>R</code> stores data in memory (RAM) on your machine. This has the advantage of quick access, but you can easily run out of memory with larger datasets, or processes that build larger matrices (like some types of statistical model). If memory is an issue, you will probably get the error message: <code>Error: cannot allocate vector of size ...</code>. If you hit this situation, I’d recommend trying the <code>data.table</code> as an alternative to using <code>data.frames</code>. It is much faster, and has a lower memory footprint. Here’s a great blog post about it from Megan Stodel: <a href="https://www.meganstodel.com/posts/data-table/" class="uri">https://www.meganstodel.com/posts/data-table/</a></p>
+</div>
+<div id="two-common-methods" class="section level1">
+<h1>Two common methods</h1>
+<p>There are two common methods of connection, both of which use Open Database Connectivity (ODBC) drivers:</p>
+<ol style="list-style-type: decimal">
+<li>The <code>RODBC</code> package.</li>
+<li>The the <code>DBI</code> system, using <code>dplyr,</code> <code>dbplyr</code> and <code>odbc</code>.</li>
+</ol>
+<p>Both of these create a connection, using a ‘connection string’ with the details of server/credentials etc., this can be used to create a connection object, from which we can pull data into <code>R</code> or manipulate it in the database.</p>
+<div id="a-note-on-security" class="section level3">
+<h3>A note on security</h3>
+<p>To prevent publishing our server or database names in this post, I’ve used an alias that goes and looks them up internally. There are a few options for doing this in your own code, but I’ve added them to my ‘.Renviron’ file, as SERVER and DATABASE variables. My code looks them up each time using the <code>Sys.getenv</code> function that you’ll see in the examples below.</p>
+<p><em>This has meant using the <code>paste</code> function to concatenate the variables together in the <code>ROBDC</code> example. You won’t have to do this in your own work if you replace the server and database names directly.</em></p>
+</div>
+<div id="rodbc" class="section level2">
+<h2>1. <code>RODBC</code></h2>
+<p>This is the simpler of the two interfaces, and uses slightly older code. It can be used to connect to anything that uses Open Database Connectivity (ODBC). I’ll define a connection string to a database server, a database, and a table called ‘MyTable’ that has some dummy data in it. If you haven’t got any of the packages used in this post, you can install them with: <code>install.packages("RODBC")</code> for example.</p>
+<pre class="r"><code>library(&quot;RODBC&quot;)
+
+#Connection string
+RODBC_connection &lt;- odbcDriverConnect(paste(&#39;driver={SQL Server};server=&#39;,
+                                      Sys.getenv(&quot;SERVER&quot;),
+                                      &#39;;database=&#39;,
+                                      Sys.getenv(&quot;DATABASE&quot;),
+                                      &#39;;trusted_connection=true&#39;, sep = &quot;&quot;))
+
+# e.g. with a server called &quot;Cliff&quot; and a database called &quot;Richard&quot; your string would be:
+# driver={SQL Server};server=Cliff;database=Richard;trusted_connection=true&#39;)
+                          
+dt1 &lt;- sqlFetch(channel=RODBC_connection, sqtable = &quot;MyTable&quot;)
+
+# Load data from SQL query
+dt2 &lt;- sqlQuery(channel=RODBC_connection, query = &quot;select TOP 100 * from MyTable&quot;)</code></pre>
+<p>Quite straightforward to use! In the example above, I specified <code>trusted_connection=true</code>. In a windows environment, this passes your windows credentials to the server. Since we use these for access permissions on our SQL Servers, we can use this method with no issues. You can, instead, specify a username (<code>uid</code>) and a password (<code>pwd</code>): see the help files for more details, using: <code>?odbcDriverConnect</code>.</p>
+<p>You can also use <code>RODBC</code> to write back to database tables, choosing whether or not to append your results using the <code>append</code> and <code>safer</code> arguments. Not appending means you will overwrite the table:</p>
+<pre class="r"><code>sqlSave(channel = RODBC_connection, dat = dt2, tablename = &quot;Mytable_version2&quot;, append = FALSE, safer = FALSE)</code></pre>
+<p>There are lots of other functions for included with <code>RODBC</code> to allow you to see structures etc. The package vignette is a very helpful place to go for this, along with the help files.</p>
+<p>Remember to disconnect at the end of your session:</p>
+<pre class="r"><code>odbcClose(RODBC_connection)</code></pre>
+<p>If you do this a lot, you might find Gary Hutson’s recent post, showing how to wrap some of this into a function, a useful addition. Check it out here: <a href="http://hutsons-hacks.info/rodbc-helper-function" class="uri">http://hutsons-hacks.info/rodbc-helper-function</a>.</p>
+<p><br></p>
+</div>
+<div id="dbi-dplyr" class="section level2">
+<h2>2. <code>DBI</code>  <code>dplyr</code></h2>
+<p>The <code>RODBC</code> interface was simple, quick, and you may not need to consider another approach, but I prefer to use the <code>tidyverse</code> functions linked to <code>dplyr</code>. These functions are maturing in the last couple of years, and have a few major advantages:
++ Work with <code>tidyverse</code> functions, including <code>dplyr</code> verbs and the pipe <code>%&gt;%</code>
++ Faster than <code>RODBC</code> to import data
++ Can be used to work with data in the database, without importing it into <code>R</code>.</p>
+<p>The connection string is slightly different, and we require a few more packages to make this work. You need to make sure you have the following installed:
++ <code>dplyr</code> - to make the <code>tbl</code> and use it, we’ll work with <code>dplyr</code> syntax.
++ <code>DBI</code> - a common Database Interface engine for use in <code>S</code> and <code>R</code> (see: <a href="https://cran.r-project.org/web/packages/DBI/vignettes/DBI-1.html" class="uri">https://cran.r-project.org/web/packages/DBI/vignettes/DBI-1.html</a>)
++ <code>dbplyr</code> - this add-on package allows translation from <code>dplyr</code> to SQL.
++ <code>odbc</code>- provides the odbc drivers, but you could the functions below with other drivers too.</p>
+<pre class="r"><code>library(dplyr)
+library(dbplyr)
+library(odbc)
+library(DBI)
+
+DBI_Connection &lt;- dbConnect(odbc(), 
+                      driver = &quot;SQL Server&quot;,
+                      server=Sys.getenv(&quot;SERVER&quot;),
+                      database=Sys.getenv(&quot;DATABASE&quot;)
+)</code></pre>
+<p>Now we can define a table as if it was part of our <code>R</code> workspace, using the connection object and the names of the table in the database. We can then interact with it directly using <code>dplyr</code>. <code>glimpse</code> is a useful function that shows you the column names, datatypes and top few entries:</p>
+<pre class="r"><code>
+MyTable&lt;-tbl(DBI_Connection, &quot;MyTable&quot;)
+
+glimpse(MyTable)
+## Observations: ??
+## Variables: 7
+## Database: Microsoft SQL Server
+## $ id         &lt;int&gt; 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,...
+## $ Org        &lt;chr&gt; &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;G&quot;, &quot;H&quot;, &quot;I&quot;, &quot;J&quot;, &quot;...
+## $ year       &lt;int&gt; 2015, 2015, 2015, 2015, 2015, 2015, 2015, 2015, 201...
+## $ month      &lt;int&gt; 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, ...
+## $ Category_1 &lt;dbl&gt; 35395, 21126, 9248, 4049, 5323, 16867, 9916, 12404,...
+## $ Cateogry_2 &lt;dbl&gt; 39293, 24860, 11031, 5812, 6876, 18475, 12976, 1657...
+## $ events     &lt;int&gt; 1986, 429, 460, 301, 289, 1172, 446, 756, 663, 874,...
+
+MyTable %&gt;%
+  filter(year ==2015) %&gt;%
+  group_by(month) %&gt;%
+  summarise(AvgEvents = mean(events),
+            MaxEvents = max(events),
+            N = n()) %&gt;%
+  arrange(month)
+## # Source:     lazy query [?? x 4]
+## # Database:   Microsoft SQL Server 
+## # Ordered by: month
+##   month AvgEvents MaxEvents     N
+##   &lt;int&gt;     &lt;int&gt;     &lt;int&gt; &lt;int&gt;
+## 1     4       624      1986    25
+## 2     5       658      1948    25
+## 3     6       671      2068    25
+## 4     7       669      1879    25
+## 5     8       630      1981    25
+## 6     9       649      2011    25</code></pre>
+<p><code>dplyr</code> can then be used to do fairly complex things in just a few lines. The example below is not very well thought-out, but it takes data from the database into a summary plot in just a few lines. I’m filtering the data for 2015 and passing it directly into <code>ggplot2</code>. I’ve set a few options for a box plot, but it’s quite minimal, and our data has remained in the database and not been imported to <code>R</code>.</p>
+<pre class="r"><code>library(ggplot2)
+
+MyTable %&gt;%
+  filter(year ==2015) %&gt;%
+  ggplot(aes(y=events, x=factor(month), group=factor(month))) + 
+    geom_boxplot(fill = &quot;dodgerblue2&quot;, alpha=0.6, )+
+    labs(title = &quot;Monthly Distribution of Events&quot;, x=&quot;Month&quot;, y=&quot;Events&quot;)</code></pre>
+<p><img src="/post/2019-06-07-database-connections-in-r_files/figure-html/DBIplot2-1.png" width="672" /></p>
+<p>You can, of course, write an SQL query directly using the <code>dbSendQuery</code> function. This executes the query on the server-side only, so if you want the results to be returned back to <code>R</code>, you need to use <code>dbFetch</code> as well. You might need this approach if you are doing fancy queries, or things that are specific to a database environment that don’t yet have translators in <code>dplyr</code>.</p>
+<pre class="r"><code>SomeRecords &lt;- dbFetch(dbSendQuery(DBI_Connection, &quot;Select TOP 100 * from MyTable&quot;))
+
+#or
+
+SomeRecords &lt;- dbSendQuery(DBI_Connection, &quot;Select TOP 100 * from MyTable&quot;) %&gt;%
+                dbFetch()</code></pre>
+<p>You may not need to write a custom query for everyday use, but you are still likely to need to pull the data from the server into memory in <code>R</code> sometimes. For me, this is often to build models on it, as that isn’t supported in-database. You can use the <code>collect</code> function for this. For example, using part of the query from earlier as an example:</p>
+<pre class="r"><code>MyTable_local&lt;- MyTable %&gt;%
+  filter(year ==2015) %&gt;%
+  group_by(month) %&gt;%
+  summarise(AvgEvents = mean(events),
+            MaxEvents = max(events),
+            N = n()) %&gt;%
+  arrange(month) %&gt;%
+  collect()</code></pre>
+<pre><code>## Warning in new_result(connection@ptr, statement): Cancelling previous query</code></pre>
+<pre class="r"><code>print(MyTable_local)</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   month AvgEvents MaxEvents     N
+##   &lt;int&gt;     &lt;int&gt;     &lt;int&gt; &lt;int&gt;
+## 1     4       624      1986    25
+## 2     5       658      1948    25
+## 3     6       671      2068    25
+## 4     7       669      1879    25
+## 5     8       630      1981    25
+## 6     9       649      2011    25</code></pre>
+<p>You can also write back to a database using the <code>dbWriteTable</code> function. The following code snippet writes a new table to my current connection, called ‘NewDatabaseTable’ using the local <code>data.frame</code> called MyTable_local (that we created in the last section). The <code>append</code> option indicates whether to add to an existing table or not, and <code>overwrite</code> is just what it sounds like:</p>
+<pre class="r"><code>dbWriteTable(DBI_Connection,&quot;NewDatabaseTable&quot;, MyTable_local, overwrite=TRUE)</code></pre>
+</div>
+</div>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
+<p>Database connections are common in most analysis and data science settings. <code>R</code> can work well with reading and writing to databases using either <code>RODBC</code> or <code>dplyr</code>/<code>DBI</code> connections. I prefer the <code>DBI</code> route as it is faster, plugs into <code>dplyr</code> allowing ‘piping’ between functions, and allows us to work with data whilst it is still on the database server. This post just scratches the surface, but there are many,any more options for executing procedures, using different schema etc. This post has been targeted at working with Microsoft SQL Server, but these processes will work well with other databases by switching to the right drivers.</p>
+</div>
