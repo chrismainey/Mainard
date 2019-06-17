@@ -115,7 +115,7 @@ MyTable %&gt;%
             N = n()) %&gt;%
   arrange(month)
 ## # Source:     lazy query [?? x 4]
-## # Database:   Microsoft SQL Server 
+## # Database:   Microsoft SQL Server
 ## # Ordered by: month
 ##   month AvgEvents MaxEvents     N
 ##   &lt;int&gt;     &lt;int&gt;     &lt;int&gt; &lt;int&gt;
@@ -149,9 +149,9 @@ SomeRecords &lt;- dbSendQuery(DBI_Connection, &quot;Select TOP 100 * from MyTabl
             MaxEvents = max(events),
             N = n()) %&gt;%
   arrange(month) %&gt;%
-  collect()</code></pre>
-<pre><code>## Warning in new_result(connection@ptr, statement): Cancelling previous query</code></pre>
-<pre class="r"><code>print(MyTable_local)</code></pre>
+  collect()
+
+print(MyTable_local)</code></pre>
 <pre><code>## # A tibble: 6 x 4
 ##   month AvgEvents MaxEvents     N
 ##   &lt;int&gt;     &lt;int&gt;     &lt;int&gt; &lt;int&gt;

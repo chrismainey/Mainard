@@ -165,7 +165,7 @@ SomeRecords <- dbSendQuery(DBI_Connection, "Select TOP 100 * from MyTable") %>%
 
 You may not need to write a custom query for everyday use, but you are still likely to need to pull the data from the server into memory in `R` sometimes.  For me, this is often to build models on it, as that isn't supported in-database. You can use the `collect` function for this.  For example, using part of the query from earlier as an example:
 
-```{r dplyrCollect}
+```{r dplyrCollect, warning=FALSE, message=FALSE}
 MyTable_local<- MyTable %>%
   filter(year ==2015) %>%
   group_by(month) %>%
@@ -182,7 +182,7 @@ print(MyTable_local)
 
 You can also write back to a database using the `dbWriteTable` function.  The following code snippet writes a new table to my current connection, called 'NewDatabaseTable' using the local `data.frame` called MyTable_local (that we created in the last section).  The `append` option indicates whether to add to an existing table or not, and `overwrite` is just what it sounds like:
 
-```{r dplyrWrite}
+```{r dplyrWrite, warning=FALSE, message=FALSE}
 
 dbWriteTable(DBI_Connection,"NewDatabaseTable", MyTable_local, overwrite=TRUE)
 
