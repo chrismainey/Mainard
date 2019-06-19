@@ -20,19 +20,19 @@ draft: false
 
 # Getting data into R
 
-One of the things I found most difficult when learning `R` was getting data from our SQL Servers into `R` to analyse.  It is easy to load csv files, or pull example datasets from packages, but a little more knowledge is required to connect to external databases.  I think this is a common problem for my NHS colleagues when learning `R` and probably for others too.  This post is a brief introduction to the two main ways to do pull data in to `R` using `RODBC` and using `dplyr`'s 'DBI-compliant' database connections.  
+One of the things I found most difficult when learning `R` was getting data from our SQL Servers into `R` to analyse.  It is easy to load csv files, or pull example datasets from packages, but a little more knowledge is required to connect to external databases.  I think this is a common problem for my NHS colleagues when learning `R` and probably for others too.  This post is a brief introduction to the two main ways to pull data in to `R` using `RODBC` and using `dplyr`'s 'DBI-compliant' database connections.  
 I'll be talking about connections with Microsoft SQL Server (over a local network), but this can also extend to other types of database by using different drivers, or other network set-ups using the right authentication.
 
 # Where is the data stored?
 
-If you are using SQL Server to store you data, it is written into files on the database server and accessed using SQL scripts in your chosen interface (I use SQL Server Management Studios).  Whilst the data are stored on disk on the SQL Server, `R` stores data in memory (RAM) on your machine.  This has the advantage of quick access, but you can easily run out of memory with larger datasets, or processes that build larger matrices (like some types of statistical model).  If memory is an issue, you will probably get the error message: `Error: cannot allocate vector of size ...`.  If you hit this situation, I'd recommend trying the `data.table` as an alternative to using `data.frames`.  It is much faster, and has a lower memory footprint.  Here's a great blog post about it from Megan Stodel: https://www.meganstodel.com/posts/data-table/ 
+If you are using SQL Server to store your data, it is written into files on the database server and accessed using SQL scripts in your chosen interface (I use SQL Server Management Studios).  Whilst the data are stored on disk on the SQL Server, `R` stores data in memory (RAM) on your machine.  This has the advantage of quick access, but you can easily run out of memory with larger datasets, or processes that build larger matrices (like some types of statistical model).  If memory is an issue, you will probably get the error message: `Error: cannot allocate vector of size ...`.  If you hit this situation, I'd recommend trying the `data.table` as an alternative to using `data.frames`.  It is much faster, and has a lower memory footprint.  Here's a great blog post about it from Megan Stodel: https://www.meganstodel.com/posts/data-table/ 
 
 # Two common methods
 
 There are two common methods of connection, both of which use Open Database Connectivity (ODBC) drivers:
 
 1.  The `RODBC` package.
-2.  The the `DBI` system, using `dplyr,` `dbplyr` and `odbc`.
+2.  The `DBI` system, using `dplyr,` `dbplyr` and `odbc`.
 
 Both of these create a connection, using a 'connection string' with the details of server/credentials etc., this can be used to create a connection object, from which we can pull data into `R` or manipulate it in the database.
 
@@ -77,7 +77,7 @@ sqlSave(channel = RODBC_connection, dat = dt2, tablename = "Mytable_version2", a
 ```
 
 
-There are lots of other functions for included with `RODBC` to allow you to see structures etc.  The package vignette is a very helpful place to go for this, along with the help files.
+There are lots of other functions included with `RODBC` to allow you to see structures etc.  The package vignette is a very helpful place to go for this, along with the help files.
 
 Remember to disconnect at the end of your session:
 
@@ -92,15 +92,17 @@ If you do this a lot, you might find Gary Hutson's recent post, showing how to w
 ## 2. `DBI` \ `dplyr`
 
 The `RODBC` interface was simple, quick, and you may not need to consider another approach, but I prefer to use the `tidyverse` functions linked to `dplyr`. These functions are maturing in the last couple of years, and have a few major advantages:
+
 +  Work with `tidyverse` functions, including `dplyr` verbs and the pipe `%>%`
 +  Faster than `RODBC` to import data
 +  Can be used to work with data in the database, without importing it into `R`.
 
 The connection string is slightly different, and we require a few more packages to make this work.  You need to make sure you have the following installed:
+
 + `dplyr` - to make the `tbl` and use it, we'll work with `dplyr` syntax.
 + `DBI`   - a common Database Interface engine for use in `S` and `R` (see: https://cran.r-project.org/web/packages/DBI/vignettes/DBI-1.html)
 + `dbplyr` - this add-on package allows translation from `dplyr` to SQL.
-+ `odbc`- provides the odbc drivers, but you could the functions below with other drivers too.
++ `odbc`- provides the odbc drivers, but you could use the functions below with other drivers instead.
 
 ```{r DBI1, message=FALSE, warning=FALSE}
 library(dplyr)
@@ -191,5 +193,5 @@ dbWriteTable(DBI_Connection,"NewDatabaseTable", MyTable_local, overwrite=TRUE)
 
 # Summary
 
-Database connections are common in most analysis and data science settings.  `R` can work well with reading and writing to databases using either `RODBC` or `dplyr`/`DBI` connections.  I prefer the `DBI` route as it is faster, plugs into `dplyr` allowing 'piping' between functions, and allows us to work with data whilst it is still on the database server.  This post just scratches the surface, but there are many,any more options for executing procedures, using different schema etc.  This post has been targeted at working with Microsoft SQL Server, but these processes will work well with other databases by switching to the right drivers.
+Database connections are common in most analysis and data science settings.  `R` can easily connect to relational databases, reading and writing with either `RODBC` or `dplyr`/`DBI` packages.  I prefer the `DBI` route as it is faster, plugs into `dplyr` allowing 'piping' between functions, and allows us to work with data whilst it is still on the database server.  This post just scratches the surface, but there are many more options for executing procedures, using different schema etc.  This post has been targeted at working with Microsoft SQL Server, but these processes will work well with other databases by switching to the right drivers.
 

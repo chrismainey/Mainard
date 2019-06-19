@@ -1,1 +1,1 @@
-pre,code{font-family:'$sta-font-mono',monospace;color:#7f8cb4;background-color:#f9f2f4}code{font-size:87.5%;color:#7f8cb4;word-break:break-word}
+pre,code{font-family:'$sta-font-mono',monospace;color:#7f8cb4;background-color:#f9f2f4}code{font-size:87.5%;color:#7f8cb4;word-break:break-word}html{font-family:roboto,sans-serif;font-weight:300;font-size:15px;color:rgba(0,0,0,.8);line-height:1.65}
