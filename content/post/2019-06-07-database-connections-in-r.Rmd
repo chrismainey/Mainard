@@ -1,21 +1,21 @@
 ---
-title: SQL Server Database connections in R
-author: Chris Mainey
+title: "SQL Server Database connections in R"
+author: "Chris Mainey"
 date: '2019-06-07'
-slug: database-connections-in-r
-categories:
-  - r
-  - database
-  - tidyverse
-tags:
-  - r
-  - database
-  - dplyr
-  - tidyverse
+draft: no
 image:
   caption: ''
   focal_point: ''
-draft: false
+slug: database-connections-in-r
+tags:
+- R
+- database
+- dplyr
+- tidyverse
+categories:
+- R
+- database
+- tidyverse
 ---
 
 # Getting data into R
