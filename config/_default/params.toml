@@ -9,7 +9,7 @@ day_night = true
 
 # Font style.
 #   Choose from `default`, `classic`, or `playfair`.
-font = "default"
+font = "default2"
 
 # Link custom CSS and JS assets
   #   (relative to /static/css and /static/js respectively)
