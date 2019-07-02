@@ -1,0 +1,54 @@
+---
+title: Brief intro to R `data.table`
+author: ''
+date: '2019-07-02'
+slug: brief-intro-to-r-data-table
+categories:
+  - R
+  - datatable
+tags:
+  - R
+  - package
+---
+
+# A brief intro to `data.table` (in`R`)
+
+Hot on the heels of two great posts by Megan Stodel: https://www.meganstodel.com/posts/data-table/ and John Mackintosh: https://www.johnmackintosh.com/2019-06-30-datatable-by-a-dummy/ , I thought I'd post my two cents on `data.table`.  I'l cover a little of why you would want to use it, how the syntax works and copule of examples.
+
+# What is it?
+
+A simple take on the `data.table` package is that it is a modern reinterpretation of `R`'s `data.frame` designed to deal with larger datasets.  In base R, when we perform operations that update a `data.frame`, we essentially create a new copy of it that overwrites the old one when finished.  This is fine for small datasets, but can be an issue when working with larger datasets as we can run out of memory.
+
+## Memory
+
+## Speed 
+
+## Defaults
+
+The package `vignette` summarises soem of the default setting nicely, but they are:
+
++ Character columns type are _never_ converted to factors by default
+
++ Row numbers are printed with a : in order to visually separate the row number from the first column.
+
++ A global variable control how many rows to print (default = 100).  When exceeded, it prints the top and bottom five rows
+
++ `data.table` doesn’t set or use row names, ever. It uses `keys`, discussed below
+
+
+
+```{r }
+
+vignette(data.table::data-table-benchmarking)
+```
+
+# Syntax
+`Data.table` structures are `data.frame`s, so anything you can do with a `data.frame`, you can still do with a `data.table`, but where it comes into it's own is using the native `data.table` syntax.
+$$ Mydatatable[i, j, by]$$
+
+# Times `data.table` has saved me:
+
+Here's a few exampls of the time swhere data.table has saved me and allowed me to continue working.
++ Working with Hospital Episode Statistics Data (HES) - oten with 30 + columns and 60 ~200 million rows. I work on a desktop PC most of the time so the size is an issue as well as the speed.
++ Key's help with loops/other conditional applications.  If I need to apply a different model for different organisations, or diagnostic groups, using the key as a non-clustered index speeds up the subsetting for each iteration of the loop/apply.
++ Joining preditions from a large model back onto base data can exceed memory sometimes.  Joins in `data.table` to the rescue!
