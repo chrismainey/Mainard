@@ -1,0 +1,44 @@
+---
+title: Making R work in Work
+subtitle: Setting up R in a locked-down Windows environment
+author: Chris Mainey
+date: '2019-07-16'
+slug: making-r-work-in-work
+categories:
+  - R
+tags:
+  - R
+  - NHS
+draft: true
+---
+
+# Setting up R
+
+One o fthe biggest barriers to R adoption, particualrly in the NHS organisations I've wokred with, is getting it workin gin the first place.  It's common in NHS organisations, and other corporate settings, to have windows environments with high security levels and unwirtable default directories.
+
+This details the common issues and how you might fix them.
+
+# R vs. RStudio
+
+It's confusing for new users to know which to install, and I've answered various versions of this questions over the years: _'Should I install R or RStuio?'_. The answer is ___YES___.
+Install both, here's why:
+
+- __R__ is the programming language/environment.  This is what executes your code.  You can download it from the R-project: https://www.r-project.org/ 
+- __RStudio__ is the most common 'Intergrated Development Environment' (IDE) for R.  It is a tool for using R, and has many convienet features and additions to make using R more friendly.  I would suggest using RStudio, but you also need R installed as well.  You can donwload RStudio from: https://www.rstudio.com/
+
+
+# Installation
+
+Many coporate Windows environments do not allow users to install new software.  This is a reasonable security measure, particularly if a majority of your users will never need to do this (and may lack technical skill or awareness of security risks.)  You may need to ask your IT Services / Administrators to do this for you.
+
+The key thing is to __install it on your local machine__, not on a shared drive somewhere.  Using a shared location can be plagued by connection issues, and you may have trouble specifying the 'path' of files to R.
+
+# File paths in general
+
+For the Windows users, you may be used to seeing file pathes that look like this
+- C:\MyFolder\MySubfolder
+
+It might help to know that R is used on other systems too, including Linux, and this Windows format is the 'oddball.' Othe systems use the slash the opposite way:
+- C:/MyFolder/MySubfolder.
+
+__
