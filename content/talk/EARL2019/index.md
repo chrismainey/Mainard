@@ -38,7 +38,7 @@ tags:
  - NHS
  - EARL
 title: "Driving R adoption in an NHS information service, barriers and solutions"
-url_code: ""
+url_code: https://github.com/chrismainey/EARL_2019_presentation
 url_pdf: ""
 url_slides: ""
 url_video: ""
