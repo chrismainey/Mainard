@@ -18,7 +18,7 @@ abstract: Healthcare Evaluation Data (HED) is an online NHS benchmarking using n
   We are aiming to further engage with the R community as user confidence grows.
 all_day: false
 authors: [~]
-date: "2019-09-10"
+date: "2019-09-12"
 date_end: "2019-09-12"
 event: EARL 2019
 event_url: https://earlconf.com/

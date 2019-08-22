@@ -1,0 +1,43 @@
+---
+title: Making R work in Work
+subtitle: Setting up R in a locked-down Windows environment
+author: Chris Mainey
+date: '2019-07-16'
+slug: making-r-work-in-work
+categories:
+  - R
+tags:
+  - R
+  - NHS
+draft: true
+---
+
+
+
+<div id="setting-up-r" class="section level1">
+<h1>Setting up R</h1>
+<p>One o fthe biggest barriers to R adoption, particualrly in the NHS organisations I’ve wokred with, is getting it workin gin the first place. It’s common in NHS organisations, and other corporate settings, to have windows environments with high security levels and unwirtable default directories.</p>
+<p>This details the common issues and how you might fix them.</p>
+</div>
+<div id="r-vs.-rstudio" class="section level1">
+<h1>R vs. RStudio</h1>
+<p>It’s confusing for new users to know which to install, and I’ve answered various versions of this questions over the years: <em>‘Should I install R or RStuio?’</em>. The answer is <strong><em>YES</em></strong>.
+Install both, here’s why:</p>
+<ul>
+<li><strong>R</strong> is the programming language/environment. This is what executes your code. You can download it from the R-project: <a href="https://www.r-project.org/" class="uri">https://www.r-project.org/</a></li>
+<li><strong>RStudio</strong> is the most common ‘Intergrated Development Environment’ (IDE) for R. It is a tool for using R, and has many convienet features and additions to make using R more friendly. I would suggest using RStudio, but you also need R installed as well. You can donwload RStudio from: <a href="https://www.rstudio.com/" class="uri">https://www.rstudio.com/</a></li>
+</ul>
+</div>
+<div id="installation" class="section level1">
+<h1>Installation</h1>
+<p>Many coporate Windows environments do not allow users to install new software. This is a reasonable security measure, particularly if a majority of your users will never need to do this (and may lack technical skill or awareness of security risks.) You may need to ask your IT Services / Administrators to do this for you.</p>
+<p>The key thing is to <strong>install it on your local machine</strong>, not on a shared drive somewhere. Using a shared location can be plagued by connection issues, and you may have trouble specifying the ‘path’ of files to R.</p>
+</div>
+<div id="file-paths-in-general" class="section level1">
+<h1>File paths in general</h1>
+<p>For the Windows users, you may be used to seeing file pathes that look like this
+- C:</p>
+<p>It might help to know that R is used on other systems too, including Linux, and this Windows format is the ‘oddball.’ Othe systems use the slash the opposite way:
+- C:/MyFolder/MySubfolder.</p>
+<p>__</p>
+</div>

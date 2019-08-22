@@ -1,0 +1,57 @@
+---
+title: Brief intro to R `data.table`
+author: ''
+date: '2019-07-02'
+slug: brief-intro-to-r-data-table
+categories:
+  - R
+  - datatable
+tags:
+  - R
+  - package
+draft: true
+---
+
+
+
+<div id="a-brief-intro-to-data.table-inr" class="section level1">
+<h1>A brief intro to <code>data.table</code> (in<code>R</code>)</h1>
+<p>Hot on the heels of two great posts by Megan Stodel: <a href="https://www.meganstodel.com/posts/data-table/" class="uri">https://www.meganstodel.com/posts/data-table/</a> and John Mackintosh: <a href="https://www.johnmackintosh.com/2019-06-30-datatable-by-a-dummy/" class="uri">https://www.johnmackintosh.com/2019-06-30-datatable-by-a-dummy/</a> , I thought I’d post my two cents on <code>data.table</code>. There’s also been a bit of “argy-bargy” Twitter between advocates of Tidyverse’s <code>tibbles</code> v.s. <code>data.table</code>. I think the clear concensus from most people is that they are different things wiht different use cases. The <code>tibble</code> is part of a wider ecosystem of packages and follows a particular philosophy. <code>data.table</code> is from a different design philosophy and doesn’t intergrate with Tidyverse per se, but in terms of pure speed and low memory usage, is one of the most essential advances in <code>R</code> for working with larger data sets. Put simply, <code>data.table</code> is essential for my day job!</p>
+<p>In this post I’ll cover a little of why you would want to use it, how the syntax works and couple of examples.</p>
+</div>
+<div id="what-is-it" class="section level1">
+<h1>What is it?</h1>
+<p>A simple take on the <code>data.table</code> package is that it is a modern reinterpretation of <code>R</code>’s <code>data.frame</code> designed to deal with larger datasets. In base R, when we perform operations that update a <code>data.frame</code>, we essentially create a new copy of it that overwrites the old one when finished. This is fine for small datasets, but can be an issue when working with larger datasets as we can run out of memory.</p>
+<div id="memory" class="section level2">
+<h2>Memory</h2>
+<p><code>data.frames</code> are the <code>R</code> data structures for “rectangular”, where different columns may have different data types</p>
+</div>
+<div id="speed" class="section level2">
+<h2>Speed</h2>
+</div>
+<div id="defaults" class="section level2">
+<h2>Defaults</h2>
+<p>The package <code>vignette</code> summarises somr of the default setting nicely, but they are:</p>
+<ul>
+<li><p>Character columns type are <em>never</em> converted to factors by default</p></li>
+<li><p>Row numbers are printed with a : in order to visually separate the row number from the first column.</p></li>
+<li><p>A global variable control how many rows to print (default = 100). When exceeded, it prints the top and bottom five rows</p></li>
+<li><p><code>data.table</code> doesn’t set or use row names, ever. It uses <code>keys</code>, discussed below</p></li>
+</ul>
+<pre class="r"><code>library(data.table)
+vignette(&quot;datatable-benchmarking&quot;)</code></pre>
+<pre><code>## starting httpd help server ... done</code></pre>
+</div>
+</div>
+<div id="syntax" class="section level1">
+<h1>Syntax</h1>
+<p><code>Data.table</code> structures are <code>data.frame</code>s, so anything you can do with a <code>data.frame</code>, you can still do with a <code>data.table</code>, but where it comes into it’s own is using the native <code>data.table</code> syntax.
+<span class="math display">\[ Mydatatable[i, j, by]\]</span></p>
+</div>
+<div id="times-data.table-has-saved-me" class="section level1">
+<h1>Times <code>data.table</code> has saved me:</h1>
+<p>Here’s a few exampls of the time swhere data.table has saved me and allowed me to continue working.
++ Working with Hospital Episode Statistics Data (HES) - oten with 30 + columns and 60 ~200 million rows. I work on a desktop PC most of the time so the size is an issue as well as the speed.
++ Key’s help with loops/other conditional applications. If I need to apply a different model for different organisations, or diagnostic groups, using the key as a non-clustered index speeds up the subsetting for each iteration of the loop/apply.
++ Joining preditions from a large model back onto base data can exceed memory sometimes. Joins in <code>data.table</code> to the rescue!</p>
+</div>

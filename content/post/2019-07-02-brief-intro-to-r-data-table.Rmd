@@ -29,7 +29,7 @@ A simple take on the `data.table` package is that it is a modern reinterpretatio
 
 ## Defaults
 
-The package `vignette` summarises soem of the default setting nicely, but they are:
+The package `vignette` summarises somr of the default setting nicely, but they are:
 
 + Character columns type are _never_ converted to factors by default
 
@@ -42,8 +42,8 @@ The package `vignette` summarises soem of the default setting nicely, but they a
 
 
 ```{r }
-
-vignette(data.table::data-table-benchmarking)
+library(data.table)
+vignette("datatable-benchmarking")
 ```
 
 # Syntax
