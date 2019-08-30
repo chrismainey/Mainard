@@ -28,6 +28,7 @@ I've published my package for creating funnel plots of indirectly standardised r
 It's awesome!  It allows you to make overdispersion adjustments, draws plots and labels outliers in `ggplot2`.
 
 I will update my post on here to the new function soon, but you can find it at:
+
 - CRAN: https://cran.r-project.org/web/packages/FunnelPlotR/index.html
 - Package Site: https://chrismainey.github.io/FunnelPlotR/
 - GitHub: https://github.com/chrismainey/FunnelPlotR

@@ -22,7 +22,7 @@ output:
     toc_depth: 1
 ---
 
-# FunnelPlotR 0.2.0 
+# FunnelPlotR - v0.2.0 
 
 
 `FunnelPlotR` helps you build funnel plot for indirectly stnadaridsed ratios, such as the Summary Hospital-level Mortality Index (SHMI).  It allows you to make overdispersion (OD) adjustments, draws plots, and labels outliers in `ggplot2`.
@@ -43,6 +43,7 @@ This package was originally developed for use in my PhD project, but published o
 
 
 For more information, see:
+
 - Package Site: https://chrismainey.github.io/FunnelPlotR/
 - GitHub: https://github.com/chrismainey/FunnelPlotR
 
