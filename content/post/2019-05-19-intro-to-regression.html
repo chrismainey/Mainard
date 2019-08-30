@@ -4,15 +4,15 @@ author: Chris Mainey
 date: '2019-05-19'
 slug: intro-to-regression
 categories: 
-- regression
-- model
-- r
+  - regression
+  - model
+  - R
 draft: true
 tags: 
-- r
-- overdispersion
-- count data
-- mixed models
+  - R
+  - overdispersion
+  - count data
+  - mixed models
 summary: Regression models are key tools for explanatory and predictive models.  This post is an introduction to linear generalised linear (logistic and Poisson) models 
 bibliography: ../../content/post/references_regression.bib
 image:
@@ -40,8 +40,15 @@ output:
 <p><br><br></p>
 <div id="introduction" class="section level1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
-<p>This tutorial is an introduction to linear and generalised linear models. It’s written for people who are both new to <code>R</code>, and new to regression techniques.</p>
-<p>You might use a linear model on continuous data that are normally distributed (such as blood pressure, heights of a sample of people etc.). They are fairly straight-forward to apply and understand, but a bit more challenging if we have different data types, such as binary <em>(yes/no, dead alive, readmitted/not readmitted etc.)</em>, count data <em>(can’t be decimal or negative)</em>, categorical data <em>(e.g. a variable with possible responses: ‘none’, ‘some,’ ‘more’ or ‘a lot’)</em>, or other data types. For these cases, you might use a <em>Generalized Linear Model</em> <span class="citation">(McCullagh and Nelder 1989)</span>.</p>
+<p>This tutorial is an introduction to linear and generalised linear models. It’s written for people who are both new to <code>R</code>, and new to regression techniques. It is in four parts:</p>
+<ul>
+<li>Introduction and Linear regression models (LM)</li>
+<li>Generalised Linear Models (GLM)</li>
+<li>Multilvel Models (LMM / GLMM)</li>
+<li>Smoothed regressions: Generalized Additive Models (GAM)</li>
+</ul>
+<p>This section will focus on linear models. You might use a linear regression on continuous data that are normally distributed (such as blood pressure, heights of a sample of people etc.). They are fairly straight-forward to apply and understand, but a bit more challenging if we have different data types, such as binary <em>(yes/no, dead alive, readmitted/not readmitted etc.)</em>, count data <em>(can’t be decimal or negative)</em>, categorical data <em>(e.g. a variable with possible responses: ‘none’, ‘some,’ ‘more’ or ‘a lot’)</em> etc. For these cases, you might use a <em>Generalized Linear Model</em> <span class="citation">(McCullagh and Nelder 1989)</span>.</p>
+<p>Some of the key assumptions of regressions are that we expect constant variance across the range of our data (‘homoskedsticity’), and no correlation (relationships between our predictor vairables). In cases where are data are not compleley indiependent, e.g. if look at England-level data</p>
 <p>I’m aiming to give a grounding in linear regression using ‘ordinary least squares’ (OLS), Logistic and Poisson regression using ‘maximum likelihood estimation’ (MLE). This will not be in great mathematical depth, and will focus on using them in <code>R</code>, but there is a wealth of literature on the subject. I’d suggest <span class="citation">(Harrell 2015; Wood 2017)</span> excellent books.</p>
 </div>
 <div id="regression-models" class="section level1">
@@ -60,13 +67,9 @@ output:
 <div id="create-dataset" class="section level3">
 <h3><span class="header-section-number">2.1.1</span> Create Dataset</h3>
 <p>To demonstrate a linear model, we will first generate some appropirate data. We will set the ‘seed’ which aligns the random number generator so it is reproducible on your own machine. We will then use the normal distribution functions to create ‘<span class="math inline">\(y\)</span>’ and ‘<span class="math inline">\(x\)</span>’. Some of the functions used below work best with <code>data.frames</code>, so we’ll combine our <span class="math inline">\(y\)</span> &amp; <span class="math inline">\(x\)</span> into a <code>data.frame</code> called <code>dt</code>.</p>
-<pre class="r"><code>library(ggplot2)</code></pre>
-<pre><code>## Registered S3 methods overwritten by &#39;ggplot2&#39;:
-##   method         from 
-##   [.quosures     rlang
-##   c.quosures     rlang
-##   print.quosures rlang</code></pre>
-<pre class="r"><code>set.seed(111)
+<pre class="r"><code>library(ggplot2)
+
+set.seed(111)
 x &lt;- rnorm(50, 20, 5)
 y &lt;- x + rnorm(50, 10, 3 )
 dt &lt;-data.frame(x,y)</code></pre>
@@ -76,9 +79,15 @@ dt &lt;-data.frame(x,y)</code></pre>
 <p>We can now plot the data points with <code>ggplot</code>. <code>ggplot</code> uses a syntax called the ‘grammar of graphics’, and below, we are declaring a <code>ggplot</code> using <code>dt</code>, declaring an ‘aesthetic’ (<code>aes</code>) layer mapping <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> to the correct axes, then we are draw a plot layer called a ‘geometric’ (<code>geom</code>), in this case a ‘point’ plot (scatter plot).</p>
 <pre class="r"><code>ggplot(dt, aes(y=y, x=x))+
   geom_point()</code></pre>
-<p><img src="/post/2019-05-19-intro-to-regression_files/figure-html/pressure-1.png" width="672" /></p>
-<p>Our data appears to be linearly related. As <span class="math inline">\(X\)</span> increases, <span class="math inline">\(Y\)</span> increases as well.
+<p><img src="/post/2019-05-19-intro-to-regression_files/figure-html/scatter1-1.png" width="672" /></p>
+<p>Our data appears to be linearly related. As <span class="math inline">\(X\)</span> increases, <span class="math inline">\(Y\)</span> increases as well. So how do we work out where to draw the regression line? We can use a solution that takes the distance of each point from the line, squares it (or else positive and hegative values add up to zero), and minimises this ‘squared’ distance. This referred to as ‘Ordinary Least Squares’ (OLS) and is a principle used in many settings. Its has an exact solution using algebra, so linear models are estia ted quickly and easily in most cases.
 <br><br></p>
+<pre class="r"><code>ggplot(dt, aes(y=y, x=x))+
+  geom_point()+
+  geom_smooth(method=&quot;lm&quot;, col=&quot;red&quot;, se = FALSE)+
+  geom_segment(aes(x=x, y=err, yend=pred, xend=x),
+               arrow = arrow(length = unit(0.25, &quot;cm&quot;)))</code></pre>
+<p><img src="/post/2019-05-19-intro-to-regression_files/figure-html/OLS-1.png" width="672" /></p>
 </div>
 <div id="model-build" class="section level3">
 <h3><span class="header-section-number">2.1.3</span> Model build</h3>

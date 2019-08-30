@@ -6,10 +6,10 @@ slug: intro-to-regression
 categories: 
   - regression
   - model
-  - r
+  - R
 draft: true
 tags: 
-  - r
+  - R
   - overdispersion
   - count data
   - mixed models

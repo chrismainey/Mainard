@@ -1,0 +1,33 @@
+---
+title: FunnelPlotR published on CRAN!
+author: ''
+date: '2019-08-30'
+slug: funnelplotr-published-on-cran
+categories:
+  - R
+  - SPC
+  - Funnel plot
+tags:
+  - Funnel plot
+  - package
+draft: true
+summary: Funnel Plot R package published on CRAN!
+image:
+  caption: ''
+  focal_point: ''
+output:
+  blogdown::html_page:
+    toc: true
+    number_sections: true
+    toc_depth: 1
+---
+
+# FunnelPlotR 0.2.0 released!
+
+I've published my package for creating funnel plots of indirectly standardised ratios.
+It's awesome!  It allows you to make overdispersion adjustments, draws plots and labels outliers in `ggplot2`.
+
+I will update my post on here to the new function soon, but you can find it at:
+- CRAN: https://cran.r-project.org/web/packages/FunnelPlotR/index.html
+- Package Site: https://chrismainey.github.io/FunnelPlotR/
+- GitHub: https://github.com/chrismainey/FunnelPlotR

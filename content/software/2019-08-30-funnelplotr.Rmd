@@ -1,0 +1,50 @@
+---
+title: FunnelPlotR
+author: ''
+date: '2019-08-30'
+slug: funnelplotr
+categories:
+  - R
+  - SPC
+  - Funnel plot
+tags:
+  - Funnel plot
+  - package
+draft: true
+summary: FunnelPlotR: an R package for building funnel plots for indirectly standardised ratios
+image:
+  caption: ''
+  focal_point: ''
+output:
+  blogdown::html_page:
+    toc: true
+    number_sections: true
+    toc_depth: 1
+---
+
+# FunnelPlotR 0.2.0 
+
+
+`FunnelPlotR` helps you build funnel plot for indirectly stnadaridsed ratios, such as the Summary Hospital-level Mortality Index (SHMI).  It allows you to make overdispersion (OD) adjustments, draws plots, and labels outliers in `ggplot2`.
+
+This is an implementation of the plot processes, and overdispersion methods described in:<br>
+[Statistical methods for healthcare regulation: rating, screening and surveillance. Spiegelhalter et al (2012)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/j.1467-985X.2011.01010.x)<br>
+[Funnel plots for comparing institutional performance. Spiegelhalter (2004)](https://onlinelibrary.wiley.com/doi/10.1002/sim.1970)<br>
+[Handling over-dispersion of performance indicators. Spiegelhalter (2005)](https://qualitysafety.bmj.com/content/14/5/347)<br>
+    
+It allows users to specify whether they want 'overdispersed' limits, or unadjusted Poisson limits.  OD adjustment is performed using z-score transformation, with outliers adjusted, before calculating a dispersion ratio (phi).  This ratio is then used this to calculate a 'between' units standard deviation (tau) to add to the 'within' units standard deviation (sigma).  The amount of outlier adjustment (Winsorisation) can be changed, but defaults to 10% at each end of the distribution.
+
+There is a variant method for this, described in the NHS' Summary Hospital Mortality Indicator'<br>
+[Summary Hospital-level Mortality Indicator, NHS Digital, SHMI specification](https://digital.nhs.uk/data-and-information/publications/ci-hub/summary-hospital-level-mortality-indicator-shmi) <br>
+This uses a log-transformation and truncation of the distribution for calculating overdispersion, whereas Spieglehalter's methods use a square-root transformation and Winsorisation.
+
+<br><br>
+This package was originally developed for use in my PhD project, but published on GitHub in case it's of use for others.  It has now been submitted to CRAN for publication.
+
+
+For more information, see:
+- Package Site: https://chrismainey.github.io/FunnelPlotR/
+- GitHub: https://github.com/chrismainey/FunnelPlotR
+
+
+_This package is the newer version of the older `CMFunnels` package. Development work will focus on this package from now on _

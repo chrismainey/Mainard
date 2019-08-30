@@ -22,7 +22,10 @@
 #  name = "Publications"
 #  url = "#featured"
 #  weight = 40
-
+[[main]]
+  name = "Software"
+  url = "#software"
+  weight = 30
   
 [[main]]
   name = "Talks"
