@@ -10,8 +10,8 @@ categories:
 tags:
   - Funnel plot
   - package
-draft: true
-summary: FunnelPlotR: an R package for building funnel plots for indirectly standardised ratios
+draft: false
+summary: FunnelPlotR - an R package for building funnel plots for indirectly standardised ratios
 image:
   caption: ''
   focal_point: ''
