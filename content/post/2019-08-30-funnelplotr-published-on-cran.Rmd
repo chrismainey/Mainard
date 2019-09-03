@@ -1,5 +1,5 @@
 ---
-title: FunnelPlotR published on CRAN!
+title: "FunnelPlotR published on CRAN!"
 author: ''
 date: '2019-08-30'
 slug: funnelplotr-published-on-cran
@@ -10,7 +10,7 @@ categories:
 tags:
   - Funnel plot
   - package
-summary: Funnel Plot R package published on CRAN!
+summary: "Funnel Plot R package published on CRAN!"
 image:
   caption: ''
   focal_point: ''
