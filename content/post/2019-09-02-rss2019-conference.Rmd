@@ -23,6 +23,7 @@ projects: []
 
 
 # Royal Statistical Society (RSS) Conference 2019
+<br>
 ## Talk: Using funnel plots and CUSUM techniques to monitor hospital-standardised mortality
 
 I'm speaking this week at the Royal Statistical Society Conference, on 5th September, at Belfast ICC.
