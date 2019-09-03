@@ -10,7 +10,7 @@ categories:
 tags:
   - Funnel plot
   - package
-draft: true
+draft: TRUE
 summary: Funnel Plot R package published on CRAN!
 image:
   caption: ''
