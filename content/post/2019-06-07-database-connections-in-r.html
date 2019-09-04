@@ -1,21 +1,21 @@
 ---
-title: SQL Server Database connections in R
-author: Chris Mainey
+title: "SQL Server Database connections in R"
+author: "Chris Mainey"
 date: '2019-06-07'
-slug: database-connections-in-r
-categories:
-  - R
-  - database
-  - tidyverse
-tags:
-  - R
-  - database
-  - dplyr
-  - tidyverse
+draft: no
 image:
   caption: ''
   focal_point: ''
-draft: false
+slug: database-connections-in-r
+tags:
+- R
+- database
+- dplyr
+- tidyverse
+categories:
+- R
+- database
+- tidyverse
 ---
 
 
@@ -102,7 +102,7 @@ MyTable&lt;-tbl(DBI_Connection, &quot;MyTable&quot;)
 glimpse(MyTable)
 ## Observations: ??
 ## Variables: 7
-## Database: Microsoft SQL Server 
+## Database: Microsoft SQL Server 10.50.6220[UHB\CSMY@AKUMA/ISIS]
 ## $ id         &lt;int&gt; 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,...
 ## $ Org        &lt;chr&gt; &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;, &quot;G&quot;, &quot;H&quot;, &quot;I&quot;, &quot;J&quot;, &quot;...
 ## $ year       &lt;int&gt; 2015, 2015, 2015, 2015, 2015, 2015, 2015, 2015, 201...
@@ -119,7 +119,7 @@ MyTable %&gt;%
             N = n()) %&gt;%
   arrange(month)
 ## # Source:     lazy query [?? x 4]
-## # Database:   Microsoft SQL Server
+## # Database:   Microsoft SQL Server 10.50.6220[UHB\CSMY@AKUMA/ISIS]
 ## # Ordered by: month
 ##   month AvgEvents MaxEvents     N
 ##   &lt;int&gt;     &lt;int&gt;     &lt;int&gt; &lt;int&gt;

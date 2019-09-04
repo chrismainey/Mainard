@@ -111,7 +111,9 @@ Here we will apply this to some data by picking up the `medpar` dataset discusse
 ### Installation
 
 ```{r install, eval=FALSE}
-devtools::install_github("https://github.com/chrismainey/CMFunnels")
+install.packages(FunnelPlotR)
+#or
+devtools::install_github("https://github.com/chrismainey/FunnelPlotR")
 ```
 
 
@@ -123,7 +125,7 @@ A little reformatting is required before modelling:
 
 
 ```{r data, warning=FALSE, message=FALSE}
-library(CMFunnels)
+library(FunnelPlotR)
 library(COUNT)
 library(ggplot2)
 
@@ -149,13 +151,11 @@ medpar$prds<- predict(mod, type="response")
 
 Now we can build a funnel plot object with standard Poisson limits, and outliers labelled.  The function returns a list of the plotted data, the plotted control limit range, and the `ggplot` object, hence `object[3]` to call it.
 
-```{r, funnel1, message=FALSE, fig.align='center', fig.retina=5, collapse=TRUE}
+```{r, funnel1, message=FALSE, fig.align='center', fig.retina=5, collapse=TRUE, warning=FALSE}
 
-my_plot<-funnel_plot(predictions=medpar$prds,observed=medpar$los, group = medpar$provnum, 
-            title = 'Length of Stay Funnel plot for `medpar` data', 
-            Poisson_limits = TRUE, OD_Tau2 = FALSE,label_outliers = TRUE)
+funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum, title = 'Length of Stay Funnel plot for `medpar` data', 
+            Poisson_limits = TRUE, OD_adjust = FALSE,label_outliers = 99, return_elements = "plot")
 
-my_plot[3]
 ```
 
 <br>
@@ -177,11 +177,10 @@ This suggests the variance is 6.24 times the condition mean, and definitely over
 This is a huge topic, but applying overdispersed limits using either SHMI or Spieglehalter methods adjust for this by inflating the limits:
 
 ```{r, funnel2, message=FALSE, fig.align='center', fig.retina=5, collapse=TRUE}
-my_plot2<-funnel_plot(predictions=medpar$prds,observed=medpar$los, group = medpar$provnum, 
-            title = 'Length of Stay Funnel plot for `medpar` data', 
-            Poisson_limits = FALSE, OD_Tau2 = TRUE, method = "SHMI",label_outliers = TRUE)
+funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum,  title = 'Length of Stay Funnel plot for `medpar` data', 
+            Poisson_limits = FALSE, OD_adjust = TRUE, method = "SHMI",
+            label_outliers = 99)
 
-my_plot2[3]
 ```
 
 <br><br>
@@ -195,7 +194,7 @@ These methods can be used for any similar indicators, e.g. standardised mortalit
 
 Funnel plots are useful ways to visualise indicators such as mortality, readmission and length of stay data at hospitals, that presents both the indicator value but also a measure of the size/variance at organisations.  They allow limits to be drawn between what we might expect by chance, and what we might consider to be a signal for investigation. Organisations outside the funnel limits should be examined, first for data quality issues and then for issues with process and clinical care. Overdispersion means that these limits are often too strict, but they can be inflated to adjusted for this.
 
-If you'd like to use my outline `ggplot` function, or contribute, please pull or fork it on github: https://github.com/chrismainey/CMFunnels 
+If you'd like to use my outline `ggplot` function, or contribute, please pull or fork it on github: https://github.com/chrismainey/FunnelPlotR, or install from CRAN with `install.packages('FunnelPlotR')`.
 
 <br>
 
