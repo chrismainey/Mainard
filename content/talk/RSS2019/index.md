@@ -28,8 +28,8 @@ tags:
  - Cusum
  - mortality
 title: "Using funnel plots and CUSUM techniques to monitor hospital-standardised mortality"
-url_code: "https://github.com/chrismainey/RSS_2019_CUSUMs"
-url_pdf: ""
+url_code: "https://github.com/chrismainey/RSS_2019_FunnelPlot_CUSUMs"
+url_pdf: "https://github.com/chrismainey/RSS_2019_FunnelPlot_CUSUMs/blob/master/Slides.pdf"
 url_slides: ""
 url_video: ""
 draft: false
