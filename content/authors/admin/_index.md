@@ -24,7 +24,7 @@ interests:
 name: Chris Mainey
 organizations:
 - name: Healthcare Evaluation Data (HED) - University Hospitals Birmingham NHS Foundation Trust
-  url: "www.hed.nhs.uk"
+  url: "https://www.hed.nhs.uk"
 role: Intelligence Analyst
 social:
 - icon: envelope
