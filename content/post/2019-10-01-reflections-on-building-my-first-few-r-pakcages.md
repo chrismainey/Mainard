@@ -1,8 +1,8 @@
 ---
-title: Reflections on building my first few R pakcages
+title: Reflections on building my first few R packages
 author: ''
 date: '2019-10-01'
-slug: reflections-on-building-my-first-few-r-pakcages
+slug: reflections-on-building-my-first-few-r-packages
 categories:
   - R
 tags:
@@ -26,16 +26,53 @@ I've spent much of the last six months building several `R` packages.  It's the 
 
 ## Packages
 
-I've build or collaboraed on three packages recently:
+I've build or collaborated on three packages recently:
 
 + `FunnelPlotR`: `ggplot2` methods for producting funnel plots of indirectly standardised ratios with overdispersion adjustment
 + `NHSRdatasets`: a free, collaborative datasets package with examples of health related data, to provide in-context examples for NHS-R community and others learning `in health`R`.
 + `HEDfunctions`: an HED internal package that contains methods for some of the models build in HED production, and several utility functions like confidence intervals etc.
 
-I first went about htis b watching a couple of YouTube videos aon package build.  These videos used the RStudio wizards to set up the package, as well as `roxygen2` to generate documentation.
+I first went about this by watching a couple of YouTube videos on package building.  These videos used the RStudio wizards to set up the package as an RStudo Project, as well as `roxygen2` to generate documentation. The principe, for the unitnitiated, is:
+
++ Packages are groups of functions, their help files and metadata
++ There are conserved package structures, but broadly, your functions go in an `R` folder, and help files in `man`
++ You have a DESRIPTION file, with the fields you see on CRAN, and a NAMESPACE (written by `roxygen2` in this case)
++ `roxygen2` converts tagged metadata into the right form for packages, on lines comments `#'` an tagged `@` e.g.:
+
+```{r roxygen eval=FALSE}
+#' @title My function for doing a thing
+#' @description This is a a function for demosntrating a very basic roxygen skeleton.
+#' @param input_data A data.frame input to my function
+#' @param method The method that the function uses, either "A" or "B", default is: "A"
+#' 
+#' @return A list containing somethings
+#' @export
+#' @details
+#'    The function tries to do a thing, but it's ademo so it won't.
+#'    Don't try and use this in the real world.
+#'    Seriously  
+#'
+#' @import ggplot
+#' @importFrom dplyr filter %>% 
+#'
+#' @examples
+      my_function(LOS_model, method = "B")
+
+my_function(input_data, method = "A"){
+
+...
+
+}
+
+```
+
+When you 'roxygenise' the function above, `roxygen2` will add the required packages to description and namespace, build the helpfiles into the `man` folder,  This will save you all sorts of time and headaches!  Although you will need to google the tags a lot.  I found that the formatting is not the same as Rmarkdown, it's more like Latex.  Remeber to escape characters like `%` with `\%`, as that kept messing up for me.
 
 ## Git and GitHub
 
+Git is a source control solution, that essentially logs all your changes within a particular folder.  Once you have git installed, it intergrates with RStudio very well.  You need to add files to it, the 'commit' changes periodically to log them.  YOu can roll back your changes or merge them, as well as making 'branches', which are isolated parallel copies of the code that allow you to develop things without committing them to the 'master' branch.
+
+Where GitHub becomes in, is for collaboration and code sharing.  GitHub is an online hosting platform for Git.  You set up repositories, 'remotes' on GitHub, and 'push' your changes from your local machine to GitHub.  GitHub allows various people to pull copies of your work and work on it, merging changes in, allowing review and collaborative development.  There are a bunch of Git and GitHun related features that help the development of packages.
 
 ## Vignettes
 
