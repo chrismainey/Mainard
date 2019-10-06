@@ -1,0 +1,105 @@
+---
+title: Reflections on building my first few R packages
+author: ''
+date: '2019-10-01'
+slug: reflections-on-building-my-first-few-r-packages
+categories:
+  - R
+tags:
+  - R
+  - package
+summary: "HEDfunctions, FunnelPlotR and NHSRdatasets reflections"
+image:
+  caption: ''
+  focal_point: ''
+output:
+  blogdown::html_page:
+    toc: true
+    number_sections: true
+    toc_depth: 1
+draft: true
+---
+
+
+<div id="TOC">
+<ul>
+<li><a href="#package-development"><span class="toc-section-number">1</span> Package development</a></li>
+</ul>
+</div>
+
+<div id="package-development" class="section level1">
+<h1><span class="header-section-number">1</span> Package development</h1>
+<p>I’ve spent much of the last six months building several <code>R</code> packages. It’s the first time that I’d built packages, and I hope the released versions are much better now that they were at initial release! This post is not a tutorial on how to build packages, but will summarise some parts I’ve had to learn, and aims to whos you that pakcages building is not magic. It’s particuarlrly accessible now with RStudio, <code>devtools</code>, <code>usethis</code> and <code>git</code> in combination.</p>
+<div id="packages" class="section level2">
+<h2><span class="header-section-number">1.1</span> Packages</h2>
+<p>I’ve build or collaborated on three packages recently:</p>
+<ul>
+<li><code>FunnelPlotR</code>: <code>ggplot2</code> methods for producting funnel plots of indirectly standardised ratios with overdispersion adjustment</li>
+<li><code>NHSRdatasets</code>: a free, collaborative datasets package with examples of health related data, to provide in-context examples for NHS-R community and others learning <code>in health</code>R`.</li>
+<li><code>HEDfunctions</code>: an HED internal package that contains methods for some of the models build in HED production, and several utility functions like confidence intervals etc.</li>
+</ul>
+<p>I first went about this by watching a couple of YouTube videos on package building. These videos used the RStudio wizards to set up the package as an RStudo Project, as well as <code>roxygen2</code> to generate documentation. The principe, for the unitnitiated, is:</p>
+<ul>
+<li>Packages are groups of functions, their help files and metadata</li>
+<li>There are conserved package structures, but broadly, your functions go in an <code>R</code> folder, and help files in <code>man</code></li>
+<li>You have a DESRIPTION file, with the fields you see on CRAN, and a NAMESPACE (written by <code>roxygen2</code> in this case)</li>
+<li><code>roxygen2</code> converts tagged metadata into the right form for packages, on lines comments <code>#'</code> an tagged <code>@</code> e.g.:</li>
+</ul>
+<pre class="r"><code>#&#39; @title My function for doing a thing
+#&#39; @description This is a a function for demosntrating a very basic roxygen skeleton.
+#&#39; @param input_data A data.frame input to my function
+#&#39; @param method The method that the function uses, either &quot;A&quot; or &quot;B&quot;, default is: &quot;A&quot;
+#&#39; 
+#&#39; @return A list containing somethings
+#&#39; @export
+#&#39; @details
+#&#39;    The function tries to do a thing, but it&#39;s ademo so it won&#39;t.
+#&#39;    Don&#39;t try and use this in the real world.
+#&#39;    Seriously  
+#&#39;
+#&#39; @import ggplot
+#&#39; @importFrom dplyr filter %&gt;% 
+#&#39;
+#&#39; @examples
+      my_function(LOS_model, method = &quot;B&quot;)
+
+my_function(input_data, method = &quot;A&quot;){
+
+...
+
+}</code></pre>
+<p>When you ‘roxygenise’ the function above, <code>roxygen2</code> will add the required packages to description and namespace, build the helpfiles into the <code>man</code> folder, This will save you all sorts of time and headaches! Although you will need to google the tags a lot. I found that the formatting is not the same as Rmarkdown, it’s more like Latex. Remeber to escape characters like <code>%</code> with <code>\%</code>, as that kept messing up for me.</p>
+</div>
+<div id="git-and-github" class="section level2">
+<h2><span class="header-section-number">1.2</span> Git and GitHub</h2>
+<p>Git is a source control solution, that essentially logs all your changes within a particular folder. Once you have git installed, it intergrates with RStudio very well. You need to add files to it, the ‘commit’ changes periodically to log them. YOu can roll back your changes or merge them, as well as making ‘branches’, which are isolated parallel copies of the code that allow you to develop things without committing them to the ‘master’ branch.</p>
+<p>Where GitHub becomes in, is for collaboration and code sharing. GitHub is an online hosting platform for Git. You set up repositories, ‘remotes’ on GitHub, and ‘push’ your changes from your local machine to GitHub. GitHub allows various people to pull copies of your work and work on it, merging changes in, allowing review and collaborative development. There are a bunch of Git and GitHun related features that help the development of packages.</p>
+</div>
+<div id="vignettes" class="section level2">
+<h2><span class="header-section-number">1.3</span> Vignettes</h2>
+<p>Vignette are the term used for ‘worked examples.’ They range from a few lines to show you how to use a function, to long tutorials on package use. Some cotian several vignettes, demosntrating special cases or variants of use. I think they are helpful for demonstrating the motivation and application of a package, and I believe all packages released on CRAN should include at least one.</p>
+<p>You can use <code>rmarkdown</code> to create vignettes. In doing so, you need to include a few things:</p>
+<ol style="list-style-type: decimal">
+<li>Specificy YAML to tell the package build what it is and how to process it</li>
+<li>Add <code>rmarkdown</code> and <code>knitr</code> to the Description, in <code>Suggests</code> (and the namespace).</li>
+<li>Consider where image for plots are being store</li>
+</ol>
+<p>The easiest way to solve all three is to call <code>usethis::use_vignette()</code>. This sets up the YAML, picture location and the requiredd packages. I didn’t relaise this at first, and had copied the YAML in. If you don’t specify the right picture location, you can get warnings a build time about unexpected files because they are int he wrong location. The other issue with this is that, if you use ‘pkgdown’ to build a package documentatino website, it won’t pick up the pictures properly (see next section).</p>
+</div>
+<div id="readme-file" class="section level2">
+<h2><span class="header-section-number">1.4</span> README file</h2>
+<p>Include a README.md file in the top level of your package</p>
+</div>
+<div id="unit-testing-and-code-coverage" class="section level2">
+<h2><span class="header-section-number">1.5</span> Unit testing and Code coverage</h2>
+</div>
+<div id="checking-you-r-package" class="section level2">
+<h2><span class="header-section-number">1.6</span> Checking you <code>R</code> package</h2>
+</div>
+<div id="process-for-release" class="section level2">
+<h2><span class="header-section-number">1.7</span> Process for release</h2>
+</div>
+<div id="licencing" class="section level2">
+<h2><span class="header-section-number">1.8</span> Licencing</h2>
+</div>
+</div>

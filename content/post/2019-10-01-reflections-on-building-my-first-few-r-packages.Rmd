@@ -17,7 +17,7 @@ output:
     toc: true
     number_sections: true
     toc_depth: 1
-draft: false
+draft: true
 ---
 
 # Package development
@@ -39,7 +39,7 @@ I first went about this by watching a couple of YouTube videos on package buildi
 + You have a DESRIPTION file, with the fields you see on CRAN, and a NAMESPACE (written by `roxygen2` in this case)
 + `roxygen2` converts tagged metadata into the right form for packages, on lines comments `#'` an tagged `@` e.g.:
 
-```{r roxygen eval=FALSE}
+```{r roxygen, eval=FALSE}
 #' @title My function for doing a thing
 #' @description This is a a function for demosntrating a very basic roxygen skeleton.
 #' @param input_data A data.frame input to my function
