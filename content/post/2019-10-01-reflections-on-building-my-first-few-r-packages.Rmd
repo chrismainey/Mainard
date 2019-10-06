@@ -22,7 +22,7 @@ draft: true
 
 # Package development
 
-I've spent much of the last six months building several `R` packages.  It's the first time that I'd built packages, and I hope the released versions are much better now that they were at initial release!  This post is not a tutorial on how to build packages, but will summarise some parts I've had to learn, and aims to whos you that pakcages building is not magic.  It's particuarlrly accessible now with RStudio, `devtools`, `usethis` and `git` in combination.
+I've spent much of the last six months building several `R` packages.  It's the first time that I'd built packages, and I hope the released versions are much better now that they were at initial release!  This post is not a tutorial on how to build packages, but will summarise some parts I've had to learn, and aims to show you that packge building is not magic.  It's particuarly accessible now with RStudio, `devtools`, `usethis` and `git` in combination.
 
 ## Packages
 
@@ -34,7 +34,7 @@ I've build or collaborated on three packages recently:
 
 I first went about this by watching a couple of YouTube videos on package building.  These videos used the RStudio wizards to set up the package as an RStudo Project, as well as `roxygen2` to generate documentation. The principe, for the unitnitiated, is:
 
-+ Packages are groups of functions, their help files and metadata
++ Packages are groups of functions, their help files, and metadata
 + There are conserved package structures, but broadly, your functions go in an `R` folder, and help files in `man`
 + You have a DESRIPTION file, with the fields you see on CRAN, and a NAMESPACE (written by `roxygen2` in this case)
 + `roxygen2` converts tagged metadata into the right form for packages, on lines comments `#'` an tagged `@` e.g.:
@@ -48,7 +48,7 @@ I first went about this by watching a couple of YouTube videos on package buildi
 #' @return A list containing somethings
 #' @export
 #' @details
-#'    The function tries to do a thing, but it's ademo so it won't.
+#'    The function tries to do a thing, but it's a demo so it won't.
 #'    Don't try and use this in the real world.
 #'    Seriously  
 #'
@@ -66,17 +66,23 @@ my_function(input_data, method = "A"){
 
 ```
 
-When you 'roxygenise' the function above, `roxygen2` will add the required packages to description and namespace, build the helpfiles into the `man` folder,  This will save you all sorts of time and headaches!  Although you will need to google the tags a lot.  I found that the formatting is not the same as Rmarkdown, it's more like Latex.  Remeber to escape characters like `%` with `\%`, as that kept messing up for me.
+When you 'roxygenise' the function above, `roxygen2` will add the required packages to description and namespace, build the helpfiles into the `man` folder, and build vignettes.  This will save you all sorts of time and headaches!  Although you will need to google the tags a lot.  I found that the formatting is not the same as Rmarkdown, it's more like Latex.  Remember to escape characters like `%` with `\%`, as that kept messing up for me.
 
 ## Git and GitHub
 
-Git is a source control solution, that essentially logs all your changes within a particular folder.  Once you have git installed, it intergrates with RStudio very well.  You need to add files to it, the 'commit' changes periodically to log them.  YOu can roll back your changes or merge them, as well as making 'branches', which are isolated parallel copies of the code that allow you to develop things without committing them to the 'master' branch.
+Git is a source control solution, that essentially logs all your changes within a particular folder.  Once you have git installed, it intergrates with RStudio very well.  You need to add files to it, then 'commit' changes periodically to log them.  You can roll back your changes or merge them, as well as making 'branches', which are isolated parallel copies of the code that allow you to develop things without committing them to the 'master' branch.  This proptects your ocode from being over written, but also allow parrallel developments to be isolated.
 
-Where GitHub becomes in, is for collaboration and code sharing.  GitHub is an online hosting platform for Git.  You set up repositories, 'remotes' on GitHub, and 'push' your changes from your local machine to GitHub.  GitHub allows various people to pull copies of your work and work on it, merging changes in, allowing review and collaborative development.  There are a bunch of Git and GitHun related features that help the development of packages.
+Where GitHub comes in, is for collaboration and code sharing.  GitHub (and various similar tools) is an online hosting platform for Git.  You set up repositories, 'remotes' on GitHub, and 'push' your changes from your local machine to GitHub.  GitHub allows various people to pull copies of your work and work on it, merging changes in, allowing review and collaborative development.  There are a bunch of Git and GitHub related features that help the development of packages.
+
+I started using Git and GitHub after seeing various packages on Git and wanting to learn.  I didn't know what I was missing at that point.  It takes a while to get to know, but is well worth it.  Many other elements have been written to intergrate with Git too, and I'll talk about Travis and Code Completion later.  I can higly recommend Jenny Bryans 'Happy Git with R' https://happygitwithr.com/ . Get used to using it then try and contribute to a package, and learn Git as you go.  Most authors will welcome this, and many `R` packages are improved this way.
+
+I found the github pages part, a webserver problished version of code in your repository, can be really helpful to give a nice package website with minimal effort.
+
+
 
 ## Vignettes
 
-Vignette are the term used for 'worked examples.' They range from a few lines to show you how to use a function, to long tutorials on package use.  Some cotian several vignettes, demosntrating special cases or variants of use. I think they are helpful for demonstrating the motivation and application of a package, and I believe all packages released on CRAN should include at least one.
+Vignette are the term used for 'worked examples.' They range from a few lines to long tutorials.  Some contain several vignettes, demonstrating special cases or variants of use. I think they are really helpful for demonstrating the motivation and application of a package, and I believe all packages released on CRAN should include at least one.
 
 You can use `rmarkdown` to create vignettes.  In doing so, you need to include a few things:
 
@@ -88,12 +94,55 @@ The easiest way to solve all three is to call `usethis::use_vignette()`.  This s
 
 ## README file
 
-Include a README.md file in the top level of your package
+Include a README.md file in the top level of your package if you are using GitHUb!  This is the 'landing page' people will see when they arrive at your repository.  You can write them as github markdown, or using Rmarkdown, then knit to github_document in your YAML.  Either way, let RStudio and co. help you! You will get the right structure, YAML and the right `knitr` setup chunk, with `usethis::use_readme_md` or `usethis::use_readme_rmd` (the second of which is in `Rmarkdown`).
+
+My biggest issue with the was when it came to `pkgdown`. `pkgdown` is a fantastic package that ransforms your package metadata into a package website.  There are various control elements, but I simply published it using GitHub page (`gh-pages` branchs in the repos).  I had manually created the README, and I hadn't added the follwing line to my setup code chunk: `fig.path = "man/figures/README-"` .  My README file was still fine, but as `FunnelPlotR` is a plotting package, the README had example plots that render as png files.  When building the `pkgdown` site, it couldn't find my image files.
+
+__TLDR:  Use a README, but create it using the functions in the `usethis` package.__
 
 ## Unit testing and Code coverage
 
-## Checking you `R` package
+Like many of us, I'd seen the cool little badges that better R prgrammers had on the repositories, saving things like "code coeverage: 80%".  These badges are normally reporting something from another site, in this case, the unit testing results or your package and how much of the code within you pacage they cover.
+
+Unit testing, in this application, it the process of tesitng your code. Many of us do this informally, as we know what we want out of a section.  This gets harder when you are working over several functions at once, and sometimes bugs induce at one point aren't always apparent until they hit other processes. Formalising your unit testing allow you to trust that a set of tests, that you've specified, that relate to the behviour you expetc, are run agaisnt your code to catch issues.  Locally, in relation to both RStudio and CRAN submission, the `testthis` package has a framework for building these test.  Go and look it up, and it will make you more productive, and hopefully catch issues.
+
+You can use the `covr` package to check how much of your code it tested.  Once you push your code to GitHub, you can also link it to Codecov.  Codecov runs a report and analyses you code. The percentage represents how much of your code it 'covered' by the tests you wrote.  This is a useful ppiece of info for imporving your tests and seeing how much of your new code is not yet covered.
+
+## Travis CI
+
+Travis is another one of those cool badges you see.  Travis is a continual intergration tool.  This means that (unless you set it otherwise), each time you push code to you repository, Travis will build it for you and report whether there are error messages, or where the process fails.
+
+Travis is controlled with a `.travis.yml` YAML file.  Again, once you've registered for a Travis account, and set it up with access to your repo, trust `usethis` package.  Run `usethis::use_travis`, and this will set up your file.  Push this to your repository and you should be good.
+
+You can also use Travis to build your `pkgdown` site, again with `usethis:use_pkgdown_travis` will add the the relevant extra instructions to tell travis to load `pkgdown` and build the site, after it has built the package.
+
+I got in a real pickle with this, and I can advocate the 'nuclear option' for solving this one.  I deleted the whole `pkgdown` site several times and remove everything from 'travis.yml'.
+
+## Checking your `R` package
+
+
 
 ## Process for release
 
+Make sure you have added:
++ NEWS.md file explaining wha you've published or updated since the last time
++ Build your package
++ Checked and corrected the results from the tests
++ Added a 'cran-comments.md' file to explain what the package is, what environments your tested it on and whether there are outstanding warnings/errors etc.
++ Committed everything to github (if using it)
+
+If you can't remember to do this, when you try and release it using `devtools` you'll be reminded and asked to confirm that you've done all the expected/helpful things for the CRAN maintainers.
+When you are ready, run: `devtools::release()`, and follow the prompts to submit.
+
+You'll then get a couple of automatic emails with links for you to confirm your package submission. Once you've don that, it's submitted!
+
+...and expect it to be knocked by the CRAN maintainers.  It's not a problem.  Everytime I've had this, they give clear (if brief) feedback and tell you what to correct for resubmission.
+
 ## Licencing
+
+My final point is: think about licencing.  This may seem boring and/or uneccisary to you, but it really isn't.  As a minimun, you want a licence that limits your liability for the code.  The main things to consider are whether it is open source, or not.  If it's not, it won't be going on CRAN, but open source licences vary slightly.  Hadley Wickham's package development material discusses them in more details, but I used a CC0 licence for the `NHSRdatasets` pakcage, as there is not code per se just open source data.  For `FunnelPlotR` I used MIT licence, which is a minimal open source licence, but allows code to be included in proprietry systems if reused.  Some of the other licences like GPL insist that any reuse of the code must be also be in open source setting.  using a licence like this would not allow me to reuse the package in HED work that is proprietry.
+
+
+# Summary
+
+Package development has taken a lot of hour, but I'm proud of what I've published so far.  I've learnt a lot about `R`, Git and GitHub, writing functions, and I've had my head lifted up to see the subject more broadly.  I've got tonnes left to do with `FunnelPlotR`, and I'm excited to see more data added to `NHSRdatasets`, but they've made a good start.  If you'd like to try contributing to open source `R` packages, I'd be delighted to recieve contributions on my work, as would many other authors.
