@@ -22,17 +22,17 @@ draft: true
 
 # Package development
 
-I've spent much of the last six months building several `R` packages.  It's the first time that I'd built packages, and I hope the released versions are much better now that they were at initial release!  This post is not a tutorial on how to build packages, but will summarise some parts I've had to learn, and aims to show you that packge building is not magic.  It's particuarly accessible now with RStudio, `devtools`, `usethis` and `git` in combination.
+I've spent much of the last six months building several `R` packages.  It's the first time that I'd built packages, and I hope the released versions are much better now that they were at initial release!  This post is not a tutorial on how to build packages, but will summarise some parts I've had to learn, and aims to show you that package building is not magic.  It's particularly accessible now with RStudio, `devtools`, `usethis` and `git` in combination.
 
 ## Packages
 
 I've build or collaborated on three packages recently:
 
-+ `FunnelPlotR`: `ggplot2` methods for producting funnel plots of indirectly standardised ratios with overdispersion adjustment
++ `FunnelPlotR`: `ggplot2` methods for producing funnel plots of indirectly standardised ratios with overdispersion adjustment
 + `NHSRdatasets`: a free, collaborative datasets package with examples of health related data, to provide in-context examples for NHS-R community and others learning `in health`R`.
 + `HEDfunctions`: an HED internal package that contains methods for some of the models build in HED production, and several utility functions like confidence intervals etc.
 
-I first went about this by watching a couple of YouTube videos on package building.  These videos used the RStudio wizards to set up the package as an RStudo Project, as well as `roxygen2` to generate documentation. The principe, for the unitnitiated, is:
+I first went about this by watching a couple of YouTube videos on package building.  These videos used the RStudio wizards to set up the package as an RStudo Project, as well as `roxygen2` to generate documentation. The principle, for the uninitiated, is:
 
 + Packages are groups of functions, their help files, and metadata
 + There are conserved package structures, but broadly, your functions go in an `R` folder, and help files in `man`
@@ -70,13 +70,13 @@ When you 'roxygenise' the function above, `roxygen2` will add the required packa
 
 ## Git and GitHub
 
-Git is a source control solution, that essentially logs all your changes within a particular folder.  Once you have git installed, it intergrates with RStudio very well.  You need to add files to it, then 'commit' changes periodically to log them.  You can roll back your changes or merge them, as well as making 'branches', which are isolated parallel copies of the code that allow you to develop things without committing them to the 'master' branch.  This proptects your ocode from being over written, but also allow parrallel developments to be isolated.
+Git is a source control solution, that essentially logs all your changes within a particular folder.  Once you have git installed, it integrates with RStudio very well.  You need to add files to it, then 'commit' changes periodically to log them.  You can roll back your changes or merge them, as well as making 'branches', which are isolated parallel copies of the code that allow you to develop things without committing them to the 'master' branch.  This protects your code from being over written, but also allow parallel developments to be isolated.
 
 Where GitHub comes in, is for collaboration and code sharing.  GitHub (and various similar tools) is an online hosting platform for Git.  You set up repositories, 'remotes' on GitHub, and 'push' your changes from your local machine to GitHub.  GitHub allows various people to pull copies of your work and work on it, merging changes in, allowing review and collaborative development.  There are a bunch of Git and GitHub related features that help the development of packages.
 
-I started using Git and GitHub after seeing various packages on Git and wanting to learn.  I didn't know what I was missing at that point.  It takes a while to get to know, but is well worth it.  Many other elements have been written to intergrate with Git too, and I'll talk about Travis and Code Completion later.  I can higly recommend Jenny Bryans 'Happy Git with R' https://happygitwithr.com/ . Get used to using it then try and contribute to a package, and learn Git as you go.  Most authors will welcome this, and many `R` packages are improved this way.
+I started using Git and GitHub after seeing various packages on Git and wanting to learn.  I didn't know what I was missing at that point.  It takes a while to get to know, but is well worth it.  Many other elements have been written to integrate with Git too, and I'll talk about Travis and Code Completion later.  I can highly recommend Jenny Bryans 'Happy Git with R' https://happygitwithr.com/ . Get used to using it then try and contribute to a package, and learn Git as you go.  Most authors will welcome this, and many `R` packages are improved this way.
 
-I found the github pages part, a webserver problished version of code in your repository, can be really helpful to give a nice package website with minimal effort.
+I found the github pages part, a web-server published version of code in your repository, can be really helpful to give a nice package website with minimal effort.
 
 
 
@@ -86,11 +86,11 @@ Vignette are the term used for 'worked examples.' They range from a few lines to
 
 You can use `rmarkdown` to create vignettes.  In doing so, you need to include a few things:
 
-1. Specificy YAML to tell the package build what it is and how to process it
+1. Specific YAML to tell the package build what it is and how to process it
 1. Add `rmarkdown` and `knitr` to the Description, in `Suggests` (and the namespace).
 1. Consider where image for plots are being store
 
-The easiest way to solve all three is to call `usethis::use_vignette()`.  This sets up the YAML, picture location and the requiredd packages.  I didn't relaise this at first, and had copied the YAML in.  If you don't specify the right picture location, you can get warnings a build time about unexpected files because they are int he wrong location.  The other issue with this is that, if you use 'pkgdown' to build a package documentatino website, it won't pick up the pictures properly (see next section).
+The easiest way to solve all three is to call `usethis::use_vignette()`.  This sets up the YAML, picture location and the required packages.  I didn't relaise this at first, and had copied the YAML in.  If you don't specify the right picture location, you can get warnings a build time about unexpected files because they are int he wrong location.  The other issue with this is that, if you use 'pkgdown' to build a package documentation website, it won't pick up the pictures properly (see next section).
 
 ## README file
 
@@ -116,16 +116,44 @@ Travis is controlled with a `.travis.yml` YAML file.  Again, once you've registe
 
 You can also use Travis to build your `pkgdown` site, again with `usethis:use_pkgdown_travis` will add the the relevant extra instructions to tell travis to load `pkgdown` and build the site, after it has built the package.
 
-I got in a real pickle with this, and I can advocate the 'nuclear option' for solving this one.  I deleted the whole `pkgdown` site several times and remove everything from 'travis.yml'.
+I got in a real pickle with this, and I can advocate the 'nuclear option' for solving this one.  I deleted the whole `pkgdown` site several times and removed everything from my 'travis.yml' and deleted the gh-pages branch on github.  You can at least rebuild it as if it is new in this case.
 
-## Checking your `R` package
+## Checking and building your `R` package
 
+How do you know your `R` package is stable across different installations, and builds correctly in each case.  To do this, we need to 'check it'.  You can find checking options in RStudio, in the 'Build' menu.  It is worth going to the 'Configure Build Tools' from the tools menu, and in the 'Check package' box, add `--as-cran`.  This will run the same set of checks that CRAN runs automatically on your project, so is sensible to run locally first
 
+If you are new to this (or even if you are not), it is likely to find errors and warnings.  You cannot distribute a package (or load to CRAN) with errors, but warnings are a grayer area. In most cases, you can follow a combination of the error messages and Googling to figure out the errors, but some are harder.
+
+In my `FunnelPlotR` package, checking revealed several warnings about variable not being in-scope, or defined.  This ended up being because I'd used `dplyr`. I hadn't spent time learning about non-standard evaluation used in the tidy verse, and wasn't aware that I needed `rlang` package as a dependency, and to us the argument; `.data` in a piped `dplyr` 'sentence.'  You don't need this in normally use for EDA, but if you include it in a function you do e.g.
+
+```{r rlangexmaple, eval=FALSE}
+# Normal use
+mydata %>%
+  filter(columnA > 10)%>%
+  summarise(sum(columnB))
+
+# Fully qualified version for function/package use
+mydata %>%
+  filter(.data$columnA > 10)%>%
+  summarise(sum(.data$columnB))
+```
+
+Once you've checked locally, you should check other systems.  Unless you are fortunate enough to have multiple environments available to you locally, you are probably going to want to use the automated checking services.
+R-hub builds your package on several environments, including a couple of Linux distributions and a Windows server, reporting results to an email address, with logs available online.  A similar process is followed by Win-Builder, that builds the windows distributions on either the current or development versions of`R`.  Both can be accessed using devtools:
+
+```{r devt, eval=FALSE}
+devtools::check_rhub()
+devtools::check_win_devel()
+devtools::check_win_release()
+```
+
+Remember that, if you've used Travis, that is also a Linux build and should be considered a build test.
+Finally, summarise all of this in an .md file  called cran-comments in the root directory of the package.  This allows the cran moderators to easily see what you've tested and any outstanding points.  You can check out my cran-comments file for `FunnelPlotR` here: https://github.com/chrismainey/FunnelPlotR/blob/master/cran-comments.md
 
 ## Process for release
 
 Make sure you have added:
-+ NEWS.md file explaining wha you've published or updated since the last time
++ NEWS.md file explaining what you've published or updated since the last time
 + Build your package
 + Checked and corrected the results from the tests
 + Added a 'cran-comments.md' file to explain what the package is, what environments your tested it on and whether there are outstanding warnings/errors etc.
@@ -136,13 +164,13 @@ When you are ready, run: `devtools::release()`, and follow the prompts to submit
 
 You'll then get a couple of automatic emails with links for you to confirm your package submission. Once you've don that, it's submitted!
 
-...and expect it to be knocked by the CRAN maintainers.  It's not a problem.  Everytime I've had this, they give clear (if brief) feedback and tell you what to correct for resubmission.
+...and expect it to be knocked by the CRAN maintainers.  It's not a problem.  Every time I've had this, they give clear (if brief) feedback and tell you what to correct for re-submission.
 
 ## Licencing
 
-My final point is: think about licencing.  This may seem boring and/or uneccisary to you, but it really isn't.  As a minimun, you want a licence that limits your liability for the code.  The main things to consider are whether it is open source, or not.  If it's not, it won't be going on CRAN, but open source licences vary slightly.  Hadley Wickham's package development material discusses them in more details, but I used a CC0 licence for the `NHSRdatasets` pakcage, as there is not code per se just open source data.  For `FunnelPlotR` I used MIT licence, which is a minimal open source licence, but allows code to be included in proprietry systems if reused.  Some of the other licences like GPL insist that any reuse of the code must be also be in open source setting.  using a licence like this would not allow me to reuse the package in HED work that is proprietry.
+My final point is: think about licencing.  This may seem boring and/or unnecessary to you, but it really isn't.  As a minimum, you want a licence that limits your liability for the code.  The main things to consider are whether it is open source, or not.  If it's not, it won't be going on CRAN, but open source licences vary slightly.  Hadley Wickham's package development material discusses them in more details, but I used a CC0 licence for the `NHSRdatasets` package, as there is not code per se just open source data.  For `FunnelPlotR` I used MIT licence, which is a minimal open source licence, but allows code to be included in propriety systems if reused.  Some of the other licences like GPL insist that any reuse of the code must be also be in open source setting.  using a licence like this would not allow me to reuse the package in HED work that is .
 
 
 # Summary
 
-Package development has taken a lot of hour, but I'm proud of what I've published so far.  I've learnt a lot about `R`, Git and GitHub, writing functions, and I've had my head lifted up to see the subject more broadly.  I've got tonnes left to do with `FunnelPlotR`, and I'm excited to see more data added to `NHSRdatasets`, but they've made a good start.  If you'd like to try contributing to open source `R` packages, I'd be delighted to recieve contributions on my work, as would many other authors.
+Package development has taken a lot of hour, but I'm proud of what I've published so far.  I've learnt a lot about `R`, Git and GitHub, writing functions, and I've had my head lifted up to see the subject more broadly.  I've got tonnes left to do with `FunnelPlotR`, and I'm excited to see more data added to `NHSRdatasets`, but they've made a good start.  If you'd like to try contributing to open source `R` packages, I'd be delighted to receive contributions on my work, as would many other authors.
