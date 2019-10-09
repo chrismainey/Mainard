@@ -113,15 +113,17 @@ __TLDR:  Use a README, but create it using the functions in the `usethis` packag
 
 ## Unit testing and Code coverage
 
-Like many of us, I'd seen the cool little badges that better R programmers had on the repositories, saying things like "code coverage: 80%".  These badges are normally reporting something from another site, in this case, the unit testing results for your package and how much of the code within you pacage they cover.
+Like many of us, I'd seen the cool little badges that better R programmers had on the repositories, saying things like "code coverage: 80%".  These badges are normally reporting something from another site, in this case, the unit testing results for your package and how much of your code they cover.
 
-Unit testing, in this application, it the process of tesitng your code. Many of us do this informally, as we know what we want out of a section.  This gets harder when you are working over several functions at once, and sometimes bugs induce at one point aren't always apparent until they hit other processes. Formalising your unit testing allow you to trust that a set of tests, that you've specified, that relate to the behviour you expetc, are run agaisnt your code to catch issues.  Locally, in relation to both RStudio and CRAN submission, the `testthis` package has a framework for building these test.  Go and look it up, and it will make you more productive, and hopefully catch issues.
+Unit testing, in this application, is the process of testing your code. Many of us do this informally, as we know what we want out of a section of code/function.  This gets harder when you are working over several functions at once, and sometimes bugs induced at one point aren't always apparent until they hit other processes. Formalising your unit testing allows you to trust that a set of tests, that you've written, that relate to the behviour you expect, are run against your code.  You can run these tests in RStudio, and they are also run on other builder platforms (and CRAN submission).  The `testthis` package has a framework for building these test.  Go and look it up and it will make you more productive, and hopefully, catch issues as you work on your code.
 
-You can use the `covr` package to check how much of your code it tested.  Once you push your code to GitHub, you can also link it to Codecov.  Codecov runs a report and analyses you code. The percentage represents how much of your code it 'covered' by the tests you wrote.  This is a useful ppiece of info for imporving your tests and seeing how much of your new code is not yet covered.
+You can use the `covr` package to check how much of your code is tested.  Once you push your code to GitHub, you can also link it to Codecov.  Codecov runs a report and analyses your code. The percentage represents how much of your code it 'covered' by the tests you wrote.  This is a useful piece of info for imporving your tests and seeing how much of your new code is not yet covered.
+
+You can register with Codecov using your GitHub details, and it integrates with Travis builds.  You may need to set up authetication, allowing access to the repository.  Register for an account, and again, `usethis` come to the rescue with `usethis::use_coverage()`. This adds the neccesary element to a package already buidling with Travis.  Speaking of which:
 
 ## Travis CI
 
-Travis is another one of those cool badges you see.  Travis is a continual intergration tool.  This means that (unless you set it otherwise), each time you push code to you repository, Travis will build it for you and report whether there are error messages, or where the process fails.
+Travis is another one of those cool badges you see.  Travis is a continuous intergration tool.  This means that (unless you set it otherwise), each time you push code to your repository, Travis will build it for you and report whether there are error messages, where the process fails, and run tests and trigger reports with Codecov if you want them.
 
 Travis is controlled with a `.travis.yml` YAML file.  Again, once you've registered for a Travis account, and set it up with access to your repo, trust `usethis` package.  Run `usethis::use_travis`, and this will set up your file.  Push this to your repository and you should be good.
 
