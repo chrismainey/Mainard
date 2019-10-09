@@ -22,22 +22,23 @@ draft: true
 
 # Package development
 
-I've spent much of the last six months building several `R` packages.  It's the first time that I'd built packages, and I hope the released versions are much better now that they were at initial release!  This post is not a tutorial on how to build packages, but will summarise some parts I've had to learn, and aims to show you that package building is not magic.  It's particularly accessible now with RStudio, `devtools`, `usethis` and `git` in combination.
+I've spent much of the last six months building several `R` packages.  It's the first time I'd built packages outside of my work environment, and I hope the released versions are much better now that they were at initial release!  This post is not a tutorial on how to build packages, but will summarise some parts I've had to learn, and aims to show you that package building is not magic.  It's particularly accessible now with RStudio, `devtools`, `usethis` and `git` in combination.
 
 ## Packages
 
-I've build or collaborated on three packages recently:
+I've built or collaborated on three packages recently:
 
 + `FunnelPlotR`: `ggplot2` methods for producing funnel plots of indirectly standardised ratios with overdispersion adjustment
-+ `NHSRdatasets`: a free, collaborative datasets package with examples of health related data, to provide in-context examples for NHS-R community and others learning `in health`R`.
++ `NHSRdatasets`: a free, collaborative datasets package, with examples of health-related data, to provide in-context examples for NHS-R community and others learning `R`.
 + `HEDfunctions`: an HED internal package that contains methods for some of the models build in HED production, and several utility functions like confidence intervals etc.
 
-I first went about this by watching a couple of YouTube videos on package building.  These videos used the RStudio wizards to set up the package as an RStudo Project, as well as `roxygen2` to generate documentation. The principle, for the uninitiated, is:
+I started learning the skills to do this by watching a couple of YouTube videos on package building.  These videos used the RStudio wizards to set up the package as an RStudo Project, as well as `roxygen2` to generate documentation. The videos built a basic package in five minutes.  How hard could it be, right?  Hmmmm.....
 
+The principle, for the uninitiated, is:
 + Packages are groups of functions, their help files, and metadata
 + There are conserved package structures, but broadly, your functions go in an `R` folder, and help files in `man`
-+ You have a DESRIPTION file, with the fields you see on CRAN, and a NAMESPACE (written by `roxygen2` in this case)
-+ `roxygen2` converts tagged metadata into the right form for packages, on lines comments `#'` an tagged `@` e.g.:
++ You have a DESRIPTION file, with the fields you see on CRAN, and a NAMESPACE (written by `roxygen2` in this case) that have the details required for release, e.g. package dependencies, authors etc.
++ `roxygen2` converts tagged metadata into the right format for packages.  You add this to the top of function with comments: `#'` and tagged `@` e.g.:
 
 ```{r roxygen, eval=FALSE}
 #' @title My function for doing a thing
@@ -66,43 +67,53 @@ my_function(input_data, method = "A"){
 
 ```
 
-When you 'roxygenise' the function above, `roxygen2` will add the required packages to description and namespace, build the helpfiles into the `man` folder, and build vignettes.  This will save you all sorts of time and headaches!  Although you will need to google the tags a lot.  I found that the formatting is not the same as Rmarkdown, it's more like Latex.  Remember to escape characters like `%` with `\%`, as that kept messing up for me.
+The nice thing here, though, is that you don't need to remember much of that structure.  Write you function then (provided you have the `roxygen2` package installed), go to the Code menu of Rstudio and click on 'Insert Roxygen Skeleton'. You may need to add more tags than this, but it's a helpful start.
+
+When you 'roxygenise' the function above, `roxygen2` will add the required packages to description and namespace, build the helpfiles into the `man` folder, and build vignettes.  This is done using either the 'Document' function in the build menu, or the 'Clean and rebuild option (this build the package, but document it first).  It will save you all sorts of time and headaches!  Although you will probably need to google the tags a lot.  I found that the formatting is not the same as Rmarkdown, it's more like Latex.  Remember to escape characters like `%` with `\%`, as that kept messing up for when I used them in help files.
+
+Also:
++ Use https, not http URLS for stuff.  This is the way of CRAN and you'll get error messages if you don't an packages maybe rejected.
++ If you need to hide an internal function, you need to add the '\@keywords internal' tag
++ Add the `\@export' tag to functions so they are available outside the package (using `::`). You probably want to do this if it's your first rodeo.
 
 ## Git and GitHub
 
-Git is a source control solution, that essentially logs all your changes within a particular folder.  Once you have git installed, it integrates with RStudio very well.  You need to add files to it, then 'commit' changes periodically to log them.  You can roll back your changes or merge them, as well as making 'branches', which are isolated parallel copies of the code that allow you to develop things without committing them to the 'master' branch.  This protects your code from being over written, but also allow parallel developments to be isolated.
+Git is a source control tool that essentially logs your changes within a particular folder.  Once you have git installed, it integrates with RStudio very well.  You need to add files to it, then 'commit' changes periodically to log them.  You can roll back your changes or merge them, as well as making 'branches', which are isolated parallel copies of the code that allow you to develop things without committing them to the 'master' branch.  This protects your code from being overwritten, but also allow parallel developments to be isolated.
 
-Where GitHub comes in, is for collaboration and code sharing.  GitHub (and various similar tools) is an online hosting platform for Git.  You set up repositories, 'remotes' on GitHub, and 'push' your changes from your local machine to GitHub.  GitHub allows various people to pull copies of your work and work on it, merging changes in, allowing review and collaborative development.  There are a bunch of Git and GitHub related features that help the development of packages.
+Where GitHub comes in, is for collaboration and code sharing.  GitHub is an online hosting platform for Git.  You set up repositories, 'remotes' on GitHub, and 'push' your changes from your local machine to GitHub.  GitHub allows various people to pull copies of your work and work on it, merging changes in, allowing review and collaborative development.  There are a bunch of Git and GitHub related features that help the development of packages.
 
-I started using Git and GitHub after seeing various packages on Git and wanting to learn.  I didn't know what I was missing at that point.  It takes a while to get to know, but is well worth it.  Many other elements have been written to integrate with Git too, and I'll talk about Travis and Code Completion later.  I can highly recommend Jenny Bryans 'Happy Git with R' https://happygitwithr.com/ . Get used to using it then try and contribute to a package, and learn Git as you go.  Most authors will welcome this, and many `R` packages are improved this way.
+I started using Git and GitHub after seeing various packages on Git and wanting to learn.  I didn't know what I was missing at that point.  It takes a while to get to know, but is well worth it.  Many other elements have been written to integrate with Git too, and I'll talk about Travis and Code Completion later.  I can highly recommend Jenny Bryans 'Happy Git with R' https://happygitwithr.com/ as a starting point. Get used to using it, then try and contribute to a package, and learn Git as you go.  Most authors will welcome this, and many `R` packages are improved this way.
 
-I found the github pages part, a web-server published version of code in your repository, can be really helpful to give a nice package website with minimal effort.
+I found the Github pages, a web-server published version of code in your repository, can be really helpful to give a nice package website using `pkgdown` with minimal effort for you.
 
 
 
 ## Vignettes
 
-Vignette are the term used for 'worked examples.' They range from a few lines to long tutorials.  Some contain several vignettes, demonstrating special cases or variants of use. I think they are really helpful for demonstrating the motivation and application of a package, and I believe all packages released on CRAN should include at least one.
+Vignette are the term used for 'worked examples.' They range from a few lines to long tutorials.  Some packages contain several vignettes, demonstrating special cases or variants of use. I think they are really helpful for demonstrating the motivation and application of functions in package, and I believe all packages released on CRAN should include at least one.
 
 You can use `rmarkdown` to create vignettes.  In doing so, you need to include a few things:
 
 1. Specific YAML to tell the package build what it is and how to process it
-1. Add `rmarkdown` and `knitr` to the Description, in `Suggests` (and the namespace).
-1. Consider where image for plots are being store
+1. Add `rmarkdown` and `knitr` to the DESCRIPION, in `Suggests` (and the namespace).
+1. Consider where images for plots are being store
 
-The easiest way to solve all three is to call `usethis::use_vignette()`.  This sets up the YAML, picture location and the required packages.  I didn't relaise this at first, and had copied the YAML in.  If you don't specify the right picture location, you can get warnings a build time about unexpected files because they are int he wrong location.  The other issue with this is that, if you use 'pkgdown' to build a package documentation website, it won't pick up the pictures properly (see next section).
+The easiest way to solve all three is to call `usethis::use_vignette()`.  This sets up the YAML, picture location and the required packages.  I didn't relaise this at first, and had copied the YAML in.  If you don't specify the right picture location, you can get warnings at build time about unexpected files because they are in the wrong location.  The other issue with this is that, if you use 'pkgdown' to build a package documentation website, it won't pick up the pictures properly (see next section).
 
 ## README file
 
-Include a README.md file in the top level of your package if you are using GitHUb!  This is the 'landing page' people will see when they arrive at your repository.  You can write them as github markdown, or using Rmarkdown, then knit to github_document in your YAML.  Either way, let RStudio and co. help you! You will get the right structure, YAML and the right `knitr` setup chunk, with `usethis::use_readme_md` or `usethis::use_readme_rmd` (the second of which is in `Rmarkdown`).
+Include a README.md file in the top level of your package if you are using GitHUb!  This is the 'landing page' people will see when they arrive at your repository.  You can write them as github markdown, or using Rmarkdown, then specify knit to github_document in your YAML.  Either way, let RStudio and co. help you! You will get the right structure, YAML and the right `knitr` setup chunk, with `usethis::use_readme_md` or `usethis::use_readme_rmd` (the second of which is in `Rmarkdown`).
 
-My biggest issue with the was when it came to `pkgdown`. `pkgdown` is a fantastic package that ransforms your package metadata into a package website.  There are various control elements, but I simply published it using GitHub page (`gh-pages` branchs in the repos).  I had manually created the README, and I hadn't added the follwing line to my setup code chunk: `fig.path = "man/figures/README-"` .  My README file was still fine, but as `FunnelPlotR` is a plotting package, the README had example plots that render as png files.  When building the `pkgdown` site, it couldn't find my image files.
+My biggest issue with the was when it came to `pkgdown`. `pkgdown` is a fantastic package that transforms your package metadata into a package documentation website.  There are various control elements, but I simply published it using GitHub pages (`gh-pages` branchs in the repos).  
+
+The biggest problem I had was that, agian, I had manually created the README, and I hadn't added the follwing line to my setup code chunk: `fig.path = "man/figures/README-"` .  My README file was still fine, but as `FunnelPlotR` is a plotting package, the README had example plots that render as png files.  When building the `pkgdown` site, it couldn't find my image files.
 
 __TLDR:  Use a README, but create it using the functions in the `usethis` package.__
 
+
 ## Unit testing and Code coverage
 
-Like many of us, I'd seen the cool little badges that better R prgrammers had on the repositories, saving things like "code coeverage: 80%".  These badges are normally reporting something from another site, in this case, the unit testing results or your package and how much of the code within you pacage they cover.
+Like many of us, I'd seen the cool little badges that better R programmers had on the repositories, saying things like "code coverage: 80%".  These badges are normally reporting something from another site, in this case, the unit testing results for your package and how much of the code within you pacage they cover.
 
 Unit testing, in this application, it the process of tesitng your code. Many of us do this informally, as we know what we want out of a section.  This gets harder when you are working over several functions at once, and sometimes bugs induce at one point aren't always apparent until they hit other processes. Formalising your unit testing allow you to trust that a set of tests, that you've specified, that relate to the behviour you expetc, are run agaisnt your code to catch issues.  Locally, in relation to both RStudio and CRAN submission, the `testthis` package has a framework for building these test.  Go and look it up, and it will make you more productive, and hopefully catch issues.
 
