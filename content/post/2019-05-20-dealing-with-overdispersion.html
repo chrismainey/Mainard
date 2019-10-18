@@ -1,7 +1,7 @@
 ---
 title: Dealing with Overdispersion
 author: Chris Mainey
-date: '2019-05-20'
+date: '2019-10-18'
 slug: dealing-with-overdispersion
 categories: 
 - ovedispersion
@@ -29,6 +29,7 @@ output:
 <div id="TOC">
 <ul>
 <li><a href="#what-is-overdispersion"><span class="toc-section-number">1</span> What is overdispersion?</a></li>
+<li><a href="#methods-for-dealing-with-od"><span class="toc-section-number">2</span> Methods for dealing with OD</a></li>
 </ul>
 </div>
 
@@ -62,5 +63,43 @@ ggplot(dist, aes(x=value, col=key, fill = key))+
 <pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="/post/2019-05-20-dealing-with-overdispersion_files/figure-html/distributions-1.png" width="672" /></p>
 <p>They are commonly modelled using the Poisson distribution. Forgive the mathsy description, but it’s the best way:</p>
-<p><span class="math display">\[ Pr(Y = y) = \frac{\mu^y e^-\mu^\lambda }{y!} \]</span></p>
+<p><span class="math display">\[ Pr(Y = y) = \frac{\mu^y e^-\mu^\lambda }{y!}\]</span></p>
+<p>When transformed into a Poisson regression, we end up modelling the expected count <span class="math inline">\(\mu\)</span>, ususllay through a log transformation:</p>
+<p><span class="math display">\[ ln(\mu) = \alpha + \beta x\]</span></p>
+<p>In the exquation above we have no separated error term, and size of <span class="math inline">\(\mu\)</span> is also it’s variance.
+This means that the variance cannot be different. Unless we have perfectly behaved Poisson data,and few things in real life are perfectly behaved, our variance will not be quite right. The upshot of this is that the assessment of parameter signficance, and model accuracy will be affected.</p>
+<p>We usually observe ‘overdispersion’, where there is more variance in our data than the Poisson distribtuion assumes. This means that we underestiamte our error, and overestimate the signficance of parameters. There are a lot of different way to deal with this. Our choice of technique depends on our assumptions, the data generating mechinsm and what we want to use the model for.</p>
+<p>Overdispersion generally arises from one of the following:</p>
+<ul>
+<li>Insufficent predictors in the model (bad model)</li>
+<li>Poorly parameterised model (bad preparation)</li>
+<li>Aggregation of data</li>
+<li>Correlations in data / violations of the ‘independence’ assumption</li>
+</ul>
+<p>1 &amp; 2 can be solved by having more, and better quality data. Sometimes this is possible, but often it’s not. Aggreagation is sometimes neccisary because we don’t have the underlying data, or we are building panel models based on counts etc.</p>
+</div>
+<div id="methods-for-dealing-with-od" class="section level1">
+<h1><span class="header-section-number">2</span> Methods for dealing with OD</h1>
+<p>Where it’s not to change our data structure and processing, we can try some of the following:</p>
+<ol style="list-style-type: decimal">
+<li>Ignore it!</li>
+<li>Scale the variance an manually re-calculate</li>
+<li>Quasi-likelihood models</li>
+<li>Mixture models:</li>
+<li>Zero-inflated models</li>
+<li>Negaive Binomial models</li>
+<li>Models for clusterd data:</li>
+<li>Generalized Estimating equations</li>
+<li>Random-Intercept models</li>
+</ol>
+<div id="ignore-it" class="section level2">
+<h2><span class="header-section-number">2.1</span> Ignore it:</h2>
+<p>The Poisson distribution is (helpfully) known to be unbiased, so unless we need to considered the signficance of parameters, we might be fine ignoring it. If our data doesn’t violate regression assumptions, and we are using it for predictions or parameter estimates, we are fine.</p>
+</div>
+<div id="scale-the-variance-manually" class="section level2">
+<h2><span class="header-section-number">2.2</span> Scale the variance manually</h2>
+</div>
+<div id="quasi--lieklihood-models" class="section level2">
+<h2><span class="header-section-number">2.3</span> Quasi -lieklihood models</h2>
+</div>
 </div>

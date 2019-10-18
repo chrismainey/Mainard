@@ -1,7 +1,7 @@
 ---
 title: Dealing with Overdispersion
 author: Chris Mainey
-date: '2019-05-20'
+date: '2019-10-18'
 slug: dealing-with-overdispersion
 categories: 
 - ovedispersion
@@ -63,7 +63,47 @@ ggplot(dist, aes(x=value, col=key, fill = key))+
 
 They are commonly modelled using the Poisson distribution.  Forgive the mathsy description, but it's the best way:
 
-$$ Pr(Y = y) = \frac{\mu^y e^-\mu^\lambda }{y!} $$
+$$ Pr(Y = y) = \frac{\mu^y e^-\mu^\lambda }{y!}$$
 
 
+When transformed into a Poisson regression, we end up modelling the expected count $\mu$, ususllay through a log transformation:
 
+$$ ln(\mu) = \alpha + \beta x$$
+
+In the exquation above we have no separated error term, and size of $\mu$ is also it's variance.
+This means that the variance cannot be different.  Unless we have perfectly behaved Poisson data,and few things in real life are perfectly behaved, our variance will not be quite right.  The upshot of this is that the assessment of parameter signficance, and model accuracy will be affected.
+
+We usually observe 'overdispersion', where there is more variance in our data than the Poisson distribtuion assumes.  This means that we underestiamte our error, and overestimate the signficance of parameters.  There are a lot of different way to deal with this.  Our choice of technique depends on our assumptions, the data generating mechinsm and what we want to use the model for.
+
+Overdispersion generally arises from one of the following:
+
++ Insufficent predictors in the model (bad model)
++ Poorly parameterised model (bad preparation)
++ Aggregation of data
++ Correlations in data / violations of the 'independence' assumption
+
+1 & 2 can be solved by having more, and better quality data.  Sometimes this is possible, but often it's not.  Aggreagation is sometimes neccisary because we don't have the underlying data, or we are building panel models based on counts etc.  
+
+
+# Methods for dealing with OD
+
+Where it's not to change our data structure and processing, we can try some of the following:
+
+1. Ignore it! 
+1. Scale the variance an manually re-calculate
+1. Quasi-likelihood models
+1. Mixture models:
+ 1. Zero-inflated models
+ 1. Negaive Binomial models
+1. Models for clusterd data:
+ 1. Generalized Estimating equations
+ 1. Random-Intercept models
+ 
+ 
+## Ignore it:
+
+The Poisson distribution is (helpfully) known to be unbiased, so unless we need to considered the signficance of parameters, we might be fine ignoring it.  If our data doesn't violate regression assumptions, and we are using it for predictions or parameter estimates, we are fine.
+
+## Scale the variance manually
+
+## Quasi -lieklihood models

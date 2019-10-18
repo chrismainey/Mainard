@@ -14,7 +14,7 @@ draft: true
 
 # Setting up R
 
-One o fthe biggest barriers to R adoption, particualrly in the NHS organisations I've wokred with, is getting it workin gin the first place.  It's common in NHS organisations, and other corporate settings, to have windows environments with high security levels and unwirtable default directories.
+One of the biggest barriers to R adoption, particualrly in the NHS organisations I've wokred with, is getting it workin gin the first place.  It's common in NHS organisations, and other corporate settings, to have windows environments with high security levels and unwirtable default directories.
 
 This details the common issues and how you might fix them.
 
@@ -35,7 +35,7 @@ The key thing is to __install it on your local machine__, not on a shared drive 
 
 # File paths in general
 
-For the Windows users, you may be used to seeing file pathes that look like this
+For the Windows users, you may be used to seeing file paths that look like this:
 - C:\MyFolder\MySubfolder
 
 It might help to know that R is used on other systems too, including Linux, and this Windows format is the 'oddball.' Othe systems use the slash the opposite way:
