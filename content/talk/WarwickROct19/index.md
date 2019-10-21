@@ -16,13 +16,13 @@ math: true
 projects: ""
 publishDate: "2019-10-20T00:00:00Z"
 slides: ""
-summary: "A five minute overview of why `data.table` is awesome.  It's fast, indexed, and holds more data than you can with plain `data.frames`."
+summary: "A five minute overview of why data.table is awesome.  It's fast, indexed, and holds more data than you can with plain data.frames."
 tags: 
  - R
  - NHS
  - WarwickR
  - data.table
-title: "Why I love `data.table` (or, 'All of the datas, and none of RAMs...') "
+title: "Why I love data.table (or, 'All of the datas, and none of RAMs...') "
 url_code: ""
 url_pdf: ""
 url_slides: ""

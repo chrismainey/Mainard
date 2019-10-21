@@ -12,7 +12,7 @@ abstract: Healthcare Evaluation Data (HED) is an online NHS benchmarking using n
   Encouraging R use for analysis and ad-hoc reporting
   Open-source principles, information governance and intellectual property
   Barriers we have faced include scepticism about security risks, unhelpful hardware and network settings, a
-  perception that R was not fit for production, fear of losing SAS at the ‘standard,’ and the learning curve for
+  perception that R was not fit for production, fear of losing SAS as the ‘standard,’ and the learning curve for
   new R users.
   We have embarked on a structured training program for our teams and have set up a local R user group.
   We are aiming to further engage with the R community as user confidence grows.
@@ -20,7 +20,7 @@ all_day: false
 authors: [~]
 date: "2019-11-21T17:30:00"
 date_end: "2019-11-21T19:30:00"
-event: BirminghaR, November 2019
+event: BirminghamR, November 2019
 event_url: https://www.meetup.com/BirminghamR/
 featured: false
 image: 
