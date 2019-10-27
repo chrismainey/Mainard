@@ -23,9 +23,9 @@ tags:
  - WarwickR
  - data.table
 title: "Why I love data.table (or, 'All of the datas, and none of RAMs...') "
-url_code: ""
+url_code: "https://github.com/chrismainey/Why_I_love_datatable"
 url_pdf: ""
-url_slides: ""
+url_slides: "https://chrismainey.github.io/Why_I_love_datatable/Why_I_love_datatable.html"
 url_video: ""
 draft: false
 ---
