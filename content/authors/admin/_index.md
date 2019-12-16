@@ -51,7 +51,7 @@ user_groups:
 
 Chris Mainey is a Data Scientist/Statistician/Analyst in Health Informatics.  He is a member of the Healthcare Evaluation Data (HED) team at University Hospitals Birmingham NHS Foundation Trust (UHB).
 
-Chris' work focuses on modelling National Health Service (NHS) data.  He works primarily in R and SQL Server, and has experience with various statistical modelling and machine learning techniques.  He is currently finishing his PhD at UCL (and nervously awaiting viva...), focused on modelling methods for NHS incident reporting data.
+Chris' work focuses on modelling National Health Service (NHS) data.  He works primarily in R and SQL Server, and has experience with various statistical modelling and machine learning techniques.  He is currently finishing his PhD at UCL, focused on modelling methods for NHS incident reporting data.
 
 Chris is an experienced trainer, presenter and post-grad teacher, keen on communicating health data, statistics and ML techniques to a variety of audiences. He leads a local R usergroup at UHB, and is keen to promote R awareness and adoption in the NHS.
  
