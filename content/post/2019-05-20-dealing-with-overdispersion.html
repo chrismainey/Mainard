@@ -29,7 +29,8 @@ output:
 <div id="TOC">
 <ul>
 <li><a href="#what-is-overdispersion"><span class="toc-section-number">1</span> What is overdispersion?</a></li>
-<li><a href="#methods-for-dealing-with-od"><span class="toc-section-number">2</span> Methods for dealing with OD</a></li>
+<li><a href="#exammple"><span class="toc-section-number">2</span> Exammple:</a></li>
+<li><a href="#methods-for-dealing-with-od"><span class="toc-section-number">3</span> Methods for dealing with OD</a></li>
 </ul>
 </div>
 
@@ -66,8 +67,8 @@ ggplot(dist, aes(x=value, col=key, fill = key))+
 <p><span class="math display">\[ Pr(Y = y) = \frac{\mu^y e^-\mu^\lambda }{y!}\]</span></p>
 <p>When transformed into a Poisson regression, we end up modelling the expected count <span class="math inline">\(\mu\)</span>, ususllay through a log transformation:</p>
 <p><span class="math display">\[ ln(\mu) = \alpha + \beta x\]</span></p>
-<p>In the exquation above we have no separated error term, and size of <span class="math inline">\(\mu\)</span> is also it’s variance.
-This means that the variance cannot be different. Unless we have perfectly behaved Poisson data,and few things in real life are perfectly behaved, our variance will not be quite right. The upshot of this is that the assessment of parameter signficance, and model accuracy will be affected.</p>
+<p>In the equation above we have no separate error term, and size of <span class="math inline">\(\mu\)</span> is also it’s variance.
+This means that the variance cannot be different. Unless we have perfectly behaved Poisson data, and few things in real life are perfectly behaved, our variance will not be quite right. The upshot of this is that the assessment of parameter signficance, and model accuracy will be affected.</p>
 <p>We usually observe ‘overdispersion’, where there is more variance in our data than the Poisson distribtuion assumes. This means that we underestiamte our error, and overestimate the signficance of parameters. There are a lot of different way to deal with this. Our choice of technique depends on our assumptions, the data generating mechinsm and what we want to use the model for.</p>
 <p>Overdispersion generally arises from one of the following:</p>
 <ul>
@@ -78,8 +79,111 @@ This means that the variance cannot be different. Unless we have perfectly behav
 </ul>
 <p>1 &amp; 2 can be solved by having more, and better quality data. Sometimes this is possible, but often it’s not. Aggreagation is sometimes neccisary because we don’t have the underlying data, or we are building panel models based on counts etc.</p>
 </div>
+<div id="exammple" class="section level1">
+<h1><span class="header-section-number">2</span> Exammple:</h1>
+<p>I’m going to use the <code>NHSRdatasets</code> package for this post, and build a regression model on the Length-of-Stay field in the <code>LOS_model</code> data set. we can then test if it is over dispersed. Firstly, lets visulaise the distribution before we build our model.</p>
+<pre class="r"><code>install.packages(&quot;NHSRdatasets&quot;)
+library(NHSRdatasets)</code></pre>
+<pre class="r"><code>data(&quot;LOS_model&quot;)
+
+Hmisc::describe(LOS_model)</code></pre>
+<pre><code>## LOS_model 
+## 
+##  5  Variables      300  Observations
+## --------------------------------------------------------------------------------
+## ID 
+##        n  missing distinct     Info     Mean      Gmd      .05      .10 
+##      300        0      300        1    150.5    100.3    15.95    30.90 
+##      .25      .50      .75      .90      .95 
+##    75.75   150.50   225.25   270.10   285.05 
+## 
+## lowest :   1   2   3   4   5, highest: 296 297 298 299 300
+## --------------------------------------------------------------------------------
+## Organisation 
+##        n  missing distinct 
+##      300        0       10 
+## 
+## lowest : Trust1  Trust2  Trust3  Trust4  Trust5 
+## highest: Trust6  Trust7  Trust8  Trust9  Trust10
+##                                                                           
+## Value       Trust1  Trust2  Trust3  Trust4  Trust5  Trust6  Trust7  Trust8
+## Frequency       30      30      30      30      30      30      30      30
+## Proportion     0.1     0.1     0.1     0.1     0.1     0.1     0.1     0.1
+##                           
+## Value       Trust9 Trust10
+## Frequency       30      30
+## Proportion     0.1     0.1
+## --------------------------------------------------------------------------------
+## Age 
+##        n  missing distinct     Info     Mean      Gmd      .05      .10 
+##      300        0       88        1    50.66    32.14     9.00    13.00 
+##      .25      .50      .75      .90      .95 
+##    24.00    54.00    75.25    88.00    92.00 
+## 
+## lowest :  5  6  7  8  9, highest: 91 92 93 94 95
+## --------------------------------------------------------------------------------
+## LOS 
+##        n  missing distinct     Info     Mean      Gmd      .05      .10 
+##      300        0       16    0.986    4.937    3.939        1        1 
+##      .25      .50      .75      .90      .95 
+##        2        4        7       10       12 
+## 
+## lowest :  1  2  3  4  5, highest: 12 13 14 15 18
+##                                                                             
+## Value          1     2     3     4     5     6     7     8     9    10    11
+## Frequency     49    48    42    29    26    18    18    14    13    15    12
+## Proportion 0.163 0.160 0.140 0.097 0.087 0.060 0.060 0.047 0.043 0.050 0.040
+##                                         
+## Value         12    13    14    15    18
+## Frequency      7     2     2     3     2
+## Proportion 0.023 0.007 0.007 0.010 0.007
+## --------------------------------------------------------------------------------
+## Death 
+##        n  missing distinct     Info      Sum     Mean      Gmd 
+##      300        0        2    0.436       53   0.1767   0.2919 
+## 
+## --------------------------------------------------------------------------------</code></pre>
+<pre class="r"><code>library(ggplot2)
+ggplot(LOS_model, aes(LOS))+
+  geom_histogram(bins=15, fill=&quot;dodgerblue2&quot;, alpha=0.6, col=1)+
+  geom_vline(aes(xintercept=median(LOS)), col=&quot;red&quot;)+
+  ggtitle(&quot;Histogram of Length of Stay in &#39;LOS_model&#39;&quot;)</code></pre>
+<p><img src="/post/2019-05-20-dealing-with-overdispersion_files/figure-html/load-1.png" width="672" /></p>
+<p>So we have a skewed distribution, with the median represente dby the red line. Lets build a Poisson model next:</p>
+<pre class="r"><code>glm1 &lt;- glm(LOS ~ Age * Death, data=LOS_model, family=&quot;poisson&quot;)
+
+summary(glm1)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = LOS ~ Age * Death, family = &quot;poisson&quot;, data = LOS_model)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -3.4929  -0.9039  -0.1069   0.7589   3.3681  
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  0.514456   0.078345   6.567 5.15e-11 ***
+## Age          0.018097   0.001169  15.479  &lt; 2e-16 ***
+## Death        1.491162   0.140864  10.586  &lt; 2e-16 ***
+## Age:Death   -0.020209   0.002187  -9.240  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 752.23  on 299  degrees of freedom
+## Residual deviance: 459.77  on 296  degrees of freedom
+## AIC: 1429
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<p>We can test for OD, using the ratio of the sum of the squared Pearson residuals over the degrees of freedom. If this value is 1, then the variance is as expected (‘equidispersion’), but if it is &gt;1, then we have OD, and this value can be interpreted as a dispersion ratio:</p>
+<pre class="r"><code>sum(residuals(glm1,type=&quot;pearson&quot;) ^2)/ df.residual(glm1)</code></pre>
+<pre><code>## [1] 1.464411</code></pre>
+<p>Our data are not especially overdispersed here, with 1.46 times the variance. My initial incident models had dispersion ratios of &gt;40.</p>
+</div>
 <div id="methods-for-dealing-with-od" class="section level1">
-<h1><span class="header-section-number">2</span> Methods for dealing with OD</h1>
+<h1><span class="header-section-number">3</span> Methods for dealing with OD</h1>
 <p>Where it’s not to change our data structure and processing, we can try some of the following:</p>
 <ol style="list-style-type: decimal">
 <li>Ignore it!</li>
@@ -93,13 +197,132 @@ This means that the variance cannot be different. Unless we have perfectly behav
 <li>Random-Intercept models</li>
 </ol>
 <div id="ignore-it" class="section level2">
-<h2><span class="header-section-number">2.1</span> Ignore it:</h2>
+<h2><span class="header-section-number">3.1</span> Ignore it:</h2>
 <p>The Poisson distribution is (helpfully) known to be unbiased, so unless we need to considered the signficance of parameters, we might be fine ignoring it. If our data doesn’t violate regression assumptions, and we are using it for predictions or parameter estimates, we are fine.</p>
 </div>
 <div id="scale-the-variance-manually" class="section level2">
-<h2><span class="header-section-number">2.2</span> Scale the variance manually</h2>
+<h2><span class="header-section-number">3.2</span> Scale the variance manually</h2>
 </div>
-<div id="quasi--lieklihood-models" class="section level2">
-<h2><span class="header-section-number">2.3</span> Quasi -lieklihood models</h2>
+<div id="quasi--likelihood-models" class="section level2">
+<h2><span class="header-section-number">3.3</span> Quasi -likelihood models</h2>
+<p>To fit a quasi-Poisson model, we simply change the family in the <code>glm</code>. Note the dispersion parameter matches the calculation above, and the standard errors are inflated to account for this:</p>
+<pre class="r"><code>quasi&lt;-glm(LOS ~ Age * Death, data=LOS_model, family=&quot;quasipoisson&quot; )
+
+summary(quasi)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = LOS ~ Age * Death, family = &quot;quasipoisson&quot;, data = LOS_model)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -3.4929  -0.9039  -0.1069   0.7589   3.3681  
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  0.514456   0.094807   5.426 1.20e-07 ***
+## Age          0.018097   0.001415  12.791  &lt; 2e-16 ***
+## Death        1.491162   0.170463   8.748  &lt; 2e-16 ***
+## Age:Death   -0.020209   0.002647  -7.636 3.12e-13 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for quasipoisson family taken to be 1.464411)
+## 
+##     Null deviance: 752.23  on 299  degrees of freedom
+## Residual deviance: 459.77  on 296  degrees of freedom
+## AIC: NA
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<p>For a negative binomial model, two options are <code>glm.nb</code> from the <code>MASS</code> package, or <code>glmmTMB</code> function from the package of the same name. Note that the function from <code>MASS</code> does not take a <code>family</code> argument. The dispersion factor here is quadratic to the mean, so don’t compare it directly to the scale factor above.</p>
+<pre class="r"><code>library(MASS)
+
+nb &lt;- glm.nb(LOS ~ Age * Death, data=LOS_model)
+
+summary(nb)</code></pre>
+<pre><code>## 
+## Call:
+## glm.nb(formula = LOS ~ Age * Death, data = LOS_model, init.theta = 8.300914044, 
+##     link = log)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.7320  -0.7464  -0.0903   0.6332   2.2742  
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  0.509047   0.091934   5.537 3.08e-08 ***
+## Age          0.018194   0.001448  12.565  &lt; 2e-16 ***
+## Death        1.494414   0.183974   8.123 4.55e-16 ***
+## Age:Death   -0.020269   0.002881  -7.035 2.00e-12 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for Negative Binomial(8.3009) family taken to be 1)
+## 
+##     Null deviance: 473.82  on 299  degrees of freedom
+## Residual deviance: 285.44  on 296  degrees of freedom
+## AIC: 1388.5
+## 
+## Number of Fisher Scoring iterations: 1
+## 
+## 
+##               Theta:  8.30 
+##           Std. Err.:  1.82 
+## 
+##  2 x log-likelihood:  -1378.487</code></pre>
+<p>Finally, using the random-intercept model, fitted with <code>glmer</code> from the <code>lme4</code> package. There are many different packages for doing this in <code>R</code>, and it’s an area where “Bayesian” and “Frequentest” methods differ in theory but share many of the same processes in practice. I also liked the <code>glmmTMB</code> package, as it has more distributions, and is faster than <code>lme4</code>, but it is not yet as mature.<br />
+The extra formula argument in the model below: (1|Organisation), specifies the random-intercept, where 1 means the intercept, and the <code>|</code> reads as ‘intercept varying by organisation.’ Multi-level models are huge field in and of themselves, but the main points to note are:
+- understanding the random effects structure,
+- how this changes your interpretation of estimates
+- You can predict with or without the random effects
+- These models are very sensitive to scale. For scaling I use the <code>scale</code> and <code>arm::rescale</code> functions (and Andrew Gelman has something to say on this: <a href="http://www.stat.columbia.edu/~gelman/research/published/standardizing7.pdf" class="uri">http://www.stat.columbia.edu/~gelman/research/published/standardizing7.pdf</a>)</p>
+<pre class="r"><code>library(lme4)
+
+glmm &lt;- glmer(LOS ~ scale(Age) * Death + (1|Organisation), data=LOS_model, family=&quot;poisson&quot;)
+
+summary(glmm)</code></pre>
+<pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: poisson  ( log )
+## Formula: LOS ~ scale(Age) * Death + (1 | Organisation)
+##    Data: LOS_model
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   1429.7   1448.2   -709.9   1419.7      295 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.6962 -0.8040 -0.0905  0.8521  4.2508 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  Organisation (Intercept) 0.00396  0.06293 
+## Number of obs: 300, groups:  Organisation, 10
+## 
+## Fixed effects:
+##                  Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)       1.43006    0.03818  37.455  &lt; 2e-16 ***
+## scale(Age)        0.50621    0.03263  15.513  &lt; 2e-16 ***
+## Death             0.46200    0.06391   7.229 4.87e-13 ***
+## scale(Age):Death -0.56021    0.06116  -9.159  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr) scl(A) Death 
+## scale(Age)  -0.348              
+## Death       -0.433  0.204       
+## scl(Ag):Dth  0.183 -0.529 -0.253</code></pre>
+<pre class="r"><code>confint(glmm)</code></pre>
+<pre><code>## Computing profile confidence intervals ...</code></pre>
+<pre><code>##                       2.5 %     97.5 %
+## .sig01            0.0000000  0.1511114
+## (Intercept)       1.3494494  1.5079597
+## scale(Age)        0.4426231  0.5705900
+## Death             0.3353796  0.5860630
+## scale(Age):Death -0.6797591 -0.4398526</code></pre>
+<p>These models are significantly more complicated than the ones shown previously. There are some philosophical issues with standard errors or random effects (see Ben Bolker’s amazing GLMM FAQs: <a href="https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html" class="uri">https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html</a>).
+<code>Confint</code> can be used to calculate the confidence interval above by profiling the likelihood (provided you have the <code>MASS</code> package installed). This allows you to assess the significance of the random effect. Our CI butts up against zero here, and the AIC is slightly worse than the <code>glm</code>. This suggests it is not well modelled with the normally distributed random intercept. The NB model appears to perform better.</p>
+<p>Predictions from GLMMS also require more thought. You can predict with the random effects (“conditional”) or without (“marginal”). Conditional predictions will have the adjustment for their cluster (or whatever random effect you have fitted), but marginal could be considered the model average in the case above. Subject to the fixed effects, removing the effects of cluster (e.g. risk for the average patient/unit with that exposure, regardless of where they were seen) allows prediction at the ‘average rate.’</p>
 </div>
 </div>

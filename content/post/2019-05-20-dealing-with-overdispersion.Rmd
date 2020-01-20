@@ -25,6 +25,14 @@ output:
     toc_depth: 1
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+dev.args = list(png = list(type = "cairo"))
+)
+library(NHSRdatasets)
+library(Cairo)
+```
+
 # What is overdispersion?
 
 This post discusses 'overdispersion' ('OD' in this post), a term commonly seen when using count data (such as the NHS mortality indicator [SHMI](www.digital.nhs.uk/SHMI).  I will discuss what it is, how it affects our data and our interpretations as well as some options for dealing with it.  It is related to an earlier post on [Funnel plots](https://mainard.co.uk/post/introduction-to-funnel-plots/), as these plot need adjustment in the presence of OD.  It will help explain the adjustment used in that post, as well as other (and in my opinion, better) approaches.
@@ -70,8 +78,8 @@ When transformed into a Poisson regression, we end up modelling the expected cou
 
 $$ ln(\mu) = \alpha + \beta x$$
 
-In the exquation above we have no separated error term, and size of $\mu$ is also it's variance.
-This means that the variance cannot be different.  Unless we have perfectly behaved Poisson data,and few things in real life are perfectly behaved, our variance will not be quite right.  The upshot of this is that the assessment of parameter signficance, and model accuracy will be affected.
+In the equation above we have no separate error term, and size of $\mu$ is also it's variance.
+This means that the variance cannot be different.  Unless we have perfectly behaved Poisson data, and few things in real life are perfectly behaved, our variance will not be quite right.  The upshot of this is that the assessment of parameter signficance, and model accuracy will be affected.
 
 We usually observe 'overdispersion', where there is more variance in our data than the Poisson distribtuion assumes.  This means that we underestiamte our error, and overestimate the signficance of parameters.  There are a lot of different way to deal with this.  Our choice of technique depends on our assumptions, the data generating mechinsm and what we want to use the model for.
 
@@ -83,6 +91,44 @@ Overdispersion generally arises from one of the following:
 + Correlations in data / violations of the 'independence' assumption
 
 1 & 2 can be solved by having more, and better quality data.  Sometimes this is possible, but often it's not.  Aggreagation is sometimes neccisary because we don't have the underlying data, or we are building panel models based on counts etc.  
+
+
+# Exammple:
+
+I'm going to use the `NHSRdatasets` package for this post, and build a regression model on the Length-of-Stay field in the `LOS_model` data set.  we can then test if it is over dispersed.  Firstly, lets visulaise the distribution before we build our model.
+
+```{r inst, eval=FALSE}
+install.packages("NHSRdatasets")
+library(NHSRdatasets)
+```
+
+```{r load, warning=FALSE, message=FALSE}
+data("LOS_model")
+
+Hmisc::describe(LOS_model)
+
+library(ggplot2)
+ggplot(LOS_model, aes(LOS))+
+  geom_histogram(bins=15, fill="dodgerblue2", alpha=0.6, col=1)+
+  geom_vline(aes(xintercept=median(LOS)), col="red")+
+  ggtitle("Histogram of Length of Stay in 'LOS_model'")
+```
+
+So we have a skewed distribution, with the median represente dby the red line.  Lets build a Poisson model next:
+
+```{r glm}
+glm1 <- glm(LOS ~ Age * Death, data=LOS_model, family="poisson")
+
+summary(glm1)
+```
+
+
+We can test for OD, using the ratio of the sum of the squared Pearson residuals over the degrees of freedom.  If this value is 1, then the variance is as expected ('equidispersion'), but if it is  >1, then we have OD, and this value can be interpreted as a dispersion ratio:
+```{r od}
+sum(residuals(glm1,type="pearson") ^2)/ df.residual(glm1)
+```
+
+Our data are not especially overdispersed here, with 1.46 times the variance.  My initial incident models had dispersion ratios of >40.
 
 
 # Methods for dealing with OD
@@ -106,4 +152,55 @@ The Poisson distribution is (helpfully) known to be unbiased, so unless we need 
 
 ## Scale the variance manually
 
-## Quasi -lieklihood models
+## Quasi -likelihood models
+
+
+
+
+
+
+
+
+To fit a quasi-Poisson model, we simply change the family in the `glm`.  Note the dispersion parameter matches the calculation above, and the standard errors are inflated to account for this:
+```{r quasi}
+quasi<-glm(LOS ~ Age * Death, data=LOS_model, family="quasipoisson" )
+
+summary(quasi)
+```
+
+
+For a negative binomial model, two options are `glm.nb` from the `MASS` package, or `glmmTMB` function from the package of the same name.  Note that the function from `MASS` does not take a `family` argument.  The dispersion factor here is quadratic to the mean, so don't compare it directly to the scale factor above.
+```{r nb, warning=FALSE, message=FALSE}
+library(MASS)
+
+nb <- glm.nb(LOS ~ Age * Death, data=LOS_model)
+
+summary(nb)
+
+```
+
+
+Finally, using the random-intercept model, fitted with `glmer` from the `lme4` package.  There are many different packages for doing this in `R`, and it's an area where "Bayesian" and "Frequentest" methods differ in theory but share many of the same processes in practice.  I also liked the `glmmTMB` package, as it has more distributions, and is faster than `lme4`, but it is not yet as mature.  
+The extra formula argument in the model below: (1|Organisation), specifies the random-intercept, where 1 means the intercept, and the `|` reads as 'intercept varying by organisation.'  Multi-level models are huge field in and of themselves, but the main points to note are: 
+- understanding the random effects structure, 
+- how this changes your interpretation of estimates
+- You can predict with or without the random effects
+- These models are very sensitive to scale.  For scaling I use the `scale` and `arm::rescale` functions (and Andrew Gelman has something to say on this:  http://www.stat.columbia.edu/~gelman/research/published/standardizing7.pdf)
+
+```{r glmm, warning=FALSE, message=FALSE}
+library(lme4)
+
+glmm <- glmer(LOS ~ scale(Age) * Death + (1|Organisation), data=LOS_model, family="poisson")
+
+summary(glmm)
+```
+
+```{r confint}
+confint(glmm)
+
+```
+
+These models are significantly more complicated than the ones shown previously.  There are some philosophical issues with standard errors or random effects (see Ben Bolker's amazing GLMM FAQs: https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html). 
+`Confint` can be used to calculate the confidence interval above by profiling the likelihood (provided you have the `MASS` package installed).  This allows you to assess the significance of the random effect.  Our CI butts up against zero here, and the AIC is slightly worse than the `glm`.  This suggests it is not well modelled with the normally distributed random intercept.  The NB model appears to perform better.
+
+Predictions from GLMMS also require more thought.  You can predict with the random effects ("conditional") or without ("marginal").  Conditional predictions will have the adjustment for their cluster (or whatever random effect you have fitted), but marginal could be considered the model average in the case above.  Subject to the fixed effects, removing the effects of cluster (e.g. risk for the average patient/unit with that exposure, regardless of where they were seen) allows prediction at the 'average rate.'
