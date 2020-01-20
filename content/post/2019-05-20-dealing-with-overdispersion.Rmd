@@ -123,17 +123,18 @@ summary(glm1)
 ```
 
 
-We can test for OD, using the ratio of the sum of the squared Pearson residuals over the degrees of freedom.  If this value is 1, then the variance is as expected ('equidispersion'), but if it is  >1, then we have OD, and this value can be interpreted as a dispersion ratio:
+We can test for OD, using the ratio of the sum of the squared Pearson residuals over the degrees of freedom.  If this value is 1, then the variance is as expected ('equidispersion'), but if it is  >1, then we have OD, and this value can be interpreted as a dispersion ratio (\u03D5):
 ```{r od}
-sum(residuals(glm1,type="pearson") ^2)/ df.residual(glm1)
+phi <- sum(residuals(glm1,type="pearson") ^2)/ df.residual(glm1)
+phi
 ```
 
-Our data are not especially overdispersed here, with 1.46 times the variance.  My initial incident models had dispersion ratios of >40.
+Our data are showing OD, but it is not extreme, with 1.46 times the expected variance.  The models used during my PhD work had dispersion ratios of >40, which forced me to figure out how to deal with it.
 
 
 # Methods for dealing with OD
 
-Where it's not to change our data structure and processing, we can try some of the following:
+Where it's not possible to change our data structure and processing rules, we can try some of the following:
 
 1. Ignore it! 
 1. Scale the variance an manually re-calculate
@@ -152,13 +153,22 @@ The Poisson distribution is (helpfully) known to be unbiased, so unless we need 
 
 ## Scale the variance manually
 
+You could extract the variance of the parameter estimated, multiply it by \u03D5:
+
+```{r scalevar}
+
+scalederr <- log(summary(glm1)$coefficients[,2]) * phi
+
+old_CI <- confint.default(glm1, type="wald")
+
+lci <- exp(log(coef(glm1)) - (1.96 * scalederr))
+uci <- exp(log(coef(glm1)) + (1.96 * scalederr))
+
+cbind(old_CI, "New LCI"= lci, "New UCI" = uci)
+
+```
+
 ## Quasi -likelihood models
-
-
-
-
-
-
 
 
 To fit a quasi-Poisson model, we simply change the family in the `glm`.  Note the dispersion parameter matches the calculation above, and the standard errors are inflated to account for this:
@@ -166,6 +176,8 @@ To fit a quasi-Poisson model, we simply change the family in the `glm`.  Note th
 quasi<-glm(LOS ~ Age * Death, data=LOS_model, family="quasipoisson" )
 
 summary(quasi)
+
+confint.default(quasi)
 ```
 
 
@@ -176,6 +188,8 @@ library(MASS)
 nb <- glm.nb(LOS ~ Age * Death, data=LOS_model)
 
 summary(nb)
+
+confint(nb)
 
 ```
 
