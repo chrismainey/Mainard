@@ -26,7 +26,7 @@ This package has been created to help NHS, Public Health and related analysts/da
 
 It currently contains two datasets, one simulated dataset based on hospital in-patient length of stay, and one republishing NHS England's Accident and Emergency statistics.
     
-The package was created for, and on behalf of, the NHS-R Community:  https://community.com/
+The package was created for, and on behalf of, the NHS-R Community:  https://nhsrcommunity.com/
 
 For more information, see:
 

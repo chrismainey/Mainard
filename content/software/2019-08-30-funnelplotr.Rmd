@@ -41,8 +41,11 @@ This uses a log-transformation and truncation of the distribution for calculatin
 <br><br>
 This package was originally developed for use in my PhD project, but published on GitHub in case it's of use for others.  It has now been submitted to CRAN for publication.
 
+_v0.2.0_ This is the first CRAN release of FunnelPlotR, for building funnel plots of indirectly standardised ratios, such as hospital mortality ratio. It allows adjustment of funnel limits for overdispersion. Future releases will extend functionality to proportions and ratios of counts. This package replaces the earlier CMFunnels package, that was only released on GitHub.
 
 __v0.2.1:__ Hides internal functions, removed unneccesary function, typos and scaling bug fixed.  Added new custom scaling functions.
+
+__v0.2.2:__ Minor bug fix for discrepancy between documentation and function defaults
 
 
 For more information, see:
