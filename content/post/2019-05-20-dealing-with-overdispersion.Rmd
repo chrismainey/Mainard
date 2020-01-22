@@ -182,7 +182,9 @@ confint(quasi)
 
 ## Negative Binomial Model
 
-For a negative binomial model, two options are `glm.nb` from the `MASS` package, or `glmmTMB` function from the package of the same name.  Note that the function from `MASS` does not take a `family` argument.  The dispersion factor here is quadratic to the mean, so don't compare it directly to the scale factor above.
+Another option is to use more than one distribution to model the data. There are a few options for this, but the Negative binomial family is one.  THis is a mixture of disributions, and 'nb1' is similar to the quasi likelihood below, but 'nb2' is a mixutre of Poisson means that are, themselves, gamma-distributed.  There are some assumptions beneath this method, but essentially we assume there is more overdispersion at the smaller means (clusters etc.).
+
+For a negative binomial model, two options are `glm.nb` from the `MASS` package, or `glmmTMB` function from the package of the same name.  Note that the function from `MASS` does not take a `family` argument.  The dispersion factor here is quadratic to the mean, so don't compare it directly to the scale factor \u03D5 above.
 ```{r nb, warning=FALSE, message=FALSE}
 library(MASS)
 
@@ -194,8 +196,23 @@ confint(nb)
 
 ```
 
+## Generalized Estimating Equations
 
-Finally, using the random-intercept model, fitted with `glmer` from the `lme4` package.  There are many different packages for doing this in `R`, and it's an area where "Bayesian" and "Frequentest" methods differ in theory but share many of the same processes in practice.  I also liked the `glmmTMB` package, as it has more distributions, and is faster than `lme4`, but it is not yet as mature.  
+If you think you OD is noise due to clustering, you can factor it out with GEEs.  GEEs do not se full-maximum likelihood, and are more like the quasilikelihood models above than the random effects models below, but they predict at the global mean, or 'population average.'  This is useful if you have something like a national dataset with regional data.  You might  want to filter out the regional clustering and view the results at the population level.
+
+```{r gee}
+library(gee)
+gee1 <-   glm(LOS ~ Age * Death, data=LOS_model, family="poisson")
+
+summary(gee1)
+```
+
+
+## Random-effects models: Random Intercept
+
+Finally we could use a random-effects model.  They have various names depending on the discipline:  multilevel models, heirarchical models, generalized linear mixed model (GLMM) etc., but the all imply that we can build a model with more than one source of variance.  
+
+, using the random-intercept model, fitted with `glmer` from the `lme4` package.  There are many different packages for doing this in `R`, and it's an area where "Bayesian" and "Frequentest" methods differ in theory but share many of the same processes in practice.  I also liked the `glmmTMB` package, as it has more distributions, and is faster than `lme4`, but it is not yet as mature.  
 The extra formula argument in the model below: (1|Organisation), specifies the random-intercept, where 1 means the intercept, and the `|` reads as 'intercept varying by organisation.'  Multi-level models are huge field in and of themselves, but the main points to note are: 
 - understanding the random effects structure, 
 - how this changes your interpretation of estimates
@@ -216,6 +233,26 @@ confint(glmm)
 ```
 
 These models are significantly more complicated than the ones shown previously.  There are some philosophical issues with standard errors or random effects (see Ben Bolker's amazing GLMM FAQs: https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html). 
+
 `Confint` can be used to calculate the confidence interval above by profiling the likelihood (provided you have the `MASS` package installed).  This allows you to assess the significance of the random effect.  Our CI butts up against zero here, and the AIC is slightly worse than the `glm`.  This suggests it is not well modelled with the normally distributed random intercept.  The NB model appears to perform better.
 
 Predictions from GLMMS also require more thought.  You can predict with the random effects ("conditional") or without ("marginal").  Conditional predictions will have the adjustment for their cluster (or whatever random effect you have fitted), but marginal could be considered the model average in the case above.  Subject to the fixed effects, removing the effects of cluster (e.g. risk for the average patient/unit with that exposure, regardless of where they were seen) allows prediction at the 'average rate.'
+
+
+
+# So which was better?
+
+Unfortunatley, it's not that simple.  It really depends on what you are trying to do and your assumptions.  You may be happy scaling the variance to assess the signifcance of predictors.  You may want accurate global ("marginal") or cluster-specific ("conditional") predictions.
+
+You can do things like:
++ Compare models after bootstrapping (refitting to models to many sub-samples, with replacement)
++ Use AIC between model sof the smae class: although this falls down when comparing single-level models and multilevel models due to boundary constrains 
+
+I would suggest that you try a few of them, but think about your ourput and what it represents.  During my PhD work, I setteld on a final model that used both a random-intercept for hospital-specific clustering combined with a negative binomial family that better adjusted for the unequaly OD due to the size of the aggreagated units in my dataset.  It's not easy to get your head around, but it's not impossible.  Have a go and see what you think!
+
+
+## References
+
+1. CAMERON, A. C. & TRIVEDI, P. K. 2013. _Regression Analysis of Count Data_, Cambridge University Press
+
+1. GOLDSTEIN, H. 2010. _Multilevel Statistical Models_, John Wiley & Sons Inc.
