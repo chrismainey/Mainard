@@ -10,6 +10,4 @@ body_font = "Catamaran"
 nav_font = "Montserrat"
 mono_font = "Roboto Mono"
 
-# Font size
-font_size = "M"
-font_size_small = "S"
+
