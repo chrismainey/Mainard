@@ -3,7 +3,7 @@
 
 # Color theme.
 #   Choose from `default`, `ocean`, `forest`, `dark`, `apogee`, `1950s`, `coffee`, `cupcake`.
-color_theme = "coffee2"
+theme = "coffee2"
 # Enable users to switch between day and night mode?
 day_night = true
 
@@ -26,10 +26,6 @@ sharing_image = "mainard2.png"
 # Twitter username (without @). Used when a vistor shares your site on Twitter.
 twitter = "chrismainey"
 
-# Diplay a logo in navigation bar rather than title (optional).
-#   To enable, place an image in `static/img/` and reference its filename below. To disable, set the value to "".
-#logo = "mainard1.png"
-logo = ""
 
 # Enable global source code highlighting? true/false
 # Documentation: https://sourcethemes.com/academic/docs/writing-markdown-latex/#highlighting-options
@@ -59,7 +55,7 @@ time_format = "3:04 PM"
 # Enter contact details (optional). To hide a field, clear it to "".
 email = "chris.mainey@uhb.nhs.uk"
 phone = ""
-address = ""
+
 
 # Contact links
 #   Set to `[]` to disable, or comment out unwanted lines with a hash `#`.
@@ -67,6 +63,7 @@ contact_links = [
   {icon = "twitter", icon_pack = "fab", name = "DM Me", link = "https://twitter.com/chrismainey"}
   ]
 
+[map]
 # Display a map.
 # To show your address on a map in the contact widget, you need to enter your latitude, longitude and choose
 # a map provider below.
@@ -159,4 +156,18 @@ sharing = true
     index_name = ""
     show_logo = false
     
+# Comments.
+[comments]
+  # Comment provider:
+  #   0: Disabled
+  #   1: Disqus (https://disqus.com)
+  #   2: Commento (https://commento.io)
+  engine = 0
 
+  # Which page types are commentable?
+  commentable = {page = true, post = true, docs = true}
+
+  # Configuration of Disqus.
+  [comments.disqus]
+    shortname = ""  # Paste the shortname from your Disqus dashboard.
+    show_count = true  # Show comment count in page header? (true/false)
