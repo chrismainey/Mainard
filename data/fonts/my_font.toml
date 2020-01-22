@@ -1,5 +1,5 @@
 # Font style metadata
-name = "default2"
+name = "my_font"
 
 # Optional Google font URL
 google_fonts = "Montserrat:400,700|Roboto:400,400italic,700|Roboto+Mono|Catamaran"
@@ -11,5 +11,5 @@ nav_font = "Montserrat"
 mono_font = "Roboto Mono"
 
 # Font size
-font_size = "12"
-font_size_small = "14"
+font_size = "M"
+font_size_small = "S"
