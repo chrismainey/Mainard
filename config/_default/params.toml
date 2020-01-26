@@ -12,7 +12,7 @@ day_night = true
 font = "my_font"
 
 font_size = "S"
-font_size_small = "xS"
+font_size_small = "S"
 
 # Link custom CSS and JS assets
   #   (relative to /static/css and /static/js respectively)
