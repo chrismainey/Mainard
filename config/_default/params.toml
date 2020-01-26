@@ -15,7 +15,7 @@ font = "my_font"
 
 # Link custom CSS and JS assets
   #   (relative to /static/css and /static/js respectively)
-#custom_css = ["CM_css"]
+custom_css = ["CM_css"]
 
 name="Chris Mainey"
 
