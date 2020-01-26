@@ -11,11 +11,12 @@ day_night = true
 #   Choose from `default`, `classic`, or `playfair`.
 font = "my_font"
 
-
+font_size = "M"
+font_size_small = "S"
 
 # Link custom CSS and JS assets
   #   (relative to /static/css and /static/js respectively)
-custom_css = ["CM_css"]
+#custom_css = ["CM_css"]
 
 name="Chris Mainey"
 
