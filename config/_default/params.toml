@@ -11,6 +11,7 @@ day_night = true
 #   Choose from `default`, `classic`, or `playfair`.
 font = "my_font"
 
+font_size = 12
 
 # Link custom CSS and JS assets
   #   (relative to /static/css and /static/js respectively)
