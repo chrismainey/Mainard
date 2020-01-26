@@ -25,7 +25,7 @@ name: Chris Mainey
 organizations:
 - name: Healthcare Evaluation Data (HED) - University Hospitals Birmingham NHS Foundation Trust
   url: "https://www.hed.nhs.uk"
-role: Intelligence Analyst
+role: Senior Statistical Intelligence Analyst
 social:
 - icon: envelope
   icon_pack: fas
@@ -49,7 +49,7 @@ user_groups:
 - Visitors
 ---
 
-Chris Mainey is a Data Scientist/Statistician/Analyst in Health Informatics.  He is a member of the Healthcare Evaluation Data (HED) team at University Hospitals Birmingham NHS Foundation Trust (UHB).
+Chris Mainey is a senior Data Scientist/Statistician/Analyst in Health Informatics.  He is a member of the Healthcare Evaluation Data (HED) team at University Hospitals Birmingham NHS Foundation Trust (UHB), and leads development of data science techniques in Informatics at UHB.
 
 Chris' work focuses on modelling National Health Service (NHS) data.  He works primarily in R and SQL Server, and has experience with various statistical modelling and machine learning techniques.  He is currently finishing his PhD at UCL, focused on modelling methods for NHS incident reporting data.
 

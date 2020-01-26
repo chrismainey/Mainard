@@ -18,12 +18,29 @@ date_format = "Jan 2006"
 #   Leave `date_end` empty if it's your current employer.
 #   Begin/end multi-line descriptions with 3 quotes `"""`.
 [[experience]]
+  title = "Senior Statistical Intelligence Analyst"
+  company = "Healthcare Evaluation Data (HED) - Univ. Hospitals Birmingham NHS FT"
+  company_url = "www.hed.nhs.uk"
+  location = "Birmingham, UK"
+  date_start = "2020-01-27"
+  date_end = ""
+  description = """Senior Analyst and data science lead.  Responsibilities include:
+  
+  * Leading on development and implementation of data science methods at UHB
+  * Statistical and Machine Learning Modelling
+  * Building tools and systems in R and SQL
+  * Planning and line management
+  * Managing departmental learning and development function
+  * Leading series of commercial R-training courses
+  """
+
+[[experience]]
   title = "Intelligence Analyst"
   company = "Healthcare Evaluation Data (HED) - Univ. Hospitals Birmingham NHS FT"
   company_url = "www.hed.nhs.uk"
   location = "Birmingham, UK"
   date_start = "2012-06-01"
-  date_end = ""
+  date_end = "2020-01-26"
   description = """Senior Analyst and statistical lead.  Responsibilities include:
   
   * Data Analysis 
@@ -40,11 +57,11 @@ date_format = "Jan 2006"
   location = "London, UK"
   date_start = "2015-09-01"
   date_end = "2018-09-01"
-  description = """Leading seminars/teaching sessions, and lecturing on statisics and use of evidence for medical school, leagin seminars and group practicals onf Masters in Datascience for Healthcare, and marking for undergradate medical school projects and quantiative psycology masters dissertations."""
+  description = """Leading seminars/teaching sessions, and lecturing on statistics and use of evidence for medical school, leading seminars and group practicals on Masters in Data science for Healthcare, and marking for undergraduate medical school projects and quantitative psychology masters dissertations."""
 
 [[experience]]
   title = "Data Manager (AIR Study)"
-  company = "University Hosptials Birmingham NHS Foundation Trust/University of Birmingham"
+  company = "University Hospitals Birmingham NHS Foundation Trust/University of Birmingham"
   company_url = "www.uhb.nhs.uk"
   location = "Birmingham, UK"
   date_start = "2011-01-01"
@@ -54,7 +71,7 @@ date_format = "Jan 2006"
 
 [[experience]]
   title = "Informatics Analyst"
-  company = "University Hosptials Birmingham NHS Foundation Trust - Health Informatics"
+  company = "University Hospitals Birmingham NHS Foundation Trust - Health Informatics"
   company_url = "www.uhb.nhs.uk"
   location = "Birmingham, UK"
   date_start = "2011-01-01"
