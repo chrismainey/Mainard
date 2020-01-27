@@ -210,13 +210,14 @@ summary(gee1)
 
 ## Random-effects models: Random Intercept
 
-Finally we could use a random-effects model.  They have various names depending on the discipline:  multilevel models, heirarchical models, generalized linear mixed model (GLMM) etc., but the all imply that we can build a model with more than one source of variance.  
+Finally we could use a random-effects model.  They have various names depending on the discipline:  multilevel models, heirarchical models, generalized linear mixed model (GLMM) etc., but the all imply that we can build a model with more than one source of variance.  In the our example case, we can reasonbly assume that we might have variation within each trust and between each trust.  Said another way, we have a distribution within each trust (or cluster), and those clusters are, themselves, normally distributed about the global mean.  Normal `glm` and `lm` models assume all points are independent, but all data points at organisation A are a little more like each other (due to dmeographics, treatment patterns, locla factors etc.) than like the national average.  If we still calculate the global model, but we allow the intercept to vary for each cluster, we have a random-intercept model.  These models therefore have standard regresison coefficients, and a global intercept, but an additional variance term for the intercpet and (burried in the model object) an intercept value for each cluster.
 
-, using the random-intercept model, fitted with `glmer` from the `lme4` package.  There are many different packages for doing this in `R`, and it's an area where "Bayesian" and "Frequentest" methods differ in theory but share many of the same processes in practice.  I also liked the `glmmTMB` package, as it has more distributions, and is faster than `lme4`, but it is not yet as mature.  
-The extra formula argument in the model below: (1|Organisation), specifies the random-intercept, where 1 means the intercept, and the `|` reads as 'intercept varying by organisation.'  Multi-level models are huge field in and of themselves, but the main points to note are: 
-- understanding the random effects structure, 
-- how this changes your interpretation of estimates
-- You can predict with or without the random effects
+We will fit a random random-intercept model with `glmer` from the `lme4` package.  There are many different packages for doing this in `R`, and it's an area where "Bayesian" and "Frequentest" methods differ in theory but share many of the same processes in practice.  I also like the `glmmTMB` package, as it has more distributions, and is faster than `lme4`, but it is not yet as mature.
+
+The extra formula argument in the model below: (1|Organisation), specifies the random-intercept, where 1 means the intercept, and the `|` can be read as 'by', in this case, by organisation.  Multi-level models are huge field in and of themselves, but the main points takeaways here are: 
+- Understanding the random-intercept structure
+- How this changes your interpretation of estimates
+- To note that you can predict with or without the random effects (see below)
 - These models are very sensitive to scale.  For scaling I use the `scale` and `arm::rescale` functions (and Andrew Gelman has something to say on this:  http://www.stat.columbia.edu/~gelman/research/published/standardizing7.pdf)
 
 ```{r glmm, warning=FALSE, message=FALSE}
@@ -232,23 +233,24 @@ confint(glmm)
 
 ```
 
-These models are significantly more complicated than the ones shown previously.  There are some philosophical issues with standard errors or random effects (see Ben Bolker's amazing GLMM FAQs: https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html). 
+These models are significantly more complicated than the ones shown previously.  There are some philosophical issues with standard errors of random effects (see Ben Bolker's amazing GLMM FAQs: https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html). 
 
-`Confint` can be used to calculate the confidence interval above by profiling the likelihood (provided you have the `MASS` package installed).  This allows you to assess the significance of the random effect.  Our CI butts up against zero here, and the AIC is slightly worse than the `glm`.  This suggests it is not well modelled with the normally distributed random intercept.  The NB model appears to perform better.
+`Confint` can be used to calculate the confidence interval above by profiling the likelihood (provided you have the `MASS` package installed).  This allows you to assess the significance of the random effect.  Our CI butts up against zero here, and the AIC is slightly worse than the `glm`.  This suggests it is not well modelled with the normally distributed random intercept.  The NB model appears to perform better (and is essential a gamma-distributed random-intercept, but we'll save that for another day...).
 
-Predictions from GLMMS also require more thought.  You can predict with the random effects ("conditional") or without ("marginal").  Conditional predictions will have the adjustment for their cluster (or whatever random effect you have fitted), but marginal could be considered the model average in the case above.  Subject to the fixed effects, removing the effects of cluster (e.g. risk for the average patient/unit with that exposure, regardless of where they were seen) allows prediction at the 'average rate.'
+### Predictions from GLMMs
+Predictions from GLMMS also require more thought.  You can predict with the random effects ("conditional") or without ("marginal").  Conditional predictions will have the adjustment for their cluster (or whatever random effect you have fitted), but marginal will not, and could be considered the 'model average' in the case above.  Subject to the fixed effects, removing the effects of cluster (e.g. risk for the average patient/unit with that exposure, regardless of where they were seen) allows prediction at the 'average rate.'
 
 
 
 # So which was better?
 
-Unfortunatley, it's not that simple.  It really depends on what you are trying to do and your assumptions.  You may be happy scaling the variance to assess the signifcance of predictors.  You may want accurate global ("marginal") or cluster-specific ("conditional") predictions.
+Unfortunatley, it's not that simple.  It really depends on what you are trying to do and the assumptions you make.  You may be happy scaling the variance to assess the signifcance of predictors.  You may want accurate global ("marginal") or cluster-specific ("conditional") predictions.
 
 You can do things like:
 + Compare models after bootstrapping (refitting to models to many sub-samples, with replacement)
-+ Use AIC between model sof the smae class: although this falls down when comparing single-level models and multilevel models due to boundary constrains 
++ Use AIC between models of the same class: although this falls down when comparing single-level models and multilevel models due to boundary constrainst (again, save for another day...)
 
-I would suggest that you try a few of them, but think about your ourput and what it represents.  During my PhD work, I setteld on a final model that used both a random-intercept for hospital-specific clustering combined with a negative binomial family that better adjusted for the unequaly OD due to the size of the aggreagated units in my dataset.  It's not easy to get your head around, but it's not impossible.  Have a go and see what you think!
+I would suggest that you try a few of them, but think about your output and what it represents.  During my PhD work, I settled on a final model that used both a random-intercept for hospital-specific clustering combined with a negative binomial family that better adjusted for the unequal OD due to the size of the aggreagated units in my dataset.  It's not easy to get your head around, but it's not impossible.  Have a go and see what you think!
 
 
 ## References
@@ -256,3 +258,7 @@ I would suggest that you try a few of them, but think about your ourput and what
 1. CAMERON, A. C. & TRIVEDI, P. K. 2013. _Regression Analysis of Count Data_, Cambridge University Press
 
 1. GOLDSTEIN, H. 2010. _Multilevel Statistical Models_, John Wiley & Sons Inc.
+
+1. GELMAN, A. & HILL, J. 2006. _Multilevel structures_. In: GELMAN, A. & HILL, J. (eds.) _Data Analysis Using Regression and Multilevel/Hierarchical Models_. Cambridge: Cambridge University Press.
+
+1. GELMAN, A. 2008. _Scaling regression inputs by dividing by two standard deviations_. Statistics in Medicine, 27, 2865-2873.
