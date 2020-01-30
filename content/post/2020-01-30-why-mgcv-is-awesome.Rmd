@@ -1,0 +1,416 @@
+---
+title: Why `mgcv` package is awesome
+author: ''
+date: '2019-10-01'
+slug: why-mgcv-is-awesome
+categories:
+  - package
+tags:
+  - R
+  - package
+summary: "Why building Generalized Additive Models (GAMs) using the `mgcv` package is a great idea."
+image:
+  caption: ''
+focal_point: ''
+output:
+  blogdown::html_page:
+  toc: true
+number_sections: true
+toc_depth: 1
+draft: true
+---
+  
+  
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(fig.width=10, fig.height=6, fig.align = "center", 
+                      dev.args = list(png = list(type = "cairo")), fig.retina=3) 
+
+library(Cairo)
+
+set.seed(123)
+
+X <- c(runif(50, 0, 5), 0)
+Y <- 2 + (1.5 * X[1:50]) + rnorm(50, 0, 0.5)
+Y[51] <- 2
+
+my_data <- data.frame(X, Y)
+
+rm(list = c('X','Y'))
+
+X <- c(2,3,3)
+Y <- 2 + (1.5 * X)
+Y[2] <- Y[1]
+Y[3] <- Y[3] +0.05
+
+dt2 <- data.frame(X, Y)
+
+rm(list = c('X','Y'))
+
+triangle<- data.frame(X=c(2.5, 3.2, 0),
+                      Y = c(4.5, 5.8, 2.9), 
+                      value=c("1", "1.5", "2"),
+                      label= c("1", "\u03B2", "\u03B1" ))
+
+```
+
+
+# Why `mgcv` is awesome
+
+
+<img src="man/figures/download.png">
+  
+_Don't think about it too hard..._ `r emo::ji("wink")` 
+
+
+
+This post looks at why building Generalized Additive Model, using the `mgcv` package is a good solution when data are not neccesarily linearly relate (and even if they are).  To do this, we need to look first at a linear regression and see why it might not be the best option in some case.  I'm using simulated data for all plots, but I've hidden the first few code chunk to aid the flow of the post.  If you want to see them, you can get the code from the page on my GitHub repository:  
+
+
+
+# Regression models
+
+Linear regression is a method for predicting a variable, `Y`, using another, `X`:
+
+```{r regression1, echo=TRUE, message=FALSE, warning=FALSE}
+library(ggplot2)
+
+a<-ggplot(my_data, aes(x=X,y=Y))+
+  geom_point()+
+  scale_x_continuous(limits=c(0,5))+
+  scale_y_continuous(breaks=seq(2,10,2))+
+  theme(axis.title.y = element_text(vjust = 0.5,angle=0))
+
+a
+```
+
+
+This might bring back school maths memories for some, but it is the 'equation of a straight line'.  According to this equation, we can describe a striaght line form the position that it starts on the `y` axis (the 'intercept', or $\alpha$), and how much the `y` increases for each unit of `x` (the 'slope', which we will also call the coefficeint of `x`, or $\beta$).  There is also a some natural flutation, as all point would be perfectly in line if not, and we refer to this as the 'error' ($\epsilon$).  Said mathematically, that is:
+
+$$y= \alpha + \beta x + \epsilon$$
+
+Applying this to the data that we say above:
+
+```{r regression2, echo=TRUE, message=FALSE, warning=FALSE}
+library(ggforce)
+a+geom_smooth(col="red", method="lm")+
+  geom_polygon(aes(x=X, y=Y), col="goldenrod", fill=NA, linetype="dashed", size=1.2, data=dt2)+
+  geom_label(aes(x=X, y = Y, label=label), data=triangle)+
+  geom_mark_circle(aes(x=0, y=2), col="goldenrod",  fill=NA, linetype="dashed", size=1.2)+
+  theme(axis.title.y = element_text(vjust = 0.5,angle=0))
+```
+
+
+
+Or if we subsitute the actual figures in, we get the following:
+
+$$y= 2 + 1.5 x + \epsilon$$
+
+```{r regression3, echo=FALSE, message=FALSE, warning=FALSE}
+a+geom_smooth(col="red", method="lm")+
+  geom_polygon(aes(x=X, y=Y), col="goldenrod", fill=NA, linetype="dashed", size=1.2, data=dt2)+
+  geom_label(aes(x=X, y = Y, label=value), data=triangle)+
+  geom_mark_circle(aes(x=0, y=2), col="goldenrod",  fill=NA, linetype="dashed", size=1.2)+
+  theme(axis.title.y = element_text(vjust = 0.5,angle=0))
+```
+
+
+This post won't go into the mechanics of estimating these models in any depth, but we etiamte the models about by taking the difference between each data point and the line (the 'residual' error), and minimising it.  We have both positive and negative errors, above and below the line, so to make them all positive for esitmation we usually square them and minimise the sum of the squares.  You may hear this referred to as 'ordinary least squares', or OLS.
+
+
+# What about nonlinear data? (1)
+
+So what if our data look more like this:
+  
+```{r sig, echo=FALSE, message=TRUE, warning=FALSE}
+### Sigmoid function for generatign data
+sigmoid <- function(x, lower_asymptote, carrying_capacity, growth_rate, time_max) {
+  return(lower_asymptote + ((carrying_capacity - lower_asymptote)/(1 + exp(-growth_rate * 
+                                                                             (x - time_max)))))
+}
+
+X <- 1:100
+X <- c(X, X+rnorm(X,X,2), X+rnorm(X, X, 5))
+Y <- sigmoid(1:100, 1, 50, 0.2, 50) + rnorm(100, 0, 5)
+Y <- c(Y, Y+rnorm(Y, Y, 3), Y+rnorm(Y, Y, 8))
+dt<-data.frame(X,Y)
+
+dt$cat<-factor(ifelse(dt$X<50, "a", ifelse(dt$X <150, "b", "c")))
+
+dt$cat_pred<-predict(lm(dt$Y ~ dt$cat))
+
+
+
+ggplot(dt, aes(y=Y, x=X))+
+  geom_point(size=1.5, alpha=0.4)+
+  theme(axis.title.y = element_text(vjust = 0.5,angle=0))
+
+```
+
+
+One of the key assumptions of the model we've just seem is the `y` and `x` are linearly related.  If this is not the case, and the relationship varies across the range of `x`, it may not be the best fit.  We have a few options here:
+
+- We can use a linear fit, but we will under or over score sections of the data if we do that
+- We can devide into categories.  I've used three in the plot below, and that is a reasonable option, but it's a bit or a 'broad brush stroke', and again we may be under or overscoring section, plus is seems inequiatble around the boundaries between categories. e.g. is y that much different if `x`=49 compared to `x`=50?
+- Can use transformation such as polynomials.  Below I've used a cubic polynomial, so the model fits: $y = x + x^2 + x^3$. The combinaiton of these allow the function to smoothly approximate changes.  This is a good option, but can oscilate at the extremes and may induce correlations in the data that degreade the fit.
+
+# What about nonlinear data? (2)
+
+```{r cats, echo=FALSE, message=FALSE, warning=FALSE, fig.height=6.5}
+ggplot(dt, aes(y=Y, x=X))+
+  geom_point(size=1.8, alpha=0.4)+
+  geom_smooth(aes(col="A"), method = "lm",  se=FALSE, size=1.3)+
+  geom_line(aes(y=cat_pred, col="B"),  size=1.3)+
+  geom_smooth(aes(col="C"), method = "lm", formula= y~poly(x, 3),  se=FALSE, size=1.3)+
+  scale_color_manual(values = c("#5DDEDE", "#FAD74B" ,"#FA6767"),
+                     labels= factor(x=c("A", "B", "C"), levels=c("A", "B", "C"), labels=c("Linear", "Categorical", "Polynomial"), ordered=TRUE)
+                     , name="Type of fit")+
+  #ggtitle("Varying approximations for non-linear relationships")+
+  theme(legend.position = "bottom",
+        legend.title = element_text(face="bold", size=10),
+        legend.text = element_text(size=9),
+        plot.title = element_text(size = 12, face="bold") )
+```
+
+
+# Splines
+
+A further refinement of polynomials is to fit 'piece-wise' polynomials, were we connect polynomials together across the range of the data to describe the shape.  'Splines' are piecewise polynomials, named after the tools draftsmen used to use to draw curves on plans.  Physical splines were flexible strips that could bent to shape, and were held in place by weights.  When constructing mathmetical splines, we have polynomial functions (the flexible strip), continuous up to and including second derivative (for those of you who know what that means), fixed at 'knot' points.
+
+Below is a `ggplot2` object with a `geom_smooth` line with a formula containing a 'natural cubic spline,' `ns` function.  This type of spline is 'cubic' ($x+x^2+x^3$) and linear past the outer knot points ('natural'), and it is using 10 knots 
+
+```{r gam1, echo=FALSE, message=FALSE, warning=FALSE}
+library(splines)
+ggplot(dt, aes(y=Y, x=X))+
+  geom_point(size=1.5, alpha=0.4)+
+  geom_smooth(aes(col="A"), method = "lm", formula = y~ns(x,10), se=FALSE, size=1.2, show.legend = FALSE)
+```
+
+
+
+# How smooth?
+
+The splines can be a smooth or 'wiggly' as you like, and this can be controlled either by number of knots $(k)$, or by using a smoothing penalty $\gamma$.
+
+```{r knots2, echo=FALSE, message=FALSE, warning=FALSE, fig.width=5}
+  library(viridis)
+  library(mgcv)
+  
+  knotplot<-factor(c("3-knots" = "#5DDEDE", "20-knots" =  "#FAD74B" , "50-knots" ="#FA6767" ), ordered = TRUE)
+  knotplot<-factor(c("#5DDEDE", "#FAD74B" , "#FA6767" ), labels = c("3-knots", "20-knots" , "50-knots"), ordered = TRUE)
+  
+  knotplot<-c("#5DDEDE"="3", "#FAD74B"="20" ,"#FA6767"="50") 
+  k2<-as.factor(knotplot)
+  
+  ggplot(dt, aes(y=Y, x=X))+
+    geom_point(size=1.5, alpha=0.4)+
+    geom_smooth(aes(col="A"), method = "lm", formula = y~ns(x,4), se=FALSE, size=1.2)+
+    geom_smooth(aes(col="B"), method = "lm", formula = y~ns(x,31), se=FALSE, size=1.2)+
+    geom_smooth(aes(col="C"), method = "lm", formula = y~ns(x,51), se = FALSE, size=1.2)+
+    scale_color_manual(values = c("#5DDEDE", "#FAD74B" ,"#FA6767"),
+                       labels= factor(x=c("A", "B", "C"), levels=c("A", "B", "C"), labels=c("3", "20", "50"), ordered=TRUE)
+                       , name="Knots")+
+    
+    # scale_color_discrete(#values = c("#5DDEDE", "#FAD74B" ,"#FA6767")
+    #                    breaks= c("3","20","50"), name="Knots" )+
+    # 
+    ggtitle("Changing number of knots")+
+    theme(legend.title = element_text(face="bold", size=9),
+          legend.text = element_text(size=8),
+          legend.position = "bottom",
+          plot.title = element_text(size = 11, face="bold") )
+  
+  
+```
+
+
+```{r penalty, echo=FALSE, message=FALSE, warning=FALSE, fig.width=5}
+  ########### Use gam sim for sigmoid and show difference in lambda ###############
+  
+  smsp<-gam(Y~s(X, bs="cr", k=20), data=dt, gamma=0.001)
+  dt$sp1<-predict(smsp, type="response")
+  
+  smsp2<-gam(Y~s(X, bs="cr", k=20), data=dt, gamma = 1 )
+  dt$sp2<-predict(smsp2, type="response")
+  
+  smsp3<-gam(Y~s(X, bs="cr", k=20), data=dt, gamma = 10)
+  dt$sp3<-predict(smsp3, type="response")
+  
+  
+  #dt$sp1<-NULL
+  ggplot(dt, aes(y=Y, x=X))+
+    geom_point(alpha=0.4)+
+    geom_line(aes(y=sp1, x=X, col="0.001"), size=1.2)+
+    geom_line(aes(y=sp2, x=X, col="1"), size=1.2)+
+    geom_line(aes(y=sp3, x=X, col="10"), size=1.2)+
+    scale_color_manual(values = c("#5DDEDE", "#FAD74B" ,"#FA6767"),
+                       labels= factor(x=c("A", "B", "C"), levels=c("A", "B", "C"), labels=c("0.001", "1", "10"), ordered=TRUE)
+                       , name="Penalty (\u1D6FE)")+
+    ggtitle("Varying smoothness penalty (20 knots)")+
+    theme(legend.title = element_text(face="bold", size=09),
+          legend.text = element_text(size=8),
+          legend.position = "bottom",
+          plot.title = element_text(size = 11, face="bold") )
+  
+```
+  
+
+
+
+# Generalized Additive Model
+
++ Regression models where we fit smoothers (like splines) from our data.
++ Strictly additive, but smoothers can describe complex relationships.
++ In our case:
+  
+  
+$$y= \alpha + f(x) + \epsilon$$
+  
+  
+  <br>
+.smaller[
+Or more formally, an example GAM might be (Wood, 2017):
+]
+
+$$g(\mu i) = A_i \theta + f_1(x_1) + f_2(x_{2i}) + f3(x_{3i}, x_{4i}) + ...$$
+  <br>
+  Where:
+  
+.smaller[
++ $\mu i \equiv E(Y _i)$, the expectation of Y]
+
+
+
+.smaller[
++ $Yi \sim EF(\mu _i, \phi _i)$, $Yi$ is a response variable, distributed according to exponential family distribution with mean $\mu _i$ and shape parameter $\phi$.]
+
+
+
+.smaller[
++ $A_i$ is a row of the model matrix for any strictly parametric model components with $\theta$ the corresponding parameter vector.]
+
+
+
+.smaller[
++ $f_i$ are smooth functions of the covariates, $xk$, where $k$ is each function basis.]
+
+
+
+# What does that mean for me?
+
++ Can build regression models with smoothers
++ Suited to non-linear, or noisy data
+
++ _Hastie (1985)_ used knot every point, _Wood (2017)_ uses reduced-rank version
+
+
+
+
+# mgcv: mixed gam computation vehicle
+
++ Prof. Simon Wood's package, pretty much the standard
++ Included in standard `R` distribution, used in `ggplot2` `geom_smooth` etc.
+
+
+
+```{r gam}
+library(mgcv)
+my_gam <- gam(Y ~ s(X, bs="cr"), data=dt)
+```
+
++ `s()` control smoothers
++ `bs="cr"` telling it to use cubic regression spline ('basis')
++ Default is 10 knots (`k=10` argument), but you can alter this
+
+
+# Model Output:
+```{r gam2}
+summary(my_gam)
+```
+
+
+
+# Check your model:
+
+```{r gam3, eval=FALSE}
+gam.check(my_gam)
+```
+
+```{r gam3a, echo=FALSE, fig.show= 'hide'}
+gam.check(my_gam)
+```
+
+
+# Check your model:
+
+```{r gam3b, eval=FALSE}
+gam.check(my_gam)
+```
+
+```{r gam3c, echo=FALSE}
+gam.check(my_gam)
+```
+
+
+
+# Is it any better than linear model?
+
+```{r lmcomp}
+my_lm <- lm(Y ~ X, data=dt)
+
+anova(my_lm, my_gam)
+```
+
+## Yes, yes it is!
+
+
+# Summary
+
++ Regression models are concerned with explaining one variable: `y`, with another: `x`
+
++ This relationship is assumed to be linear
+
++ If your data are not linear, or noisy, a smoother might be appropriate
+
+
+
++ Splines are ideal smoothers, and are polynomials joined at 'knot' points
+
+
+
++ GAMs are a framework for regressions using smoothers
+
+
+
++ `mgcv` is a great package for GAMs with various smoothers available
+
++ `mgcv` estimates the required smoothing penalty for you
+
++ `gratia` or `mgcViz` packages are good visualization tool for GAMs
+
+
+# References and Further reading:
+
+#### GitHub code: 
+https://github.com/chrismainey/Why_mgcv_is_awesome
+
+
+
+#### Simon Wood's comprehensive book:
++ WOOD, S. N. 2017. Generalized Additive Models: An Introduction with R, Second Edition, Florida, USA, CRC Press.
+
+
+
+#### Noam Ross free online GAM course:
+https://noamross.github.io/gams-in-r-course/
+  
+<br>
+  
+.smaller[
++ HARRELL, F. E., JR. 2001. Regression Modeling Strategies, New York, Springer-Verlag New York.
+    
++ HASTIE, T. & TIBSHIRANI, R. 1986. Generalized Additive Models. Statistical Science, 1, 297-310. 291
+
+
++ HASTIE, T., TIBSHIRANI, R. & FRIEDMAN, J. 2009. The Elements of Statistical Learning : Data Mining, Inference, and Prediction, New York, NETHERLANDS, Springer.
+    ]
