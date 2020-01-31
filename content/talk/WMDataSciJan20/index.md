@@ -6,8 +6,6 @@ abstract: Healthcare Evaluation Data (HED) is an online NHS benchmarking using n
   
   Setting up R in a ‘locked-down’ NHS environment
   
-  Best practise for building statistical models on large data sets with limited hardware
-  
   Spreading use of R through package development and training
   Encouraging R use for analysis and ad-hoc reporting
   Open-source principles, information governance and intellectual property
@@ -36,10 +34,10 @@ summary: Summary of our use and adoption of R, and how this might help other org
 tags: 
  - R
  - NHS
-title: "Driving R adoption in an NHS information service, barriers and solutions"
-url_code: "https://github.com/chrismainey/EARL_2019_presentation"
+title: "Adopting R in an NHS informatics department"
+url_code: "https://github.com/chrismainey/Adopting_R_in_the_NHS"
 url_pdf: ""
-url_slides: "https://chrismainey.github.io/EARL_2019_presentation/R_in_an_NHSTrust.html#1"
+url_slides: "https://chrismainey.github.io/Adopting_R_in_the_NHS/R_in_an_NHSTrust.html"
 url_video: ""
 draft: false
 ---
