@@ -61,7 +61,7 @@ triangle<- data.frame(X=c(2.5, 3.2, 0),
 # Why `mgcv` is awesome
 
 
-<img src="www.mainard.co.uk/static/img/download.png">
+<img src="https://github.com/chrismainey/Mainard/blob/master/static/img/download.png">
   
 _Don't think about it too hard..._ `r emo::ji("wink")` 
 
