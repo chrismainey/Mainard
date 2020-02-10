@@ -1,0 +1,38 @@
+# Thoughts on Linux for R
+
+I've primarily worked in R for much fo the alst five years, with a background in SQL prior to that, with Access and Excel prior to that.
+That seems, at least in the NHS, to be a common progression as the technology has very gradually shifted.  Caveat:   when I say 'Windows user' in this post, I'm essentially meaning me.
+Someone who is late thirties with decent technical skills, but mostly within wondows.
+
+In the last year, my R work has taken me in to package development, use of sources control, building a stronger understandaing of computing in general. 
+The next part of this journey appears to be Linux. All my professional, and personal, use of computers has been with Windows so far.  The NHS IT infrastrucrue, certainy at the user end,
+is Windows and I'm not about to start bashing (pun inteneded) Windows.  It a fairly comfortable safety blanket that does loads for you, but there are various things it doesn't do so well, including:
++ Hiding the details from you: e.g. file paths and extensions, often windows uses strucggle with thing slike setting a working directory in R, because they are less used to file paths.
++ Installation of things is a hot mess, requiring executable files rather than source, but things like Choco get round this to an extent
++ Software on Linux is commonly free, where as it's not ususally us free on Windows (as you will usually need the 'big names' like MS Office etc.)
++ This extends to servers, commonly Windows server (such as those running SQL Server), are commonly really expensive to licence.
+
+On top of all that: RStudio Server and Shiny Server run on Linux, ergo I need to set up Linux somehow to do this.  I should also say, no dig at our IT department, but I was told 'you want it, then you have to support it.  We don't have the skills in-house.'  OK, so I (and my team) need to do this.
+There are several options, and we've trialled them on desktop machines before deploying to a server that should (hopefully) return to us next month:
+
++ Install Linux as the native OS:  Couldn't try this in work, but maybe on home computer.  Issues around networking, security and authentication, as our Trust uses Kerberos extensively and I'm not that well up on it yet.
++ Use a Virtual Machine:  a member of my team set up Virtual Box with Ubuntu, and I tried it with Mint.  Works nicely, but neccesarily a little slow
+
+## Using Linux,
+
+If you are using anything other than WSL, you can use a desktop.  This is a nice transition for Windows users.  The major tool of the Linux system (IMO) is Bash (caught the pun yet?), the equavalent of command line/CMD/DOS in a Windows system.
+Some of the commands are familiar, e.g. `cd`, `rm` etc., but the biggest difference to me was that you spend a lot of time navigating to files and altering them in text editors, and you need to use `sudo` (super user do) to perform somethings
+that require elevated permissions or on behlaf of all users on the machine. Major things I needed to get my head around where:
+
++ Installing something:  we usually use the `apt` package manager as the first port of call.  Many libraaries/packages are on it.  Apt has a list of places it checks for new software/updates, and you can add to this list, e.g. RStudios reporsitory, and it will look there too.
+To install `R`, we would use: ```r sudo apt-get install r-base``` . This goes and get the package from a repository and installs it.
+
+
+## How do you know what to install?
+
+Good question.
+
+Usually something doesn't work, I google it, and follow someone else's instructions.  This has rarely failed yet, but I'm sure I'm missing a trick here.
+
+
+## Proxy / https / SSH and other things
