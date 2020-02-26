@@ -22,6 +22,7 @@ tags:
  - NHS
  - FunnelPlotR
  - Funnel Plot
+ - overdispersion
 title: "Building funnel plots for comparing standardised ratios, the FunnelPlotR package"
 url_code: "https://github.com/chrismainey/Building_funnel_plots_in_R"
 url_pdf: ""
