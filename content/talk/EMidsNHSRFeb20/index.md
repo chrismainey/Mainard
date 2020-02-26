@@ -21,7 +21,8 @@ tags:
  - R
  - NHS
  - FunnelPlotR
-title: "Building funnel plots for comparing standardised ratios, the `FunnelPlotR` package"
+ - Funnel Plot
+title: "Building funnel plots for comparing standardised ratios, the FunnelPlotR package"
 url_code: "https://github.com/chrismainey/Building_funnel_plots_in_R"
 url_pdf: ""
 url_slides: "https://chrismainey.github.io/Building_funnel_plots_in_R/Building_funnel_plots_in_R.html"
