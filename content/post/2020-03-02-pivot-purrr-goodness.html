@@ -1,5 +1,5 @@
 ---
-title: "Learning new-tidyr and a cheeky bit of purrr"
+title: "Learning new-tidyr and a cheeky steal from purrr"
 author: ''
 date: '2020-03-02'
 slug: pivot-function
@@ -10,7 +10,7 @@ tags:
 - tidyr
 - pivot
 - purrr
-summary: "A quick bit of new-tidyr / pivot learning, and a tiny bit of purrr for good measure"
+summary: "A quick bit of new-tidyr / pivot learning, and a cheaky steal from purrr for good measure"
 image:
   caption: ''
   focal_point: ''
@@ -36,16 +36,9 @@ math: false
 data(&quot;LOS_model&quot;)
 
 library(tidyr)
-library(dplyr)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>set.seed(123) # For reproducibility
+library(dplyr)
+
+set.seed(123) # For reproducibility
 
 LOS_model %&gt;% 
   pivot_wider(id_cols = ID
