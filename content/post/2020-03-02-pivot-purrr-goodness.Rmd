@@ -1,0 +1,91 @@
+---
+title: "Learning new-tidyr and a cheeky bit of purrr"
+author: ''
+date: '2020-03-02'
+slug: pivot-function
+categories:
+- R
+tags:
+- R
+- tidyr
+- pivot
+- purrr
+summary: "A quick bit of new-tidyr / pivot learning, and a tiny bit of purrr for good measure"
+image:
+  caption: ''
+  focal_point: ''
+output:
+  blogdown::html_page:
+    toc: false
+    number_sections: false
+    toc_depth: 1
+draft: false
+math: false
+---
+
+  
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(fig.width=10, fig.height=6, fig.align = "center", 
+                      dev.args = list(png = list(type = "cairo")), fig.retina=3) 
+
+library(Cairo)
+
+set.seed(123)
+
+```
+
+
+# Ah, pivots...
+
+So, 'pivots' have been part of my life in data analysis since my first interview, where I missed the point of the test (to make a pivot) and manually filtered loads of Excel data until I got there.  Managed to get the job though (nothing to do with the sympathy vote for the broken shoulder I had at the time, of course ...).
+
+They are so easy to build in Excel, a real pain in SQL (as you need to specify the column names, or make it dynamic), but thank heavens for the `tidyr` package.  Now, I'm not the first to suggest it could be a bit confusing, but I got my head around `spread()` and `gather()` and was a happy bunny.  Then they changed it... Hadley Wickham and contributors made the wise choice to adopt the phrase 'pivot' in `pivot_wider()` and `pivot_longer()`.  So I felt like a right idiot when I couldn't figure it out.... I took the sensible approach of ignoring it until they forced my hand by removing it.
+
+That said, I was working on a solution in some consultancy work today, and I needed to pivot the data but also to leave a strong markdown documentation trail.  I felt it would have been a bit unfair if I left them with `spread()` knowing it would go the way of the Dodo soon.  This brief post is just showing a working bit of pivot for my own memory and anyone else who's interested.
+
+I'm pivoting the `NHSRdatasets` `LOS_models` data.frame for organisation by columns, and applying function.  This could be `mean()` or `meadian()` or similar, but I defined a function to add some Poisson distributed noise.
+
+```{r pivot1}
+
+library(NHSRdatasets)
+
+data("LOS_model")
+
+library(tidyr)
+library(dplyr)
+
+set.seed(123) # For reproducibility
+
+LOS_model %>% 
+  pivot_wider(id_cols = ID
+              , names_from = Organisation
+              , values_from = LOS
+              , values_fill = list(LOS = 0)
+              , values_fn = list(LOS= function(x){x+ rpois(n = 1, lambda = 3)})
+              )
+
+
+```
+
+## Bonus round:
+
+I remember hearing Tom Jemmet [@tomjemmet](https://twitter.com/tomjemmett) talk about the magic of `purrr`.  Now I'm a bit slow off the mark with `purrr` because I couldn't see why it was different to `apply` functions.  Now I've hear more about it, I can see there's more consistency and it allows some nice applications of functions.  The thing that was _really_ nice though was ___anonymous functions___! They look so much cleaner, and are defined as a one-sided formula.  I've replaced the aggregate function with an anonymous one in the example below:
+
+```{r pivot2}
+library(purrr)
+
+set.seed(123) # For reproducibility
+
+LOS_model %>% 
+  pivot_wider(id_cols = ID
+              , names_from = Organisation
+              , values_from = LOS
+              , values_fill = list(LOS = 0)
+              , values_fn = list(LOS= ~ . + rpois(n = 1, lambda = 3))
+  )
+
+```
+
+
+Maybe that's of use to you.  Hope so!
