@@ -9,7 +9,7 @@ tags:
 - R
 - package
 - GAM
-- spine
+- spline
 summary: "Why building Generalized Additive Models (GAMs) using the `mgcv` package is a great idea."
 image:
   caption: ''
@@ -67,7 +67,7 @@ _Don't think about it too hard..._ `r emo::ji("wink")`
 
 
 
-This post looks at why building Generalized Additive Model, using the `mgcv` package is a great option.  To do this, we need to look, first, at linear regression and see why it might not be the best option in some cases.  I'm using simulated data for all plots, but I've hidden the first few code chunks to aid the flow of the post.  If you want to see them, you can get the code from the page on my GitHub repository:  
+This post looks at why building Generalized Additive Model, using the `mgcv` package is a great option.  To do this, we need to look, first, at linear regression and see why it might not be the best option in some cases.  I'm using simulated data for all plots, but I've hidden the first few code chunks to aid the flow of the post.  If you want to see them, you can get the code from the page on my GitHub repository [here](https://github.com/chrismainey/Mainard/blob/master/content/post/2020-01-30-why-mgcv-is-awesome.Rmd).
 
 <br><br>
 
