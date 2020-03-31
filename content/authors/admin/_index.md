@@ -6,7 +6,7 @@ education:
   courses:
   - course: PhD in Applied Statistics and Machine Learning
     institution: University College London (UCL)
-    year: 2019 (submitted)
+    year: 2020
   - course: PGC in Public Health
     institution: University of Birmingham
     year: 2015
