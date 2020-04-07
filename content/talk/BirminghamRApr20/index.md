@@ -1,5 +1,5 @@
 ---
-abstract: This talk will discuss my PhD work in text mining patient safety incident reports in the NHS.  I'll discuss how I got started using the `tidytext` package, and how it led on to topic modelling and where I will take it in the future.
+abstract: This talk will discuss my PhD work in text mining patient safety incident reports in the NHS.  I'll discuss how I got started using the `tidytext` package, and how it led on to topic modelling, and how it was used to predict harm levels.
 all_day: false
 authors: [~]
 date: "2020-04-09T17:30:00"
@@ -24,9 +24,9 @@ tags:
  - tidytext
  - text mining
 title: "Text Mining Patient Safety Data"
-url_code: ""
+url_code: "https://github.com/chrismainey/Text_Mining_NHS_Incident_Reports"
 url_pdf: ""
-url_slides: ""
+url_slides: "https://chrismainey.github.io/Text_Mining_NHS_Incident_Reports/Text_Mining_NHS_Incident_Reports.html#1"
 url_video: ""
 draft: false
 ---
