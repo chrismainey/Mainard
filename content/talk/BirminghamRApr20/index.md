@@ -25,7 +25,7 @@ tags:
  - text mining
 title: "Text Mining Patient Safety Data"
 url_code: "https://github.com/chrismainey/Text_Mining_NHS_Incident_Reports"
-url_pdf: ""
+url_pdf: "https://github.com/chrismainey/Text_Mining_NHS_Incident_Reports/raw/master/Text%20Mining%20Patient%20Safety%20Data.pdf"
 url_slides: "https://chrismainey.github.io/Text_Mining_NHS_Incident_Reports/Text_Mining_NHS_Incident_Reports.html#1"
 url_video: ""
 draft: false
