@@ -70,7 +70,7 @@ LOS_model %>%
 
 ## Bonus round:
 
-I remember hearing Tom Jemmet [@tomjemmet](https://twitter.com/tomjemmett) talk about the magic of `purrr`.  Now I'm a bit slow off the mark with `purrr` because I couldn't see why it was different to `apply` functions.  Now I've hear more about it, I can see there's more consistency and it allows some nice applications of functions.  The thing that was _really_ nice though was ___anonymous functions___! They look so much cleaner, and are defined as a one-sided formula.  I've replaced the aggregate function with an anonymous one in the example below:
+I remember hearing Tom Jemmett [@tomjemmett](https://twitter.com/tomjemmett) talk about the magic of `purrr`.  Now I'm a bit slow off the mark with `purrr` because I couldn't see why it was different to `apply` functions.  Now I've hear more about it, I can see there's more consistency and it allows some nice applications of functions.  The thing that was _really_ nice though was ___anonymous functions___! They look so much cleaner, and are defined as a one-sided formula.  I've replaced the aggregate function with an anonymous one in the example below:
 
 ```{r pivot2, message=FALSE, warning=FALSE}
 library(purrr)

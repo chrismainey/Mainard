@@ -63,7 +63,7 @@ LOS_model %&gt;%
 ## # ... with 290 more rows</code></pre>
 <div id="bonus-round" class="section level2">
 <h2>Bonus round:</h2>
-<p>I remember hearing Tom Jemmet <span class="citation">[@tomjemmet]</span>(<a href="https://twitter.com/tomjemmett" class="uri">https://twitter.com/tomjemmett</a>) talk about the magic of <code>purrr</code>. Now I’m a bit slow off the mark with <code>purrr</code> because I couldn’t see why it was different to <code>apply</code> functions. Now I’ve hear more about it, I can see there’s more consistency and it allows some nice applications of functions. The thing that was <em>really</em> nice though was <strong><em>anonymous functions</em></strong>! They look so much cleaner, and are defined as a one-sided formula. I’ve replaced the aggregate function with an anonymous one in the example below:</p>
+<p>I remember hearing Tom Jemmett <span class="citation">[@tomjemmett]</span>(<a href="https://twitter.com/tomjemmett" class="uri">https://twitter.com/tomjemmett</a>) talk about the magic of <code>purrr</code>. Now I’m a bit slow off the mark with <code>purrr</code> because I couldn’t see why it was different to <code>apply</code> functions. Now I’ve hear more about it, I can see there’s more consistency and it allows some nice applications of functions. The thing that was <em>really</em> nice though was <strong><em>anonymous functions</em></strong>! They look so much cleaner, and are defined as a one-sided formula. I’ve replaced the aggregate function with an anonymous one in the example below:</p>
 <pre class="r"><code>library(purrr)
 
 set.seed(123) # For reproducibility

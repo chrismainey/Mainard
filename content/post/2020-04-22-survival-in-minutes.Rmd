@@ -31,6 +31,7 @@ knitr::opts_chunk$set(fig.width=10, fig.height=6, fig.align = "center", dev="Cai
                       dev.args = list(png = list(type = "cairo")), fig.retina=3) 
 
 library(Cairo)
+library(ggplot2)
 
 set.seed(123)
 
@@ -105,7 +106,7 @@ So, without adjustment, it looks like patients who recieved transplant survive l
 
 So lets fit a cox model, and adjust for age:
 
-```{r}
+```{r, eval=FALSE}
 
 cox_model <- coxph(y_mortality ~ transplant, data=heart)
 summary(cox_model)
@@ -114,7 +115,7 @@ summary(cox_model)
 cox_model_age_surgery <- coxph(y_mortality ~ age + surgery + transplant, data=heart)
 summary(cox_model_age_surgery)
 
-cox_model_age_year<- coxph(y_mortality ~ age + surgery + transplant + year, data=heart)
+cox_model_age_surgery_year<- coxph(y_mortality ~ age + surgery + transplant + year, data=heart)
 summary(cox_model_age_year)
 
 cox_model_age_year<- coxph(y_mortality ~ age + transplant + year, data=heart)
@@ -127,7 +128,7 @@ summary(cox_model_age_year)
 AIC(cox_model)
 AIC(cox_model_age)
 AIC(cox_model_age_surgery)
-AIC(cox_model_age_surgery2)
+AIC(cox_model_age_surgery_year)
 AIC(cox_model_age_year)
 
 cox.zph(cox_model_age_year)
