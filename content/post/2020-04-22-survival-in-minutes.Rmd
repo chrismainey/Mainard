@@ -1,0 +1,136 @@
+---
+title: "Survival analysis in R in 5 minutes"
+author: ''
+date: '2020-04-22'
+slug: survival
+categories:
+- R
+- statistics
+tags:
+- R
+- survival
+- cox regression
+- kaplan meier
+summary: "An ouverview of survival analysis inR in 5 minutes (or there abouts)"
+image:
+  caption: ''
+  focal_point: ''
+output:
+  blogdown::html_page:
+    toc: false
+    number_sections: false
+    toc_depth: 1
+draft: true
+math: false
+---
+
+  
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(fig.width=10, fig.height=6, fig.align = "center", dev="CairoPNG", dpi=300,
+                      dev.args = list(png = list(type = "cairo")), fig.retina=3) 
+
+library(Cairo)
+
+set.seed(123)
+
+# Set ggplot defaults
+theme_set(
+  theme_bw() +
+  theme(legend.position = "bottom",
+        plot.subtitle = element_text(face = "italic"
+                                     , family = "sans"
+                                     , size=10),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=10, face = "bold"))
+)
+
+```
+
+
+# Survival analyisis
+
+I've been doing a lot of survival analysis in `R` recently.  I use regression-based modelling daily, but I'd rarely had chance to use survival models.  They could be considered a time-to-event regression, and many of the concepts transfer over. `R` is set up very well for survival analysis and `survival` is one of the core packages.  This post won't be exhaustive, or an especially mathematical treatment of it, but it show you what you need to know (if for example, your boss needs survival analysis urgently... ;-))
+
+# Set-up
+
+We will consider these models as 'time-to-event.' Co,mmonly this event was the death of a patients/trial participant in early survival analyses, so it became "survival," but it could be time to any event.  More complicated models allow more than one change of state (e.g. time to diagnosis of cancer, recovery after treatment, second primary cancer, treamentmen, end-of-life care.)
+
+We'll use a simple example where we have a group of patients who were in hospital for different length of time.  We are obserrving them until death ('event'), but we don't know anything further than discharge date for the patients who survived.  We then remove them from the analysis at this point ('cencored').
+
+We won't go much more in-depth than that, but different patietns have different ammounts of time in the model
+
+Firstly, lets load the data and create a 'survival object.'  This is a time-dependent outcome.  You supply it with the survival time, or start and end dates, and a status variable that indicates the death.
+
+```{r dataload}
+library(tidyverse)
+library(survival)
+
+data(heart)
+
+glimpse(heart)
+```
+So this looks like a patient ID, a hospital name, the patient's age, their 'length-of-stay' or time in hospital, and whether they died.  So lets create the survival object, called 'y_mortality' and plot it (then make a nicer plot).
+
+```{r surkm1}
+library(survival)
+
+y_mortality <- Surv(heart$stop-heart$start, heart$event)
+
+plot(y_mortality)
+
+```
+
+Now that plot shows number proportion surviving (y) against the time (x), the number of days in this case.  lets make it look nicer with `ggplot2`!
+```{r kmnicer}
+library(GGally)
+
+surv_mortality <- survfit(y_mortality~1, conf.type="log-log")
+ggsurv(surv_mortality)
+
+```
+Let see the groups wh recieved a transplat and who didn't:
+
+```{r kmsur2}
+surv_mortality_transplant <- survfit(y_mortality~transplant,data=heart, conf.type="log-log")
+ggsurv(surv_mortality_transplant) + scale_colour_viridis_d()
+
+```
+
+So, without adjustment, it looks like patients who recieved transplant survive longer.  There is a big 'but' in this interpretation though.  What if only healthier patients, with better chance of survival, recieved transplants?  This would confound the result, as these patients would be likely to survive longer anyway.  What if survical practises had changed over time, we might see some effects of this in our later patients.  We need to adjust for these casemix factor...  _reaches for his trusty regression model.._
+
+# Hazard function
+
+
+
+So lets fit a cox model, and adjust for age:
+
+```{r}
+
+cox_model <- coxph(y_mortality ~ transplant, data=heart)
+summary(cox_model)
+
+
+cox_model_age_surgery <- coxph(y_mortality ~ age + surgery + transplant, data=heart)
+summary(cox_model_age_surgery)
+
+cox_model_age_year<- coxph(y_mortality ~ age + surgery + transplant + year, data=heart)
+summary(cox_model_age_year)
+
+cox_model_age_year<- coxph(y_mortality ~ age + transplant + year, data=heart)
+summary(cox_model_age_year)
+
+cox_model_age_year<- coxph(y_mortality ~ age + transplant + year, data=heart)
+summary(cox_model_age_year)
+
+
+AIC(cox_model)
+AIC(cox_model_age)
+AIC(cox_model_age_surgery)
+AIC(cox_model_age_surgery2)
+AIC(cox_model_age_year)
+
+cox.zph(cox_model_age_year)
+```
+
+

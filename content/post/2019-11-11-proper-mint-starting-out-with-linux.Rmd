@@ -1,0 +1,112 @@
+---
+title: 'Proper Mint: starting out with Linux'
+author: ''
+date: '2019-11-11'
+slug: proper-mint-stating-our-with-linux
+categories:
+  - R
+tags:
+  - linux
+  - mint
+  - NHS-R Community
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2019-11-11T17:33:42Z'
+draft: true
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+# Mint
+
+So...I've got a confession to make.  When I talk about building R packages on Linux, or needing a LInux server, or say something like 'it's better/eaasier on Linux', I don't really know what I'm saying.  I mean, it's probably true, but I've used Travis-CI, r-hub or just know I need one.  Either that, or I've read about it, heard @ChrisBeeley, @drake_PRS, @BurnResearch or @tom_jemmett talk about it.  I've never actually done it.
+
+So, inspired by @_johnmackintosh:
+https://www.johnmackintosh.com/2019-11-07-learning-linux/
+https://www.johnmackintosh.com/2019-11-09-learning-linux-2/
+
+...and this:
+
+```{r echo=FALSE}
+blogdown::shortcode('tweet', '1180218437563551746')
+```
+
+
+Inspired, if slightly inedequate, it's time to bite the bullet.  There's a few ways to go about this:
+- Find and unused latop (don't have one) and install Linux
+- Partition my current laptop, install linux on partition an dual boot (risky considering my un-viva'd thesis is on it)
+- Use a virtual machine (don't know much about VMs)
+
+Of those, the VM seemed the most sensible option, so I set about doing this.  I don't know loads about virtual machines, but it seemed that Virtual Box was a good option. I searched for it and downloaded the latest version, as well as a coupld of 'how to' guides.
+
+# Windows....
+
+Pretty much half of my problems related to lack of experience, but the half were issues with Windows.
+__TL/DR:__ ___You need to have absolutely everything related to virtualization turned off!!!!___
+
+## Virtualization in Windows
+I loaded VirtualBox, gave my machine a name, then tried to selected Linux as OS, and went looking for the Ubuntu image.  Ubuntu seems be be the vanilla of linux and vanilla is good if you are a n00b like me.
+However, only 32-bit images were available.  What the flip?  I'm using a 64-bit machine, with 64-bit Windows 10.  A few guides suggested turning windows features for 'hyper-v' off.  I guess this is a virtualization thing, so I searched for 'Windows Features' and found a set of tick box features, but there was no box for hyper-V.  I then made the mistake of thinking 'I'm using a virtual machine, I obviously want Windows Vitual Machine' option selected.  ___No! No, I didn't.
+
+
+## Turn Virtualization on in BIOS
+Now I know this is scary, but you can make BIOS changes without destroying you machine.  When booting, I pressed 'F8' and got to my BIOS screens.  I followed the tabs to ______ then set '
+
+__Now repeat the last secion with windows features__
+
+## Weird windows error
+So turning hyper-v off, didn't full turn hyper-v off in some cases on some Windows builds (WTF Microsoft?).  The solution I found from on eof the moderators on the VirtualBox forum was the following script followed by a 'cold restart' where I turn off an disconnected power for >10 seconds.
+
+```{r wincmd, eval=FALSE}
+bcdedit /set hypervisorlaunchtype off
+```
+
+## Windows builds
+
+Also.... if you have Windows Insider builds, these will mess it up.  You need to swtich these off too, then finally I could see the 64-bit options.
+
+
+# Setting up the machine
+
+It's failry straight forward to set up the machine by following the wizard.  The things that I needed to know beforehand (but didn't) were:
+
+- Give it more than 10GB of virtual disk space, as R, R Studio and packages will use a lot of that
+- It doesn't matter what type of virtual disk file you chose.
+- Give it a few more GB RAM than the default.  It just works better/faster
+- You need a '.iso' file of a Linux distruibtion for it to boot from.  I use Mint: https://linuxmint.com/
+- The boot media (.iso file) needs to be the 'IDE Primary Master' controller.  If you add other disk etc. make sure they don't take the place of the iso file or it won't boot.
+
+This took several attempts, but once I'd got it, a lovely little Linux VM was born!
+
+# Installing stuff
+
+I went straight to the point here, R, OpenBlas and RStudio, buy by the time I got to installing RStudio, I found out I was missing some C libraries (it tells you in an error message). This seemed to be solved up updating and upgrading, but it takes some time:
+
+```{r update, eval=FALSE}
+sudo apt update
+
+sudo apt upgrade
+```
+
+There's a few ways to install things here, and I'm not sure of the relative merits of stuff yet, but I followed a post I found about it that did it through terminal.  Problem was that the R and R Studio versions were old, so I needed to update them.
+
+- Download the installers through a web-browser and double-click
+- Using a package installer like `gdebi` (no... I'm not sure either)
+- Using `apt`in the terminal (the 'proper' way)
+
+I used terminal for the first bit:
+
+```{r rinst, eval=FALSE}
+sudo apt-get install libopenblas-base r-base
+```
+
+
+
+# Summary
+
+So now I have a working Linux VM with R and RStudio on it.  It works nicely, and the desktop Linux experience and shell were all very nice.  Main issue was that I had to go through so many loops and obscure fixes that I'm sure it puts many people like me off using it.  It felt a bit like "on the fourth hour of the second sunday, face south west, stand on one leg and say 'there's no place like bash' three times and maybe the Linuxes will come and live in your machine."  I'm sure it will get easier, but at least I've started.
