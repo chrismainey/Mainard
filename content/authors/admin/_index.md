@@ -13,7 +13,7 @@ education:
   - course: BSc in Microbiology with Industrial Experience
     institution: University of Manchester
     year: 2006
-email: ""
+email: "chris.mainey@uhb.nhs.uk"
 interests:
 - R
 - NHS and Healthcare data
@@ -27,9 +27,12 @@ organizations:
   url: "https://www.hed.nhs.uk"
 role: Senior Statistical Intelligence Analyst
 social:
+- icon: address-card
+  icon_pack: far
+  link: '#contact'
 - icon: envelope
   icon_pack: fas
-  link: '#contact'
+- link: "mailto:chris.mainey@uhb.nhs.uk"
 - icon: twitter
   icon_pack: fab
   link: https://twitter.com/chrismainey
@@ -42,6 +45,10 @@ social:
 - icon: orcid
   icon_pack: ai
   link: https://orcid.org/0000-0002-3018-6171
+- icon: globe
+  icon_pack: fas
+  link: https://www.hed.nhs.uk
+
 
 superuser: true
 user_groups:
@@ -49,7 +56,7 @@ user_groups:
 - Visitors
 ---
 
-Chris Mainey is a senior Data Scientist/Statistician/Analyst in health informatics.  He is a member of the Healthcare Evaluation Data (HED) team at University Hospitals Birmingham NHS Foundation Trust (UHB), and leads development of data science techniques in informatics at UHB.
+Chris Mainey is a Senior Data Scientist/Statistician/Analyst in health informatics.  He is a member of the Healthcare Evaluation Data (HED) team at University Hospitals Birmingham NHS Foundation Trust (UHB), and leads development of data science techniques in informatics at UHB.
 
 Chris' work focuses on modelling National Health Service (NHS) data.  He works primarily in R and SQL Server, and has experience with various statistical modelling and machine learning techniques.  He completed his PhD at UCL, on modelling NHS incident reporting data using quantitative methods and text mining.
 

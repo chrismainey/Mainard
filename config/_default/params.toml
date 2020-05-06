@@ -32,7 +32,7 @@ twitter = "chrismainey"
 # Enable global source code highlighting? true/false
 # Documentation: https://sourcethemes.com/academic/docs/writing-markdown-latex/#highlighting-options
 highlight = true
-highlight_languages = ["r"]  # Add support for highlighting additional languages
+highlight_languages = ["r", "SQL"]  # Add support for highlighting additional languages
 highlight_style = "tomorrow-night-eighties"  # For supported styles, see https://cdnjs.com/libraries/highlight.js/
 
 # Enable global LaTeX math rendering?
@@ -117,7 +117,7 @@ reading_time = true
 comment_count = true
 
 # Display next/previous section pager? (true/false)
-section_pager = false
+section_pager = true
 
 # Enable in-built social sharing buttons? (true/false)
 sharing = true
