@@ -1,21 +1,5 @@
 ---
-abstract: Healthcare Evaluation Data (HED) is an online NHS benchmarking using national data. We provide
-  web-based interactive reporting tools for organisations to compare performance, featuring various statistical   modelling approaches and live manipulation of large datasets. We have relied on SAS for many of our models,
-  but are transitioning to R for modelling, analysis work and developing support material.  This talk will
-  explain how we are moving from one keen user, to wider adoption, focussing on
-  
-  Setting up R in a ‘locked-down’ NHS environment
-  
-  Best practise for building statistical models on large data sets with limited hardware
-  
-  Spreading use of R through package development and training
-  Encouraging R use for analysis and ad-hoc reporting
-  Open-source principles, information governance and intellectual property
-  Barriers we have faced include scepticism about security risks, unhelpful hardware and network settings, a
-  perception that R was not fit for production, fear of losing SAS as the ‘standard,’ and the learning curve for
-  new R users.
-  We have embarked on a structured training program for our teams and have set up a local R user group.
-  We are aiming to further engage with the R community as user confidence grows.
+abstract: The `mgcv` package introduces a flexible approach to regression models by fitting various penalized smoothers.  This includes splines and related methods that may be a more appropriate approximation for non-linear relationships or noisy data.  This talk introduces the subject matter in general, visualizes how these models might fit sigmoidal relationships, introduces the smoothing penalty and how to estimate it, as well as showing how to fit a Generalized Additive Model using `mgcv` in `R`.
 all_day: false
 authors: [~]
 date: "2020-01-21T17:30:00"
