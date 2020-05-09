@@ -87,7 +87,7 @@ a<-ggplot(my_data, aes(x=X,y=Y))+
 a
 ```
 
-To examine this relationship we coudl use a regression model.  Linear regression is a method for predicting a variable, $Y$, using another, $X$.  Applying this to our data would predict a set of values that form the red line:
+To examine this relationship we could use a regression model.  Linear regression is a method for predicting a variable, $Y$, using another, $X$.  Applying this to our data would predict a set of values that form the red line:
 
 ```{r regression2, echo=TRUE, message=FALSE, warning=FALSE}
 library(ggforce)
@@ -100,12 +100,12 @@ a+geom_smooth(col="red", method="lm")+
 
 
 
-This might bring back school maths memories for some, but it is the 'equation of a straight line'.  According to this equation, we can describe a striaght line from the position it starts on the $y$ axis (the 'intercept', or $\alpha$), and how much $y$ increases for each unit of $x$ (the 'slope', which we will also call the coefficeint of $x$, or $\beta$).  There is also a some natural flutation, as all points would be perfectly in-line if not.  We refer to this as the 'residual error' ($\epsilon$).  Phrased mathematically, that is:
+This might bring back school maths memories for some, but it is the 'equation of a straight line'.  According to this equation, we can describe a straight line from the position it starts on the $y$ axis (the 'intercept', or $\alpha$), and how much $y$ increases for each unit of $x$ (the 'slope', which we will also call the coefficient of $x$, or $\beta$).  There is also a some natural fluctuation, as all points would be perfectly in-line if not.  We refer to this as the 'residual error' ($\epsilon$).  Phrased mathematically, that is:
 
 $$y= \alpha + \beta x + \epsilon$$
 
 
-Or if we subsitute the actual figures in, we get the following:
+Or if we substitute the actual figures in, we get the following:
 
 $$y= 2 + 1.5 x + \epsilon$$
 
@@ -155,8 +155,8 @@ ggplot(dt, aes(y=Y, x=X))+
 One of the key assumptions of the model we've just seen is that $y$ and $x$ are linearly related.  If our $y$ is not normally distributed, we use a Generalized Linear Model _(Nelder & Wedderburn, 1972)_, where $y$ is transformed through a link-function, but again we are assuming $f(y)$ and $x$ are linearly related.  If this is not the case, and the relationship varies across the range of $x$, it may not be the best fit.  We have a few options here:
 
 - We can use a linear fit, but we will under or over score sections of the data if we do that.
-- We can devide into categories.  I've used three in the plot below, and that is a reasonable option, but it's a bit or a 'broad brush stroke.' Again we may be under or over score sections, plus is seems inequiatble around the boundaries between categories. e.g. is $y$ that much different if $x=49$ when compared to $x=50$?
-- We can use transformation such as polynomials.  Below I've used a cubic polynomial, so the model fits: $y = x + x^2 + x^3$. The combination of these allow the functions to smoothly approximate changes.  This is a good option, but can oscilate at the extremes and may induce correlations in the data that degreade the fit.
+- We can divide into categories.  I've used three in the plot below, and that is a reasonable option, but it's a bit or a 'broad brush stroke.' Again we may be under or over score sections, plus is seems inequitable around the boundaries between categories. e.g. is $y$ that much different if $x=49$ when compared to $x=50$?
+- We can use transformation such as polynomials.  Below I've used a cubic polynomial, so the model fits: $y = x + x^2 + x^3$. The combination of these allow the functions to smoothly approximate changes.  This is a good option, but can oscillate at the extremes and may induce correlations in the data that degrade the fit.
 
 
 
@@ -180,7 +180,7 @@ ggplot(dt, aes(y=Y, x=X))+
 
 # Splines
 
-A further refinement of polynomials is to fit 'piece-wise' polynomials, where we chain polynomials together across the range of the data to describe the shape.  'Splines' are piecewise polynomials, named after the tools draftsmen used to use to draw curves.  Physical splines were flexible strips that could bent to shape and were held in place by weights.  When constructing mathmetical splines, we have polynomial functions (the flexible strip), continuous up to and including second derivative (for those of you who know what that means), fixed together at 'knot' points.
+A further refinement of polynomials is to fit 'piece-wise' polynomials, where we chain polynomials together across the range of the data to describe the shape.  'Splines' are piece-wise polynomials, named after the tools draftsmen used to use to draw curves.  Physical splines were flexible strips that could bent to shape and were held in place by weights.  When constructing mathematical splines, we have polynomial functions (the flexible strip), continuous up to and including second derivative (for those of you who know what that means), fixed together at 'knot' points.
 
 Below is a `ggplot2` object with a `geom_smooth` line with a formula containing a 'natural cubic spline' from the `ns` function.  This type of spline is 'cubic' ($x+x^2+x^3$) and linear past the outer knot points ('natural'), and it is using 10 knots 
 
@@ -196,7 +196,7 @@ ggplot(dt, aes(y=Y, x=X))+
 
 # How smooth is smooth?
 
-The splines can be a smooth or 'wiggly' as you like, and this can be controlled either by altering the number of knots $(k)$, or by using a smoothing penalty $\gamma$.  If we increase the number of knots, it will be more 'wiggly'.  This is likely to be closer to the data, and the error will be less, but we are starting to 'overfit' the relationship and fit the noise in our data.  When we combine the smoothing penalty, we penalize the complexity in the model and this helps reduce the overfitting. 
+The splines can be a smooth or 'wiggly' as you like, and this can be controlled either by altering the number of knots $(k)$, or by using a smoothing penalty $\gamma$.  If we increase the number of knots, it will be more 'wiggly'.  This is likely to be closer to the data, and the error will be less, but we are starting to 'over-fit' the relationship and fit the noise in our data.  When we combine the smoothing penalty, we penalize the complexity in the model and this helps reduce the over-fitting. 
 
 ```{r knots2, echo=FALSE, message=FALSE, warning=FALSE, fig.width=8}
   library(viridis)
@@ -267,7 +267,7 @@ a + b
 
 # Generalized Additive Models (GAMs)
 
-A Generalized Additive Model (GAM) _(Hastie, 1984)_ uses smooth functions (like splines) for the predictors in a regression model.  These models are stricly additive, meaning we can't use interaction terms like a normal regression, but we could achieve the same thing by reparametrising as a smoother.  This is not quite the case, but essentially we are moving to a model like:
+A Generalized Additive Model (GAM) _(Hastie, 1984)_ uses smooth functions (like splines) for the predictors in a regression model.  These models are strictly additive, meaning we can't use interaction terms like a normal regression, but we could achieve the same thing by reparametrising as a smoother.  This is not quite the case, but essentially we are moving to a model like:
   
   
 $$y= \alpha + f(x) + \epsilon$$
@@ -295,7 +295,7 @@ Where:
 
 In cases where you would build a regression model, but you suspect a smooth fit would do a better job, GAM are a great option.  They are suited to non-linear, or noisy data, and you can use 'random effects' as they can be viewed as a type of smoother, or all smooths can be reparameterised as random effects.  In a similar fashion, they can be viewed as either Frequentist random effects models, or as Bayesian models where the smoother is essentially your prior (don't quote me on that, I know very little about Bayesian methods at this point).
 
-There are two major implmentations in `R`:
+There are two major implementations in `R`:
 
 + Trevor Hastie's `gam` package, that uses loess smoothers or smoothing splines at every point.
 
@@ -307,7 +307,7 @@ There are many other further advances on these approaches, such as GAMLSS, but t
 
 # mgcv: mixed gam computation vehicle
 
-Prof. Simon Wood's package _(Wood,2017)_ is pretty much the standard.  It is included in the standard distribution of `R` from the `R` project, and included in other packages such as in `geom_smooth` from `ggplot2`.  I described it above as using 'reduced-rank' smoothers.  By this, I mean that we don't fit a smoother to every point.  If our data has 100 points, but could be adequatley described by a smoother with 10 knots, it could be dscribed as wasteful to require more.  This also hits our degrees-of-freedom and can affect our tendency to overfit.  When we combine enough knots to adequatley describe our data's relationship, we can use the penalty to hone this to the desired shape.  This is a nice safety net, as the number of knots is not critical past the minimum number.
+Prof. Simon Wood's package _(Wood,2017)_ is pretty much the standard.  It is included in the standard distribution of `R` from the `R` project, and included in other packages such as in `geom_smooth` from `ggplot2`.  I described it above as using 'reduced-rank' smoothers.  By this, I mean that we don't fit a smoother to every point.  If our data has 100 points, but could be adequately described by a smoother with 10 knots, it could be described as wasteful to require more.  This also hits our degrees-of-freedom and can affect our tendency to over fit.  When we combine enough knots to adequately describe our data's relationship, we can use the penalty to hone this to the desired shape.  This is a nice safety net, as the number of knots is not critical past the minimum number.
 
 `mgcv` not only offers the mechanism to build the models and smoothers, but it will also automatically estimate the penalty values for you and optimize the smoothers.  When you are more familiar with it, you can change these settings, but it does a very good job out of the box.  In my own PhD work, I was building models based on overdispersed data, where there was more error/noise in the data than expected.  `mgcv` was great at cutting through this noise, but I had to increase the penalty values to compensate for this noise.
 
@@ -330,15 +330,15 @@ The settings above mean:
 
 # Model Output:
 
-So if we look at our modle summary, as we would do with a regression model, we'll see a few things:
+So if we look at our model summary, as we would do with a regression model, we'll see a few things:
 
 ```{r gam2}
 summary(my_gam)
 ```
 
 + Model coefficients for our intercept is shown, and any non-smoothed parameters will show here
-+ An overall signficance of each smooth term is below.
-+ Degress of freedom look unusual, as we have decimal.  This is based on 'effective degrees of freedom' (edf), because we are using spline functions that expand into many parameters, but we are also penalising them and reducing their effect.  We have to estimate our degress of freedom rather than count predictors _(Hastie et al., 2009)_ .
++ An overall significance of each smooth term is below.
++ Degrees of freedom look unusual, as we have decimal.  This is based on 'effective degrees of freedom' (edf), because we are using spline functions that expand into many parameters, but we are also penalising them and reducing their effect.  We have to estimate our degrees of freedom rather than count predictors _(Hastie et al., 2009)_ .
 
 <br><br>
 
@@ -363,16 +363,16 @@ my_lm <- lm(Y ~ X, data=dt)
 anova(my_lm, my_gam)
 ```
 
-Yes, yes it is!  Our anova function has perfromed an f-test here, and our GAM model is significantly better that linear regression.
+Yes, yes it is!  Our anova function has performed an f-test here, and our GAM model is significantly better that linear regression.
 
 
 # Summary
 
-So, we looked at what a regression model is and how we are explaining one variable: $y$, with another: $x$. One of the underlying assumptions is a linear relationship, but this isn't always the case.  Where the realtionship varies across the range of $x$, we can use functions to alter this shape.  A nice way to do it is by chaining smooth curves together at 'knot'-points, and we refer to this as a 'spline.'
+So, we looked at what a regression model is and how we are explaining one variable: $y$, with another: $x$. One of the underlying assumptions is a linear relationship, but this isn't always the case.  Where the relationship varies across the range of $x$, we can use functions to alter this shape.  A nice way to do it is by chaining smooth curves together at 'knot'-points, and we refer to this as a 'spline.'
 
 We can use these splines in a regular regression, but if we use them in the context of a GAM, we estimate both the regression model and how smooth to make our smoothers.
 
-The `mgcv` package is great for estimating GAMs and choosing the smoothing parameters.  The example above shows a spline-based GAM giving a much better fit than a linear regresison model.  If your data are not linear, or noisy, a smoother might be appropriate
+The `mgcv` package is great for estimating GAMs and choosing the smoothing parameters.  The example above shows a spline-based GAM giving a much better fit than a linear regression model.  If your data are not linear, or noisy, a smoother might be appropriate
 
 I highly recommend Noam Ross' [https://twitter.com/noamross?s=20](@noamross) free online GAM course:  https://noamross.github.io/gams-in-r-course/
 
