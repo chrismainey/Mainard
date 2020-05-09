@@ -47,5 +47,5 @@
 # To enable, copy your resume/CV to `static/files/cv.pdf` and uncomment the lines below.
 [[main]]
   name = "CV"
-  url = "https://chrismainey.github.io/Chris_Mainey_CV/"
+  url = "https://chrismainey.github.io/Chris_Mainey_CV/pgdown_CV.html"
   weight = 60
