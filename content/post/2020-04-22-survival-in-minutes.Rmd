@@ -1,5 +1,5 @@
 ---
-title: "Survival analysis in R in 10 minutes"
+title: "Survival analysis in R in 10 minutes or so"
 author: ''
 date: '2020-04-22'
 slug: survival
@@ -139,7 +139,7 @@ So, that's interesting. 'surgery,' (having received prior bypass surgery) was si
 
 ## How do we tell which model is better?
 
-As with many things in stats, there are various ways and each has it's pros and cons.  I like to use the Alike Information Criterion (AIC) (Akaike, 1998). This is a relative value which represents the amount of information lost, with smaller values (closer to zero).  It is approximately $\chi ^2$ on one degree-of-freedom, and essentially means a change of 4 in the AIC is significant at 95%.  For more information on AIC, I'd recommend Burnham & Anderson (2004) and Greven & Kneib (2010).
+As with many things in stats, there are various ways and each has it's pros and cons.  I like to use the Alike Information Criterion (AIC) (Akaike, 1998). This is a relative value which represents the amount of information lost, with smaller values (closer to zero).  It is approximately $\chi ^2$ distributed on one degree-of-freedom, and essentially means a change of 4 in the AIC is significant at 95%.  For more information on AIC, I'd recommend Burnham & Anderson (2004) and Greven & Kneib (2010).
 
 ```{r aic}
 AIC(cox_model)

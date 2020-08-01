@@ -1,5 +1,5 @@
 ---
-title: "Survival analysis in R in 10 minutes"
+title: "Survival analysis in R in 10 minutes or so"
 author: ''
 date: '2020-04-22'
 slug: survival
@@ -218,7 +218,7 @@ summary(cox_model_all)</code></pre>
 </div>
 <div id="how-do-we-tell-which-model-is-better" class="section level2">
 <h2>How do we tell which model is better?</h2>
-<p>As with many things in stats, there are various ways and each has it’s pros and cons. I like to use the Alike Information Criterion (AIC) (Akaike, 1998). This is a relative value which represents the amount of information lost, with smaller values (closer to zero). It is approximately <span class="math inline">\(\chi ^2\)</span> on one degree-of-freedom, and essentially means a change of 4 in the AIC is significant at 95%. For more information on AIC, I’d recommend Burnham &amp; Anderson (2004) and Greven &amp; Kneib (2010).</p>
+<p>As with many things in stats, there are various ways and each has it’s pros and cons. I like to use the Alike Information Criterion (AIC) (Akaike, 1998). This is a relative value which represents the amount of information lost, with smaller values (closer to zero). It is approximately <span class="math inline">\(\chi ^2\)</span> distributed on one degree-of-freedom, and essentially means a change of 4 in the AIC is significant at 95%. For more information on AIC, I’d recommend Burnham &amp; Anderson (2004) and Greven &amp; Kneib (2010).</p>
 <pre class="r"><code>AIC(cox_model)</code></pre>
 <pre><code>## [1] 634.7102</code></pre>
 <pre class="r"><code>AIC(cox_model_age)</code></pre>
