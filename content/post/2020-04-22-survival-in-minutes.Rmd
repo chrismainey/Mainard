@@ -1,5 +1,5 @@
 ---
-title: "Survival analysis in R in 10 minutes or so"
+title: "Survival analysis in R in 15 minutes"
 author: ''
 date: '2020-04-22'
 slug: survival
@@ -11,7 +11,7 @@ tags:
 - survival
 - cox regression
 - kaplan meier
-summary: "An overview of survival analysis in R in 10 minutes (or there abouts)"
+summary: "An overview of survival analysis in R in 15 minutes (or there abouts)"
 image:
   caption: ''
   focal_point: ''
@@ -51,17 +51,18 @@ theme_set(
 
 # Survival analyisis
 
-I've been doing a lot of survival analysis in `R` recently.  I use regression-based modelling daily, but I'd rarely had chance to use survival models before, so I thought I'd write up some notes for anyone else getting started. They could be considered as regressions of time-to-event data and many of the methods transfer over but survival analyses, and the Cox model in-particular, have a few quirks that differ from cross-sectional analyses. `R` is set up very well for survival analysis and the `survival` package (Therneau, 2020) is part of the core `R` distribution.  This post won't be exhaustive, or an especially mathematical treatment of it, but it explain all you need to get started (if for example, your boss needs survival analysis urgently, possibly related to covid-19... ;-) ).  if you are interested in more depth, there are many good resources, but this post from Emily C. Zabor [\@zabormetrics](https://twitter.com/zabormetrics?s=20) is really nice: https://www.emilyzabor.com/tutorials/survival_analysis_in_r_tutorial.html
+I've been doing a lot of survival analysis in `R` recently.  I use regression models all the time, but I've rarely had chance to use survival models, so I thought I'd write up some notes for anyone else who is getting started. These models could be considered as regressions of time-to-event data and many of the methods transfer over but survival analyses, and the Cox model in-particular, have a few quirks that differ from other cross-sectional analyses. `R` is set up very well for survival analysis and the `survival` package (Therneau, 2020) is part of the core `R` distribution.  This post won't be exhaustive, or an especially mathematical treatment of survival, but it will explain all you need to get started (if for example, your boss needs survival analysis urgently, possibly related to covid-19... ;-) ).  
+If you are interested in more depth, there are many good resources, but this post from Emily C. Zabor [\@zabormetrics](https://twitter.com/zabormetrics?s=20) is really nice: https://www.emilyzabor.com/tutorials/survival_analysis_in_r_tutorial.html
 
 # Set-up
 
-As mentioned above, survival analysis is about the 'time-to-event.' Commonly this event is the death of a patients/trial participant, so it was called "survival," but it could be time to any sort of event.  Simple survival models involve one change of state, e.g. 'alive' to 'died.' More complicated time-to-event models allow more than one change of state (e.g. times to diagnosis of cancer, recovery after treatment, second primary cancer, treatment, end-of-life care, etc.)
+As mentioned above, survival analysis is about the 'time-to-event.' The event is often the death of a patients/trial participant in clinical studies, so it was called "survival," but it could be time to any sort of event.  Simple survival models involve one change of state, e.g. 'alive' to 'dead.' More complicated time-to-event models allow more than one change of state (e.g. time to diagnosis of cancer, recovery after treatment, second primary cancer, treatment, end-of-life care, etc.)
 
 We'll use a simplified example from a group of patients who were in a heart transplant study (Crowley & Hu 1977).  This is available within the `survival` package as the `heart` dataset.
-We are observing patients until death ('event'), but we don't know anything further than the end of the study.  In survival studies, patients are not necessarily in the study for the whole period.  They may be recruited later than others, they may leave the study because contact is lost ('lost to follow-up'), they may survival until the study ends or they may die.  The time they leave the study without having an event (e.g. death), is the date they are 'censored.'  Censoring can be a very complicated subject and related to individual study contexts, but we are assuming 'right-censored' data where all patients have a 'day 0' but the end date could vary from one patient to the next.  This variable survival time is added in to the study appropriately, and we get round it to some extent using the hazard function explained later.
-We won't go much more in-depth than that, but different patients have different amounts of time in the model
+We are observing patients until death ('event'), but we don't know anything further than the end of the study.  In survival studies, patients are not necessarily in the study for the whole period.  They may be recruited later than others, they may leave the study because contact is lost ('lost to follow-up'), they may survive until the study ends or they may die.  The time they leave the study without having an event (e.g. death), is the date they are 'censored.'  Censoring can be a very complicated subject and is related to individual study contexts, but we are assuming 'right-censored' data where all patients have a 'day 0' but the end date could vary from one patient to the next.  This variable survival time is added in to the study appropriately, and we get round it to some extent using the hazard function explained later.
+We won't go much more in-depth than that, but different patients have different amounts of time in the model.
 
-Firstly, lets load the data and create a 'survival object.'  This is a time-dependent outcome.  You supply it with the survival time, or start and end dates, and a status variable that indicates the death.
+Firstly, lets load the data and create a 'survival object.'  This is a time-dependent outcome.  You supply it with the survival time, or start and end dates, and a status variable that indicates the event.
 
 ```{r dataload}
 library(survival)
@@ -70,7 +71,7 @@ data(heart)
 dplyr::glimpse(heart)
 ```
 
-So this looks like a start and stop time in numbered days, a status for the event, where 1 = death, patient age at start of study, the year the patient enrolled in the study, a flag for whether they have had previous bypass surgery, a flag for whether they have had a transplant, and a patient id.  More details are available in the `R` help files: `r ?heart`. So let's create the survival object, called 'y_mortality', using the time difference from start to stop and the event indicator, and plot it (then make a nicer plot).
+So this looks like a start and stop time in numbered days, a status for the event, where 1 = death, patient age at start of study, the year the patient enrolled in the study, a flag for whether they have had previous bypass surgery, a flag for whether they have had a transplant, and a patient id.  More details are available in the `R` help files: `?heart`. So let's create the survival object, called `y_mortality`, using the time difference from start to stop and the event indicator, and plot it (then make a nicer plot).
 
 ```{r surkm1}
 y_mortality <- Surv(heart$stop-heart$start, heart$event==1)
@@ -88,14 +89,16 @@ ggsurv(surv_mortality)
 summary(surv_mortality)
 ```
 
+So by approximately 155 days, 50% of patients survived, by approximately 1000 days 25% patients survived.
+
 Two common ways to look at survival are to compare the plots, or to create incidence rate ratios (IRRs). we'll use a plot below, but you can use the `ratetable` function for IRRs, but it required a bit more thought than a plot.
 
 ```{r kmsur2}
 surv_mortality_transplant <- survfit(y_mortality~transplant,data=heart, conf.type="log-log")
-ggsurv(surv_mortality_transplant) + scale_colour_viridis_d()
+ggsurv(surv_mortality_transplant)
 ```
 
-So, without adjustment, it looks like patients who received transplant survive longer.  There is a big 'but' in this interpretation though.  What if only healthier patients, with better chance of survival, received transplants?  This would confound the result, as these patients would be likely to survive longer anyway.  What if surgical practises had changed over time, we might see some effects of this in our later patients.  We need to adjust for these ___case-mix___ factors...  _(reaches for his trusty regression model...)_
+So, without adjustment, it looks like patients who received transplants survive longer.  There is a big 'but' in this interpretation though.  What if only healthier patients, with better chance of survival, received transplants?  This would confound the result, as these patients would be likely to survive longer anyway.  What if surgical practises had changed over time, we might see some effects of this in our later patients.  We need to adjust for these ___case-mix___ factors...  _(reaches for his trusty regression model...)_
 
 
 # Survival regressions and risk-adjustment
@@ -104,15 +107,15 @@ Regression models are a common underlying framework for many types of analysis, 
 
 ## Hazards?
 
-Rather than model the odds of an event as we would with logistic regression, we model the odds of event at a given time. This is commonly described as the 'instantaneous risk of event', or 'instantaneous failure rate', more formally called the ___hazard function___.  We are them modelling a ratio of the hazard function in the 'event' group against the non-event' group, more formally called the ___hazard ratio___.
+Rather than model the odds of an event as we would with logistic regression, we model the odds of event at a given time. This is commonly described as the 'instantaneous risk of event', or 'instantaneous failure rate', more formally called the ___hazard function___.  We are then modelling a ratio of the hazard function in the 'event' group against the 'no-event' group, more formally called the ___hazard ratio___.
 
 ## Cox's proportional hazards
 
-Professor Sir David Cox (who also proposed logistic regression amongst other things...https://en.wikipedia.org/wiki/David_Cox_(statistician) ) proposed a regression model using the hazard ratio (Cox, 1974).  This allow the dependency on the event to be linked to predictors, as we would in a normal regression model.  
+Professor Sir David Cox (who also proposed logistic regression amongst other things...https://en.wikipedia.org/wiki/David_Cox_(statistician) ) proposed a regression model using the hazard ratio (Cox, 1974).  This allow the dependency on the event to be linked to predictors, as we would in a normal regression model, and we then have a method for casemix adjustment.  
 
-There is one key assumption of this model: __'proportional hazards'__. This means that the risk of event doesn't alter over the course of the study.  This seems an intuitive assumption, but is commonly violated.  e.g. over a long running study, the risk of death related to smoking may have changed with fewer people smoking in later years.  In our recent work on covid-19 survival at UHB, we found this was violated in relation to sex. The risk of death appeared to change over the course of the study, and we theorised that is was related to length-of-stay in hospital, but I digress....  There are mechanisms for dealing with so-called 'time-varying' effects, but we'll keep it simple in this post.
+There is one key assumption of this model: __'proportional hazards'__. This means that the risk of the event doesn't alter over the course of the study.  This seems an intuitive assumption, but is commonly violated.  e.g. over a long running study, the risk of death related to smoking may have changed with fewer people smoking in later years.  In our recent work on covid-19 survival at UHB, we found this was violated in relation to sex. The risk of death appeared to change over the course of the study, and we theorised that is was related to length-of-stay in hospital differing by sex, but I digress....  There are mechanisms for dealing with so-called 'time-varying' effects, but we'll keep it simple in this post.
 
-For application in `R` we will use the `Surv` object we created above as our `y`.  The KM plot showed the effects of the transplant groups when looking at survival, but lets imagine that age affects the likelihood of receiving a transplant.  We should adjust for age as well as transplant.  So lets fit two Cox models: first one to get the estimate of the effects of transplant, and the combined with effects of age:
+For application in `R` we will use the `Surv` object we created above as our `y`.  The KM plot showed the effects of the transplant group when looking at survival, but lets imagine that age affects the likelihood of receiving a transplant.  We should adjust for age as well as transplant.  So lets fit two Cox models: first one to get the estimate of the effects of transplant, and then transplant combined with effects of age:
 
 ```{r cox1}
 cox_model <- coxph(y_mortality ~ transplant, data=heart)
@@ -124,7 +127,7 @@ summary(cox_model_age)
 ```
 
 
-The output above suggests that receiving transplant doesn't significantly affect risk of death (if we blindly use the 95% threshold that we often do...).  When we add in age, it is still not significant, but it's affects are stronger once we remove the confounding of age.  We could also check with an interaction term, but I don't think it's logical.  My suspicion is that older patients are less likely to receive transplanted organs, rather that the effects of a transplant being different with age. ___(I did check it in-case but no improvement in AIC, explained later...)___.
+The output above suggests that receiving transplant doesn't significantly affect risk of death (if we blindly use the 95% threshold that we often do...).  When we add in age, it is still not significant, but it's affects are stronger once we remove the confounding of age.  We could also check with an interaction term, but I don't think it's logical.  My suspicion is that older patients are less likely to receive transplanted organs, rather that the effects of a transplant being different with age. ___(I did check it just in-case but no improvement in AIC, explained later...)___.
 
 The help files say that the age columns is: _age - 48 years_. This suggests that 48 years was the average age, and they have mean-centred the age.  This is a useful tool, as it allows you to read the coefficient as the risk for the 'average' patient. Here though, the important part to note is that increasing age slightly increases the hazard ratio, or risk of death, whereas transplant reduces it, but it is not 'statistically significant.'
 
@@ -135,11 +138,11 @@ cox_model_all <- coxph(y_mortality ~ age + transplant + surgery + year, data=hea
 summary(cox_model_all)
 ```
 
-So, that's interesting. 'surgery,' (having received prior bypass surgery) was significantly reduces the risk of death, as does 'year' (year patient entered the study, number in years from Nov 1967).  This suggest that survival has improved over years, and prior bypass surgery is protective.  This may be a surrogate indicator of a 'stronger' patient, who would have been assessed as strong enough for surgery.
+So, that's interesting. 'surgery,' (having received prior bypass surgery) significantly reduces the risk of death, as does 'year' (year patient entered the study, number in years from Nov 1967).  This suggest that survival has improved over years, and prior bypass surgery is protective.  This may be a surrogate indicator of a 'stronger' patient, who would have been assessed as strong enough for surgery.
 
 ## How do we tell which model is better?
 
-As with many things in stats, there are various ways and each has it's pros and cons.  I like to use the Alike Information Criterion (AIC) (Akaike, 1998). This is a relative value which represents the amount of information lost, with smaller values (closer to zero).  It is approximately $\chi ^2$ distributed on one degree-of-freedom, and essentially means a change of 4 in the AIC is significant at 95%.  For more information on AIC, I'd recommend Burnham & Anderson (2004) and Greven & Kneib (2010).
+As with many things in stats, there are various ways and each has it's pros and cons.  I like to use the Akaike Information Criterion (AIC) (Akaike, 1998). This is a relative value which represents the amount of information lost, with smaller values (closer to zero) suggesting less information is lost.  It is approximately $\chi ^2$ distributed on one degree-of-freedom, and essentially means a change of 4 in the AIC is significant at 95%.  For more information on AIC, I'd recommend Burnham & Anderson (2004) and Greven & Kneib (2010).
 
 ```{r aic}
 AIC(cox_model)
@@ -153,9 +156,9 @@ The AIC of our full model is much lower here, so it's a 'better' model that lose
 
 # Summary
 
-This post has taken a brief tour of survival analysis in `R`.  This is about the time to event, and that event was originally (and often is) death in a clinical study.  We can use this information to visualise survival using Kaplan-Meier curves, and use the tools in our regression tool box when we use a proportional hazards model, commonly called 'Cox' model named after it's creator. 
+This post has taken a brief tour of survival analysis in `R`.  This is about the time to event, and that event was originally (and often is) death in a clinical study.  We can use this information to visualise survival using Kaplan-Meier curves, and use the tools in our regression tool box when we use a proportional hazards model, commonly called 'Cox' model, named after it's creator. 
 
-This is just the surface of survival analyses in `R`, and the `survival` package by Terry Therneau is a powerhouse, with a fantastic set of vignettes examples covering so much theory and application.  There is much more to this field, including time-varying predictors, multi-state models, landmark analysis etc.  I hope this post can get you started, clear the fog around using survival analyses, and allow you to learn more from vignettes, tutorial and literature.
+This is just the surface of survival analyses in `R`, and the `survival` package by Terry Therneau is a powerhouse, with a fantastic set of vignette examples covering so much theory and application.  There is much more to this field, including time-varying predictors, multi-state models, landmark analysis etc.  I hope this post can get you started, clear the fog around using survival analyses, and allow you to learn more from vignettes, tutorials and literature.
 
 
 # References
