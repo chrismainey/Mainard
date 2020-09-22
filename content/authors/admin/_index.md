@@ -21,7 +21,7 @@ interests:
 - Machine Learning
 - Natural Language Processing
 - Teaching
-name: Chris Mainey
+title: Chris Mainey
 organizations:
 - name: Healthcare Evaluation Data (HED) - University Hospitals Birmingham NHS Foundation Trust
   url: "https://www.hed.nhs.uk"
