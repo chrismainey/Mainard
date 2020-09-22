@@ -22,10 +22,10 @@ output:
     toc_depth: 1
 ---
 
-# FunnelPlotR - v0.2.1 
+# FunnelPlotR - v0.3.1 
 
 
-`FunnelPlotR` helps you build funnel plot for indirectly stnadaridsed ratios, such as the Summary Hospital-level Mortality Index (SHMI).  It allows you to make overdispersion (OD) adjustments, draws plots, and labels outliers in `ggplot2`.
+`FunnelPlotR` helps you build funnel plot for comparing institutional performance, including ratios of counts, proporitons and indirectly standardised ratios, such as the Summary Hospital-level Mortality Index (SHMI).  It allows you to make overdispersion (OD) adjustments, draws plots, and labels outliers in `ggplot2`.
 
 This is an implementation of the plot processes, and overdispersion methods described in:<br>
 [Statistical methods for healthcare regulation: rating, screening and surveillance. Spiegelhalter et al (2012)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/j.1467-985X.2011.01010.x)<br>
@@ -36,16 +36,18 @@ It allows users to specify whether they want 'overdispersed' limits, or unadjust
 
 There is a variant method for this, described in the NHS' Summary Hospital Mortality Indicator'<br>
 [Summary Hospital-level Mortality Indicator, NHS Digital, SHMI specification](https://digital.nhs.uk/data-and-information/publications/ci-hub/summary-hospital-level-mortality-indicator-shmi) <br>
-This uses a log-transformation and truncation of the distribution for calculating overdispersion, whereas Spieglehalter's methods use a square-root transformation and Winsorisation.
+This uses a log-transformation and truncation of the distribution for calculating overdispersion, whereas Spieglehalter's methods use a square-root transformation and Winsorisation, for indirectly standardised indicators.
 
 <br><br>
 This package was originally developed for use in my PhD project, but published on GitHub in case it's of use for others.  It has now been submitted to CRAN for publication.
 
-_v0.2.0_ This is the first CRAN release of FunnelPlotR, for building funnel plots of indirectly standardised ratios, such as hospital mortality ratio. It allows adjustment of funnel limits for overdispersion. Future releases will extend functionality to proportions and ratios of counts. This package replaces the earlier CMFunnels package, that was only released on GitHub.
+_v0.2.0_ This is the first CRAN release of `FunnelPlotR`, for building funnel plots of indirectly standardised ratios, such as hospital mortality ratio. It allows adjustment of funnel limits for overdispersion. Future releases will extend functionality to proportions and ratios of counts. This package replaces the earlier `CMFunnels` package, that was only released on GitHub.
 
-__v0.2.1:__ Hides internal functions, removed unneccesary function, typos and scaling bug fixed.  Added new custom scaling functions.
+__v0.2.1:__ Hides internal functions, removed unnecessary function, typos and scaling bug fixed.  Added new custom scaling functions.
 
 __v0.2.2:__ Minor bug fix for discrepancy between documentation and function defaults
+
+__v0.3.1:__ Major update adding: methods for ratios of counts and proportions, better control of scaling, limits and outlier settings, control of themes and colour options.  Internals were significantly reordered, and converted to S3 system with new methods for extracting elements.  New vignette added to show formatting options!
 
 
 For more information, see:

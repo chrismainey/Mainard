@@ -25,13 +25,13 @@ output:
 
 <div id="TOC">
 <ul>
-<li><a href="#funnelplotr---v0.2.1"><span class="toc-section-number">1</span> FunnelPlotR - v0.2.1</a></li>
+<li><a href="#funnelplotr---v0.3.1"><span class="toc-section-number">1</span> FunnelPlotR - v0.3.1</a></li>
 </ul>
 </div>
 
-<div id="funnelplotr---v0.2.1" class="section level1">
-<h1><span class="header-section-number">1</span> FunnelPlotR - v0.2.1</h1>
-<p><code>FunnelPlotR</code> helps you build funnel plot for indirectly stnadaridsed ratios, such as the Summary Hospital-level Mortality Index (SHMI). It allows you to make overdispersion (OD) adjustments, draws plots, and labels outliers in <code>ggplot2</code>.</p>
+<div id="funnelplotr---v0.3.1" class="section level1">
+<h1><span class="header-section-number">1</span> FunnelPlotR - v0.3.1</h1>
+<p><code>FunnelPlotR</code> helps you build funnel plot for comparing institutional performance, including ratios of counts, proporitons and indirectly standardised ratios, such as the Summary Hospital-level Mortality Index (SHMI). It allows you to make overdispersion (OD) adjustments, draws plots, and labels outliers in <code>ggplot2</code>.</p>
 <p>This is an implementation of the plot processes, and overdispersion methods described in:<br>
 <a href="https://rss.onlinelibrary.wiley.com/doi/full/10.1111/j.1467-985X.2011.01010.x">Statistical methods for healthcare regulation: rating, screening and surveillance. Spiegelhalter et al (2012)</a><br>
 <a href="https://onlinelibrary.wiley.com/doi/10.1002/sim.1970">Funnel plots for comparing institutional performance. Spiegelhalter (2004)</a><br>
@@ -39,12 +39,13 @@ output:
 <p>It allows users to specify whether they want ‘overdispersed’ limits, or unadjusted Poisson limits. OD adjustment is performed using z-score transformation, with outliers adjusted, before calculating a dispersion ratio (phi). This ratio is then used this to calculate a ‘between’ units standard deviation (tau) to add to the ‘within’ units standard deviation (sigma). The amount of outlier adjustment (Winsorisation) can be changed, but defaults to 10% at each end of the distribution.</p>
 <p>There is a variant method for this, described in the NHS’ Summary Hospital Mortality Indicator’<br>
 <a href="https://digital.nhs.uk/data-and-information/publications/ci-hub/summary-hospital-level-mortality-indicator-shmi">Summary Hospital-level Mortality Indicator, NHS Digital, SHMI specification</a> <br>
-This uses a log-transformation and truncation of the distribution for calculating overdispersion, whereas Spieglehalter’s methods use a square-root transformation and Winsorisation.</p>
+This uses a log-transformation and truncation of the distribution for calculating overdispersion, whereas Spieglehalter’s methods use a square-root transformation and Winsorisation, for indirectly standardised indicators.</p>
 <p><br><br>
 This package was originally developed for use in my PhD project, but published on GitHub in case it’s of use for others. It has now been submitted to CRAN for publication.</p>
-<p><em>v0.2.0</em> This is the first CRAN release of FunnelPlotR, for building funnel plots of indirectly standardised ratios, such as hospital mortality ratio. It allows adjustment of funnel limits for overdispersion. Future releases will extend functionality to proportions and ratios of counts. This package replaces the earlier CMFunnels package, that was only released on GitHub.</p>
-<p><strong>v0.2.1:</strong> Hides internal functions, removed unneccesary function, typos and scaling bug fixed. Added new custom scaling functions.</p>
+<p><em>v0.2.0</em> This is the first CRAN release of <code>FunnelPlotR</code>, for building funnel plots of indirectly standardised ratios, such as hospital mortality ratio. It allows adjustment of funnel limits for overdispersion. Future releases will extend functionality to proportions and ratios of counts. This package replaces the earlier <code>CMFunnels</code> package, that was only released on GitHub.</p>
+<p><strong>v0.2.1:</strong> Hides internal functions, removed unnecessary function, typos and scaling bug fixed. Added new custom scaling functions.</p>
 <p><strong>v0.2.2:</strong> Minor bug fix for discrepancy between documentation and function defaults</p>
+<p><strong>v0.3.1:</strong> Major update adding: methods for ratios of counts and proportions, better control of scaling, limits and outlier settings, control of themes and colour options. Internals were significantly reordered, and converted to S3 system with new methods for extracting elements. New vignette added to show formatting options!</p>
 <p>For more information, see:</p>
 <ul>
 <li>CRAN: <a href="https://cran.r-project.org/web/packages/FunnelPlotR/index.html" class="uri">https://cran.r-project.org/web/packages/FunnelPlotR/index.html</a></li>

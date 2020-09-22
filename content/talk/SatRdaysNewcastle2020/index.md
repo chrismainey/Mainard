@@ -16,12 +16,12 @@ math: true
 projects: ""
 publishDate: "2020-03-03T00:00:00Z"
 slides: ""
-summary: Tales of learing to build count data models when you can't tell if you're wrong.
+summary: Tales of learning to build count data models when you can't tell if you're wrong.
 tags: 
  - R
  - NHS
  - EARL
-title: "Why is my model so bad?: Tales of a wandering PhD studentDriving R adoption in an NHS information service, barriers and solutions"
+title: "Why is my model so bad?: Tales of a wandering PhD student - CANCELLED DUE TO LOCKDOWN"
 url_code: ""
 url_pdf: ""
 url_slides: ""

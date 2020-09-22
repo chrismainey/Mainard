@@ -1,0 +1,47 @@
+---
+title: "Major update to FunnelPlotR published on CRAN!"
+author: ''
+date: '2020-09-17'
+slug: funnelplotr-updated
+categories:
+  - R
+  - SPC
+  - Funnel plot
+tags:
+  - Funnel plot
+  - package
+summary: "FunnelPlotR package updated!"
+image:
+  caption: ''
+  focal_point: ''
+output:
+  blogdown::html_page:
+    toc: true
+    number_sections: true
+    toc_depth: 1
+draft: false
+---
+
+# FunnelPlotR 0.3.1 released!
+
+`FunnelPlotR` has just been released to CRAN with major updated.  I'm quite proud of this one, as I feel I've tackled some statistical issues, change package to use `R`s S3 system (new one for me), reorganised it a lot and made it more robust.
+
+From the NEWs file:
+
++ Significantly reorganised the internals into more small functions
++ Added methods for ratios of counts and proportions
++ Renamed several arguments - please read the help file!
++ Added S3 object system and associated methods
++ Added ‘themes’ as people don’t like the `ggplot2` grey as default
++ Added ability to change colours
++ Broke process into much smaller functions for easier editing and speed
++ Tweaked vignettes for new methods and added new one showing plot options
++ Removed unnecessary `rlang` dependency
+
+Download it from CRAN now: `install.packages("FunnelPlotR")`
+
+You can find it at:
+
+- CRAN: https://cran.r-project.org/web/packages/FunnelPlotR/index.html
+- Package Site: https://chrismainey.github.io/FunnelPlotR/
+- GitHub: https://github.com/chrismainey/FunnelPlotR
