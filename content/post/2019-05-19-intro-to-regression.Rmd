@@ -54,7 +54,7 @@ In regression, we are attempting to predict a variable $y$, using another $x$.  
 
 The figure below illustrates what goes on in linear regression.  We can describe $y$, by using an 'intercept' $\alpha$ (where our line crosses the $x$ axis), and how much $y$ increases when $x$ increases by one, the 'coefficient' $\beta$.
 
-![](../../static/img/image2.png)
+![](../../static/media/image2.png)
 
 _The formula for this is therefore:_
 $$ y = \alpha + \beta x + \varepsilon$$

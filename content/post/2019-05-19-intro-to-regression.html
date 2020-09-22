@@ -55,7 +55,7 @@ output:
 <h1><span class="header-section-number">2</span> Regression Models</h1>
 <p>In regression, we are attempting to predict a variable <span class="math inline">\(y\)</span>, using another <span class="math inline">\(x\)</span>. We will stick to a single <span class="math inline">\(x\)</span> variable for this post, but it can be expanded to many different <span class="math inline">\(x\)</span>s in practice. A multiple regression allows us to adjust for many factors when predicting <span class="math inline">\(y\)</span>, and is the basis for indirectly-standardised ratios, such as the mortality ratio HSMR <strong>ref</strong> and SHMI <strong>ref</strong>. To understand the technique, we will start with a linear model before considering binary events (like death or readmission), or count-based data (like length-of-stay).</p>
 <p>The figure below illustrates what goes on in linear regression. We can describe <span class="math inline">\(y\)</span>, by using an ‘intercept’ <span class="math inline">\(\alpha\)</span> (where our line crosses the <span class="math inline">\(x\)</span> axis), and how much <span class="math inline">\(y\)</span> increases when <span class="math inline">\(x\)</span> increases by one, the ‘coefficient’ <span class="math inline">\(\beta\)</span>.</p>
-<p><img src="../../static/img/image2.png" /></p>
+<p><img src="../../static/media/image2.png" /></p>
 <p><em>The formula for this is therefore:</em>
 <span class="math display">\[ y = \alpha + \beta x + \varepsilon\]</span>
 + <span class="math inline">\(\alpha\)</span>&lt;U+F061&gt; = Intercept
@@ -87,6 +87,7 @@ dt &lt;-data.frame(x,y)</code></pre>
   geom_smooth(method=&quot;lm&quot;, col=&quot;red&quot;, se = FALSE)+
   geom_segment(aes(x=x, y=err, yend=pred, xend=x),
                arrow = arrow(length = unit(0.25, &quot;cm&quot;)))</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
 <p><img src="/post/2019-05-19-intro-to-regression_files/figure-html/OLS-1.png" width="672" /></p>
 </div>
 <div id="model-build" class="section level3">
@@ -151,6 +152,7 @@ plot(model1)</code></pre>
 <pre class="r"><code>ggplot(data.frame(y,x), aes(y=y, x=x))+
   geom_point()+
   geom_smooth(method=&quot;lm&quot;, col=&quot;red&quot;)</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
 <p><img src="/post/2019-05-19-intro-to-regression_files/figure-html/final%20plot-1.png" width="528" /></p>
 <p><br><br></p>
 </div>
@@ -377,6 +379,8 @@ Now lets visualise this, as we did with the linear model. We can see that the li
   geom_smooth(aes(col=&quot;glm&quot;), method=&quot;glm&quot;, method.args=list(family=&quot;poisson&quot;))+
   geom_smooth(aes(col=&quot;lm&quot;), method=&quot;lm&quot;)+
   scale_colour_manual(values = c(&quot;glm&quot; = &quot;red&quot;, &quot;lm&quot;=&quot;blue&quot;))</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;
+## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
 <p><img src="/post/2019-05-19-intro-to-regression_files/figure-html/plot%20poisson%20output-1.png" width="432" />
 <br></p>
 </div>
