@@ -13,7 +13,7 @@ tags:
   - overdispersion
   - package
   - SPC
-summary: An introduction to funnel plots, and using the CMFunnels package
+summary: An introduction to funnel plots, and using the FunnelPlotR package
 bibliography: ../../content/post/references.bib
 image:
   caption: ''
@@ -31,7 +31,7 @@ output:
 <div id="funnel-plots" class="section level2">
 <h2><span class="header-section-number">0.1</span> Funnel plots</h2>
 <p>Funnel plots are a common tool for comparing organisations or units using proportions or standardised rates. A common use of them is for monitoring mortality at hospitals. This is an introductory post on the subject, that gives a little information about them and how they are constructed. It is deliberately light on theory, focussing on use, some of the theory is referenced for interested readers.</p>
-<p>This post also uses a funnel plot function, for indirectly standardised ratios, that I built as part of my PhD work. The function is based on <code>ggplot2</code> <span class="citation">(Wickham 2009)</span>, and is available at <a href="https://github.com/chrismainey/CMFunnels" class="uri">https://github.com/chrismainey/CMFunnels</a>, although it’s a work in progress.</p>
+<p>This post also uses a funnel plot function, for indirectly standardised ratios, that I built as part of my PhD work. The function is based on <code>ggplot2</code> <span class="citation">(Wickham 2009)</span>, and is available at <a href="https://github.com/chrismainey/FunnelPlotR" class="uri">https://github.com/chrismainey/FunnelPlotR</a>, although it’s a work in progress.</p>
 <p>There are different kinds of funnel plot, but this post focusses on the type used to compare standardised mortality and other similarly constructed indicators .</p>
 </div>
 <div id="why-do-we-use-them" class="section level2">
@@ -96,7 +96,7 @@ It also allows users to specify whether they want ‘overdispersed’ limits. I 
 <p>Here we will apply this to some data by picking up the <code>medpar</code> dataset discussed by Hilbe and available in the <code>COUNT</code> package <span class="citation">(Hilbe 2014)</span>. It is a set of data points from hospitals in Arizona, in 1991, based on US Medicare data. We’ll use the ‘length of stay’ field ’, <code>los</code>, and model it from the other predictors in the data.</p>
 <div id="installation" class="section level3">
 <h3><span class="header-section-number">0.4.1</span> Installation</h3>
-<pre class="r"><code>install.packages(FunnelPlotR)
+<pre class="r"><code>install.packages(&quot;FunnelPlotR&quot;)
 #or
 devtools::install_github(&quot;https://github.com/chrismainey/FunnelPlotR&quot;)</code></pre>
 </div>
@@ -150,9 +150,10 @@ summary(mod)</code></pre>
 <p>Now we can build a funnel plot object with standard Poisson limits, and outliers labelled. The function returns a list of the plotted data, the plotted control limit range, and the <code>ggplot</code> object, hence <code>object[3]</code> to call it.</p>
 <pre class="r"><code>
 funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum, title = &#39;Length of Stay Funnel plot for `medpar` data&#39;, 
-            Poisson_limits = TRUE, OD_adjust = FALSE,label_outliers = 99, return_elements = &quot;plot&quot;)
-## $plot</code></pre>
+            Poisson_limits = TRUE, OD_adjust = FALSE, label_outliers = TRUE, limit=99)</code></pre>
 <p><img src="/post/2019-05-08-funnel-plots_files/figure-html/funnel1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>## A funnel plot object with 54 points of which 25 are outliers. 
+## Plot is not adjusted for overdispersion.</code></pre>
 <p><br></p>
 </div>
 <div id="overdispersion" class="section level3">
@@ -163,12 +164,11 @@ The following ratio should be 1 if our data are conforming to Poisson distributi
 <pre class="r"><code>sum(mod$weights * mod$residuals^2)/mod$df.residual</code></pre>
 <pre><code>## [1] 6.240519</code></pre>
 <p>This suggests the variance is 6.24 times the condition mean, and definitely overdispersed.
-This is a huge topic, but applying overdispersed limits using either SHMI or Spieglehalter methods adjust for this by inflating the limits:</p>
-<pre class="r"><code>funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum,  title = &#39;Length of Stay Funnel plot for `medpar` data&#39;, 
-            Poisson_limits = FALSE, OD_adjust = TRUE, method = &quot;SHMI&quot;,
-            label_outliers = 99, return_elements = &quot;plot&quot;)
-## $plot</code></pre>
+This is a huge topic, but applying overdispersed limits using either SHMI or Spiegelhalter methods adjust for this by inflating the limits:</p>
+<pre class="r"><code>funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum,  title = &#39;Length of Stay Funnel plot for `medpar` data&#39;, Poisson_limits = FALSE, OD_adjust = TRUE, label_outliers = TRUE, limit=99)</code></pre>
 <p><img src="/post/2019-05-08-funnel-plots_files/figure-html/funnel2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>## A funnel plot object with 54 points of which 9 are outliers. 
+## Plot is adjusted for overdispersion.</code></pre>
 <p><br><br>
 Given these adjustments, we now only have nine organisations showing special-cause variation. To interpret this plot properly, we would first investigate these outlying organisations before making any changes to the system/indicator. We should check for possible data quality issues, such as errors, missing model predictors, environmental factors (e.g. one organisation changing computer systems and data standards etc. during the monitoring period), but once these are examined we might suspect issues with care at the hospitals in question. They can then be investigated by local audit and casenote review.</p>
 <p>These methods can be used for any similar indicators, e.g. standardised mortality ratios, readmissions etc.</p>
@@ -178,7 +178,7 @@ Given these adjustments, we now only have nine organisations showing special-cau
 <div id="summary" class="section level2">
 <h2><span class="header-section-number">0.5</span> Summary</h2>
 <p>Funnel plots are useful ways to visualise indicators such as mortality, readmission and length of stay data at hospitals, that presents both the indicator value but also a measure of the size/variance at organisations. They allow limits to be drawn between what we might expect by chance, and what we might consider to be a signal for investigation. Organisations outside the funnel limits should be examined, first for data quality issues and then for issues with process and clinical care. Overdispersion means that these limits are often too strict, but they can be inflated to adjusted for this.</p>
-<p>If you’d like to use my outline <code>ggplot</code> function, or contribute, please pull or fork it on github: <a href="https://github.com/chrismainey/FunnelPlotR" class="uri">https://github.com/chrismainey/FunnelPlotR</a>, or install from CRAN with <code>install.packages('FunnelPlotR')</code>.</p>
+<p>If you’d like to use my outline <code>ggplot2</code> function, or contribute, please pull or fork it on github: <a href="https://github.com/chrismainey/FunnelPlotR" class="uri">https://github.com/chrismainey/FunnelPlotR</a>, or install from CRAN with <code>install.packages("FunnelPlotR")</code>.</p>
 <p><br></p>
 </div>
 <div id="references" class="section level2 unnumbered">

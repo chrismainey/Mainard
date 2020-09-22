@@ -13,7 +13,7 @@ tags:
   - overdispersion
   - package
   - SPC
-summary: An introduction to funnel plots, and using the CMFunnels package
+summary: An introduction to funnel plots, and using the FunnelPlotR package
 bibliography: ../../content/post/references.bib
 image:
   caption: ''
@@ -34,7 +34,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Funnel plots are a common tool for comparing organisations or units using proportions or standardised rates.  A common use of them is for monitoring mortality at hospitals.  This is an introductory post on the subject, that gives a little information about them and how they are constructed.  It is deliberately light on theory, focussing on use, some of the theory is referenced for interested readers.
 
-This post also uses a funnel plot function, for indirectly standardised ratios, that I built as part of my PhD work.  The function is based on `ggplot2` [@wickhamGgplot2ElegantGraphics2009], and is available at https://github.com/chrismainey/CMFunnels, although it's a work in progress.  
+This post also uses a funnel plot function, for indirectly standardised ratios, that I built as part of my PhD work.  The function is based on `ggplot2` [@wickhamGgplot2ElegantGraphics2009], and is available at https://github.com/chrismainey/FunnelPlotR, although it's a work in progress.  
 
 There are different kinds of funnel plot, but this post focusses on the type used to compare standardised mortality and other similarly constructed indicators .
 
@@ -111,7 +111,7 @@ Here we will apply this to some data by picking up the `medpar` dataset discusse
 ### Installation
 
 ```{r install, eval=FALSE}
-install.packages(FunnelPlotR)
+install.packages("FunnelPlotR")
 #or
 devtools::install_github("https://github.com/chrismainey/FunnelPlotR")
 ```
@@ -154,7 +154,7 @@ Now we can build a funnel plot object with standard Poisson limits, and outliers
 ```{r, funnel1, message=FALSE, fig.align='center', fig.retina=5, collapse=TRUE, warning=FALSE}
 
 funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum, title = 'Length of Stay Funnel plot for `medpar` data', 
-            Poisson_limits = TRUE, OD_adjust = FALSE,label_outliers = 99, return_elements = "plot")
+            Poisson_limits = TRUE, OD_adjust = FALSE, label_outliers = TRUE, limit=99)
 
 ```
 
@@ -174,12 +174,10 @@ sum(mod$weights * mod$residuals^2)/mod$df.residual
  
 
 This suggests the variance is 6.24 times the condition mean, and definitely overdispersed.
-This is a huge topic, but applying overdispersed limits using either SHMI or Spieglehalter methods adjust for this by inflating the limits:
+This is a huge topic, but applying overdispersed limits using either SHMI or Spiegelhalter methods adjust for this by inflating the limits:
 
 ```{r, funnel2, message=FALSE, fig.align='center', fig.retina=5, collapse=TRUE}
-funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum,  title = 'Length of Stay Funnel plot for `medpar` data', 
-            Poisson_limits = FALSE, OD_adjust = TRUE, method = "SHMI",
-            label_outliers = 99, return_elements = "plot")
+funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum,  title = 'Length of Stay Funnel plot for `medpar` data', Poisson_limits = FALSE, OD_adjust = TRUE, label_outliers = TRUE, limit=99)
 
 ```
 
@@ -194,7 +192,7 @@ These methods can be used for any similar indicators, e.g. standardised mortalit
 
 Funnel plots are useful ways to visualise indicators such as mortality, readmission and length of stay data at hospitals, that presents both the indicator value but also a measure of the size/variance at organisations.  They allow limits to be drawn between what we might expect by chance, and what we might consider to be a signal for investigation. Organisations outside the funnel limits should be examined, first for data quality issues and then for issues with process and clinical care. Overdispersion means that these limits are often too strict, but they can be inflated to adjusted for this.
 
-If you'd like to use my outline `ggplot` function, or contribute, please pull or fork it on github: https://github.com/chrismainey/FunnelPlotR, or install from CRAN with `install.packages('FunnelPlotR')`.
+If you'd like to use my outline `ggplot2` function, or contribute, please pull or fork it on github: https://github.com/chrismainey/FunnelPlotR, or install from CRAN with `install.packages("FunnelPlotR")`.
 
 <br>
 
