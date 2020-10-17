@@ -18,7 +18,7 @@ date_format = "Jan 2006"
 #   Leave `date_end` empty if it's your current employer.
 #   Begin/end multi-line descriptions with 3 quotes `"""`.
 [[experience]]
-  title = "Senior Statistical Intelligence Analyst"
+  title = "Senior Data Scientist"
   company = "Healthcare Evaluation Data (HED) - Univ. Hospitals Birmingham NHS FT"
   company_url = "www.hed.nhs.uk"
   location = "Birmingham, UK"
