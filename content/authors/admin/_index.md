@@ -1,7 +1,7 @@
 ---
 authors:
 - admin
-bio: NHS Data Scientist with interests in statistical modelling and machine learning in healthcare data.
+bio: NHS Senior Data Scientist with interests in statistical modelling and machine learning in healthcare data.
 education:
   courses:
   - course: PhD in Applied Statistics and Machine Learning
@@ -25,7 +25,7 @@ title: Chris Mainey
 organizations:
 - name: Healthcare Evaluation Data (HED) - University Hospitals Birmingham NHS Foundation Trust
   url: "https://www.hed.nhs.uk"
-role: Senior Statistical Intelligence Analyst
+role: Senior Data Scientist
 social:
 - icon: address-card
   icon_pack: far
