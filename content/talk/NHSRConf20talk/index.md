@@ -22,9 +22,9 @@ tags:
  - NHS
  - NHS-R Community
 title: "Building predictive models with HED data using R"
-url_code: ""
+url_code: "https://github.com/chrismainey/Readmissions_in_HED_NHSR2020"
 url_pdf: ""
-url_slides: ""
+url_slides: "https://chrismainey.github.io/Readmissions_in_HED_NHSR2020/Modelling_readmissions.html#1"
 url_video: ""
 draft: false
 ---
