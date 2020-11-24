@@ -25,6 +25,6 @@ title: "Building predictive models with HED data using R"
 url_code: "https://github.com/chrismainey/Readmissions_in_HED_NHSR2020"
 url_pdf: "https://github.com/chrismainey/Regression_Modelling_NHSR/raw/master/Regression%20Modelling%20in%20R.pdf"
 url_slides: "https://chrismainey.github.io/Readmissions_in_HED_NHSR2020/Modelling_readmissions.html#1"
-url_video: ""
+url_video: "https://www.youtube.com/watch?v=0BiGiZfqqZA&t=659s"
 draft: false
 ---

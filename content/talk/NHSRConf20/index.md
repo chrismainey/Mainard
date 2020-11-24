@@ -26,8 +26,8 @@ tags:
  - NHS-R Community
 title: "Regression Modelling in R"
 url_code: "https://github.com/chrismainey/Regression_Modelling_NHSR2019"
-url_pdf: ""
+url_pdf: "https://github.com/chrismainey/Regression_Modelling_NHSR/raw/master/Regression%20Modelling%20in%20R.pdf"
 url_slides: "https://chrismainey.github.io/Regression_Modelling_NHSR2019/Regression_modelling.html#1"
-url_video: ""
+url_video: "https://www.youtube.com/watch?v=UWLfhQFRde4&t=24s"
 draft: false
 ---
