@@ -13,7 +13,7 @@ education:
   - course: BSc in Microbiology with Industrial Experience
     institution: University of Manchester
     year: 2006
-email: "chris.mainey@uhb.nhs.uk"
+email: "c.mainey@nhs.net"
 interests:
 - R
 - NHS and Healthcare data
@@ -23,16 +23,16 @@ interests:
 - Teaching
 title: Chris Mainey
 organizations:
-- name: Healthcare Evaluation Data (HED) - University Hospitals Birmingham NHS Foundation Trust
-  url: "https://www.hed.nhs.uk"
-role: Senior Data Scientist
+- name: "NHS Improvement"
+  url: "https://www.england.nhs.uk/patient-safety/"
+role: Patient Safety Lead - System Analysis and Delivery
 social:
 - icon: address-card
   icon_pack: far
   link: '#contact'
 - icon: envelope
   icon_pack: fas
-- link: "mailto:chris.mainey@uhb.nhs.uk"
+- link: "mailto:c.mainey@nhs.net"
 - icon: twitter
   icon_pack: fab
   link: https://twitter.com/chrismainey
@@ -56,10 +56,10 @@ user_groups:
 - Visitors
 ---
 
-Chris Mainey is a Senior Data Scientist/Statistician/Analyst in health informatics.  He is a member of the Healthcare Evaluation Data (HED) team at University Hospitals Birmingham NHS Foundation Trust (UHB), and leads development of data science techniques in informatics at UHB.
+Chris Mainey is a senior Data Scientist in the UK National Health Service (NHS).  He leads the NRLS analysis team at NHS Improvement, focussing on analysing incident reporting data and other NHS data sources.  He has experience in public health, clinical networks, acute trust informatics, and leading the establishment of the data science team at Healthcare Evaluation Data (HED), a national NHS analytics service from University Hospitals Birmingham NHS Foundation Trust.
 
-Chris' work focuses on modelling National Health Service (NHS) data.  He works primarily in R and SQL Server, and has experience with various statistical modelling and machine learning techniques.  He completed his PhD at UCL, on modelling NHS incident reporting data using quantitative methods and text mining.
+Chris' work focuses on modelling NHS data, with strong expertise in R and SQL, and experience with a variety of statistical modelling and machine learning techniques.  He completed his PhD at UCL, on modelling NHS incident reporting data using quantitative methods and NLP/text mining.
 
-Chris is an experienced trainer, presenter, and post-grad teacher, keen on communicating health data, statistics and ML techniques to a variety of audiences. He leads a local R usergroup at UHB, is a member of the NHS-R community Technical Advisory Group, and is keen to promote R awareness and adoption in the NHS.
+Chris is an experienced trainer, presenter, and post-grad teacher, keen on communicating health data, statistics and ML methods to a variety of audiences. He is a member of the NHS-R community Technical Advisory Group, has authored and maintains several R packages, and is keen to promote R awareness and adoption in the NHS.
  
-This is a personal blog/website and does not reflect the opinions of UHB, HED or any other organisation.
+This is a personal blog/website and does not reflect the opinions of NHS Improvement or any other organisation.

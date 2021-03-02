@@ -1,0 +1,28 @@
+---
+title: New job klaxon!
+author: Chris Mainey
+date: '2021-01-10'
+slug: []
+categories:
+  - personal
+tags:
+  - NHS
+  - patient safety
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-01-10T10:10:17Z'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+# Moving on 
+
+I'm delighted to announce that, from the beginning of March, I'll be moving on form hed/UHB Informatics to join the National Patient Safety Team at NHS England/ NHS Improvement.  
+
+ in March,as Patient Safety Lead - System Analysis and Delivery. Looking forward to applying my PhD work at national level & leading new developments in #patientsafety
+analysis.
