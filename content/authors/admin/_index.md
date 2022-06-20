@@ -47,7 +47,7 @@ social:
   link: https://orcid.org/0000-0002-3018-6171
 - icon: globe
   icon_pack: fas
-  link: https://www.hed.nhs.uk
+  link: https://nhsrcommunity.com/
 
 
 superuser: true
