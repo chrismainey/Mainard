@@ -19,7 +19,7 @@ date_format = "Jan 2006"
 #   Begin/end multi-line descriptions with 3 quotes `"""`.
 [[experience]]
   title = "Head of Patient Safety Measurement for Improvement"
-  company = "NHS England and NHS Improvement"
+  company = "NHS England"
   company_url = "https://www.england.nhs.uk/patient-safety/"
   location = "UK"
   date_start = "2022-04-01"
@@ -28,7 +28,7 @@ date_format = "Jan 2006"
   
 [[experience]]
   title = "Patient Safety Lead - System Analysis and Delivery"
-  company = "NHS England and NHS Improvement"
+  company = "NHS England"
   company_url = "https://www.england.nhs.uk/patient-safety/"
   location = "UK"
   date_start = "2021-03-01"
