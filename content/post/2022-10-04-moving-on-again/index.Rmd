@@ -1,0 +1,24 @@
+---
+title: Moving on again
+author: ''
+date: '2022-10-04'
+slug: []
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2022-10-04T14:13:56+01:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+# Quick job update
+
+Looking at my last post on here, it was the start of my previous role at NHSE.  Show's you how much time I've had for extracurricular things like a website, eh?  Ah well, hopefully more posts this year.
+
+I've recently moved from NHSE's national patient safety team to NCL ICB, to lead the specialist analytics team.  Excited for new challenges, and I've learnt a huge amount from my time at 'the centre,' and looking forward to applying it somewhere new.

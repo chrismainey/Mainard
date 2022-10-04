@@ -1,0 +1,417 @@
+---
+title: Introduction to Regression Modelling
+author: Chris Mainey
+date: '2019-05-19'
+slug: intro-to-regression
+categories: 
+  - regression
+  - model
+  - R
+draft: true
+tags: 
+  - R
+  - overdispersion
+  - count data
+  - mixed models
+summary: Regression models are key tools for explanatory and predictive models.  This post is an introduction to linear generalised linear (logistic and Poisson) models 
+bibliography: ./references_regression.bib
+image:
+  caption: ''
+  focal_point: ''
+math: true
+output:
+  blogdown::html_page:
+    toc: true
+    number_sections: true
+    toc_depth: 1
+---
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#regression-models" id="toc-regression-models"><span class="toc-section-number">2</span> Regression Models</a></li>
+<li><a href="#non-linear-models-using-glm" id="toc-non-linear-models-using-glm"><span class="toc-section-number">3</span> Non-linear models using GLM</a></li>
+<li><a href="#summary" id="toc-summary"><span class="toc-section-number">4</span> Summary</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
+</ul>
+</div>
+
+<p><br><br></p>
+<div id="introduction" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>This tutorial is an introduction to linear and generalised linear models. It’s written for people who are both new to <code>R</code>, and new to regression techniques. It is in four parts:</p>
+<ul>
+<li>Introduction and Linear regression models (LM)</li>
+<li>Generalised Linear Models (GLM)</li>
+<li>Multilevel Models (LMM / GLMM)</li>
+<li>Smoothed regressions: Generalized Additive Models (GAM)</li>
+</ul>
+<p>This section will focus on linear models. You might use a linear regression on continuous data that are normally distributed (such as blood pressure, heights of a sample of people etc.). They are fairly straight-forward to apply and understand, but a bit more challenging if we have different data types, such as binary <em>(yes/no, dead alive, readmitted/not readmitted etc.)</em>, count data <em>(can’t be decimal or negative)</em>, categorical data <em>(e.g. a variable with possible responses: ‘none’, ‘some,’ ‘more’ or ‘a lot’)</em> etc. For these cases, you might use a <em>Generalized Linear Model</em> <span class="citation">(<a href="#ref-mccullaghGeneralizedLinearModels1989" role="doc-biblioref">McCullagh and Nelder 1989</a>)</span>.</p>
+<p>Some of the key assumptions of regressions are that we expect constant variance across the range of our data (‘homoskedsticity’), and no correlation (relationships between our predictor variables). In cases where are data are not completely independent, e.g. if look at England-level data</p>
+<p>I’m aiming to give a grounding in linear regression using ‘ordinary least squares’ (OLS), Logistic and Poisson regression using ‘maximum likelihood estimation’ (MLE). This will not be in great mathematical depth, and will focus on using them in <code>R</code>, but there is a wealth of literature on the subject. I’d suggest <span class="citation">(<a href="#ref-harrell2015regression" role="doc-biblioref">Harrell 2015</a>; <a href="#ref-woodGeneralizedAdditiveModels2017" role="doc-biblioref">Wood 2017</a>)</span> excellent books.</p>
+</div>
+<div id="regression-models" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Regression Models</h1>
+<p>In regression, we are attempting to predict a variable <span class="math inline">\(y\)</span>, using another <span class="math inline">\(x\)</span>. We will stick to a single <span class="math inline">\(x\)</span> variable for this post, but it can be expanded to many different <span class="math inline">\(x\)</span>s in practice. A multiple regression allows us to adjust for many factors when predicting <span class="math inline">\(y\)</span>, and is the basis for indirectly-standardised ratios, such as the mortality ratio HSMR <span class="citation">(<a href="#ref-jarman_explaining_1999" role="doc-biblioref">Jarman et al. 1999</a>)</span> and SHMI <span class="citation">(<a href="#ref-campbell_developing_2012" role="doc-biblioref">Campbell et al. 2012</a>)</span>. To understand the technique, we will start with a linear model before considering binary events (like death or readmission), or count-based data (like length-of-stay).</p>
+<p>The figure below illustrates what goes on in linear regression. We can describe <span class="math inline">\(y\)</span>, by using an ‘intercept’ <span class="math inline">\(\alpha\)</span> (where our line crosses the <span class="math inline">\(x\)</span> axis), and how much <span class="math inline">\(y\)</span> increases when <span class="math inline">\(x\)</span> increases by one, the ‘coefficient’ <span class="math inline">\(\beta\)</span>.</p>
+<p><img src="../../../static/media/image2.png" /></p>
+<p><em>The formula for this is therefore:</em></p>
+<p><span class="math display">\[ y = \alpha + \beta x + \varepsilon\]</span>
++ <span class="math inline">\(\alpha\)</span> = Intercept
++ <span class="math inline">\(\beta\)</span> = Coefficient (how much x affects y)
++ <span class="math inline">\(\varepsilon\)</span> = Error (Residual)</p>
+<p><br></p>
+<div id="linear-model" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Linear Model</h2>
+<div id="create-dataset" class="section level3" number="2.1.1">
+<h3><span class="header-section-number">2.1.1</span> Create Dataset</h3>
+<p>To demonstrate a linear model, we will first generate some appropirate data. We will set the ‘seed’ which aligns the random number generator so it is reproducible on your own machine. We will then use the normal distribution functions to create ‘<span class="math inline">\(y\)</span>’ and ‘<span class="math inline">\(x\)</span>’. Some of the functions used below work best with <code>data.frames</code>, so we’ll combine our <span class="math inline">\(y\)</span> &amp; <span class="math inline">\(x\)</span> into a <code>data.frame</code> called <code>dt</code>.</p>
+<pre class="r"><code>library(ggplot2)
+
+set.seed(111)
+x &lt;- rnorm(50, 20, 5)
+y &lt;- x + rnorm(50, 10, 3 )
+dt &lt;-data.frame(x,y)</code></pre>
+</div>
+<div id="plot-the-data" class="section level3" number="2.1.2">
+<h3><span class="header-section-number">2.1.2</span> Plot the data</h3>
+<p>We can now plot the data points with <code>ggplot</code>. <code>ggplot</code> uses a syntax called the ‘grammar of graphics’, and below, we are declaring a <code>ggplot</code> using <code>dt</code>, declaring an ‘aesthetic’ (<code>aes</code>) layer mapping <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> to the correct axes, then we are draw a plot layer called a ‘geometric’ (<code>geom</code>), in this case a ‘point’ plot (scatter plot).</p>
+<pre class="r"><code>ggplot(dt, aes(y=y, x=x))+
+  geom_point()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/scatter1-1.png" width="672" /></p>
+<p>Our data appears to be linearly related. As <span class="math inline">\(X\)</span> increases, <span class="math inline">\(Y\)</span> increases as well. So how do we work out where to draw the regression line? We can use a solution that takes the distance of each point from the line, squares it (or else positive and hegative values add up to zero), and minimises this ‘squared’ distance. This referred to as ‘Ordinary Least Squares’ (OLS) and is a principle used in many settings. Its has an exact solution using algebra, so linear models are estia ted quickly and easily in most cases.
+<br><br></p>
+<pre class="r"><code>ggplot(dt, aes(y=y, x=x))+
+  geom_point()+
+  geom_smooth(method=&quot;lm&quot;, col=&quot;red&quot;, se = FALSE)+
+  geom_segment(aes(x=x, y=err, yend=pred, xend=x),
+               arrow = arrow(length = unit(0.25, &quot;cm&quot;)))</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/OLS-1.png" width="672" /></p>
+</div>
+<div id="model-build" class="section level3" number="2.1.3">
+<h3><span class="header-section-number">2.1.3</span> Model build</h3>
+<p>Now we can examine the relationship between <span class="math inline">\(y\)</span> and <span class="math inline">\(x\)</span> using the linear model function <code>lm</code>. We will create an object called <code>model1</code> as an <code>lm</code>. This can be accessed directly, but the <code>summary</code> function is a great way to examine the object.</p>
+<pre class="r"><code>model1 &lt;- lm(y~x)
+
+summary(model1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -5.4278 -1.9559  0.0569  2.1088  5.8754 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  9.61639    1.30986   7.342 2.21e-09 ***
+## x            1.04677    0.06575  15.921  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.744 on 48 degrees of freedom
+## Multiple R-squared:  0.8408, Adjusted R-squared:  0.8375 
+## F-statistic: 253.5 on 1 and 48 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p><br></p>
+<p>The summary output gives us lots of information. The intercept value (<span class="math inline">\(\alpha\)</span>, or sometimes called <span class="math inline">\(\beta_0\)</span> in some environments), 9.61639 is where we cross the <span class="math inline">\(y\)</span>-axis, so a value of <span class="math inline">\(x\)</span>=0 would predict a <span class="math inline">\(y\)</span> value of 9.61639.</p>
+<p>The <span class="math inline">\(x\)</span> estimate (coefficient) tells us that <span class="math inline">\(y\)</span> increases by 1.04677 for each <span class="math inline">\(x\)</span>. So to predict <span class="math inline">\(y\)</span> when <span class="math inline">\(x = 2\)</span>, we have:
+<span class="math display">\[  y = \alpha + \beta x\]</span>
+<span class="math display">\[  y = 9.61639 + ( 2* 1.04667)  =  11.70973 \]</span>
+The <code>residuals</code> (not included above) are the error around each estimate, or the distance from the centre line. If we sum them, they will add to zero, as the centre line is the average, and half the points are negative and half positive.</p>
+<p><br></p>
+<p>We can confirm this by using our model to predict new data. This uses the <code>predict</code> function, and we can fit it back to our data set, to a new data set, or in this case to the single value <span class="math inline">\(x=2\)</span>. <code>predict</code> expects a <code>data.frame</code> for it’s <code>newdata</code> argument, so we will provide it with a data.frame with a single row, and column <span class="math inline">\(x\)</span> is set to 2.</p>
+<pre class="r"><code>predict(model1, newdata=data.frame(x=2))</code></pre>
+<pre><code>##        1 
+## 11.70993</code></pre>
+<p><br>
+Other things we are interested in are the standard errors and the p-values under <code>Pr(&gt;|t|)</code> meaning that, under the t-distribution with appropriate degrees of freedom, this is the probability of getting this result. Conventionally we tend to accept is a ‘statistically significant if it is &lt;0.05 (’95% significant’). We can also turn this into a 95% confidence interval using the <code>confint</code> function:</p>
+<pre class="r"><code>confint(model1)</code></pre>
+<pre><code>##                 2.5 %   97.5 %
+## (Intercept) 6.9827379 12.25003
+## x           0.9145748  1.17897</code></pre>
+<p><br>
+We also have two R<sup>2</sup> calculations, that vary slightly in their assumptions, but both can be interpreted as the percentage of variation explained by our model. Our model explains <span class="math inline">\(\sim 84\)</span>% of variation in <span class="math inline">\(y\)</span>, and the rest is ‘noise’ or natural variation.
+<br><br></p>
+</div>
+<div id="how-good-is-our-model" class="section level3" number="2.1.4">
+<h3><span class="header-section-number">2.1.4</span> How good is our model?</h3>
+<p>We’ve got our R<sup>2</sup> in the section above, but what about comparing models or looking for bias? This is always a relative question, because no model is perfect, but we can do a few things to convince ourselves that our model is doing a good job. If comparing two linear models, we can use an F-test, a statistical test that gives us a p-value as an output. Strictly, this should only be used for ‘nested’ models, where one is larger than the other and the smaller mode can be considered a reduced version of the larger one. E.g. with a larger model: <span class="math inline">\(y \sim x_1~+x_2\)</span>, we can consider <span class="math inline">\(y \sim x_1\)</span> as a nested model.</p>
+<p>We can also look at plots of our residual errors (see the OneNote document). If our model is doing a good job, we would expect normally distributed errors, and little/no discernible patterns in the residuals (although this is variable in small datasets like ours). Data points with high ‘leverage’ have strong influence on the model, and if they look extreme, they warrant further investigation. We will plot the residuals below, setting the plotting parameters <code>par</code> for a panel of 2 * 2 plots, rather than single plots on pages.
+<br><br></p>
+<pre class="r"><code>par(mfrow=c(2,2))
+plot(model1)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/residuals-1.png" width="672" /></p>
+<p>We have fairly normally distributed plots (although it’s only 50 data points). The normal Q-Q plot would line up on the diagonal if the plot was perfect, and it’s quite close. The standardised residuals (residuals/standard error) are fairly flat and a there are a few higher leverage points that we might investigate if we were taking this model further.</p>
+<p><br><br></p>
+</div>
+<div id="plot-our-regression-line-on-to-our-data" class="section level3" number="2.1.5">
+<h3><span class="header-section-number">2.1.5</span> Plot our regression line on to our data</h3>
+<p>We’ll use <code>ggplot</code> again and add a <code>geom_smooth</code> layer. Smoother plots add ‘best fit’ lines, and one of these methods is <code>lm</code>. We will allow ggplot to make the same linear model we did, as it’s easier than adding predictions directly from our <code>model1</code> object. The grey section surrounding the line is the standard error of the <code>lm</code>.</p>
+<pre class="r"><code>ggplot(data.frame(y,x), aes(y=y, x=x))+
+  geom_point()+
+  geom_smooth(method=&quot;lm&quot;, col=&quot;red&quot;)</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/final%20plot-1.png" width="528" /></p>
+<p><br><br></p>
+</div>
+</div>
+</div>
+<div id="non-linear-models-using-glm" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Non-linear models using GLM</h1>
+<p>For many kinds of non-linear relationships, we can generalize the linear model structure, by sending <span class="math inline">\(y\)</span> through a ‘link’ function and modelling on this scale. This is not as simple as transforming the data, then fitting a linear model, as the errors are no longer normally distributed. It requires estimation in a different way, as OLS is no longer suitable. Maximum-likelihood estimation is used for <code>glm</code>s and is iterative, repeatedly fitting a model from starting values until it stops improving. GLMs do not have residual errors in the same form as linear models, but the residual deviance performs a similar role, and is absorbed into the intercept rather than forming a separate error term.</p>
+<p>To examine two different GLM structure, we will create two more <span class="math inline">\(y\)</span> variables, one ‘binomial’ i.e. 0/1 (similar to mortality models) and one ‘Poisson’ i.e. count data where discrete real values,such as 2 or 3 patients but never 2.5, or -2 patients.</p>
+<p><br></p>
+<div id="binary-binomiallogistic-regression" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Binary (binomial/logistic regression)</h2>
+<p>We will generate some binomial data, where the odds of <span class="math inline">\(y=1\)</span>, based on <span class="math inline">\(x\)</span>, and will increase by 1.2.
+We will call this new <span class="math inline">\(y\)</span> column <span class="math inline">\(y\_binom\)</span>.</p>
+<pre class="r"><code>#Lets assume x give 1.2 increase in y, so make equation.
+z_biom&lt;-1+(1.5*scale(x))
+
+#inverse binomial function to get probability
+pr_binom = 1/(1+exp(-z_biom))
+dt$y_binom &lt;- rbinom(50,1,pr_binom)
+
+#Histogram of y_binom and scatter plot
+gridExtra::grid.arrange(
+
+  ggplot(dt, aes(x=y_binom))+
+    geom_histogram(bins=15, fill=&quot;#F8766D&quot;, col=1, alpha=0.5)
+,
+  ggplot(dt, aes(y=y_binom, x=x))+
+    geom_point(col=&quot;#F8766D&quot;)
+
+,nrow=1
+)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/Generate%20Binomial-1.png" width="672" /></p>
+<p>Plotting binary data like this is not much help, as it is either 0 or 1. It looks, from the scatter, like <span class="math inline">\(y\_binom\)</span> 1 may be more likely with higher x, but in order to model this, we use a logistic regression that models the log-odds of the event rather than the event itself, using the ‘logit’ link function, where <span class="math inline">\(p\)</span> is the probability <span class="math inline">\(y\_binom\)</span> = 1$:
+<span class="math display">\[ logit(p) = log(\frac{p}{1-p}) = \alpha + \beta x \]</span>
+<br></p>
+<p>Now lets build the GLM model. We need to specify a <code>family</code> to tell the glm function what kind of model to build. It assumes binomial models use the logistic link function, but more advanced users can change this if they want. We don’t need to in this case.</p>
+<pre class="r"><code>model2&lt;-glm(y_binom~x,data=dt, family=&quot;binomial&quot;)
+
+summary(model2)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y_binom ~ x, family = &quot;binomial&quot;, data = dt)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.7562  -1.1799   0.6359   0.8276   1.4917  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)  
+## (Intercept) -1.99733    1.18079  -1.692   0.0907 .
+## x            0.15118    0.06462   2.340   0.0193 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 62.687  on 49  degrees of freedom
+## Residual deviance: 55.901  on 48  degrees of freedom
+## AIC: 59.901
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<p>Our model coefficients, above, are on the ‘link’ scale and can be interpreted as the change in y for each value of x on the link.
+This is a bit unintuitive to many users, so we can transform it back to the input (or “response” scale). To do this we can exponentiate them, using the ‘exp()’. This can then be interpreted as odds ratios.</p>
+<pre class="r"><code>exp(cbind(coef(model2), confint(model2))) </code></pre>
+<pre><code>##                            2.5 %   97.5 %
+## (Intercept) 0.1356968 0.01081578 1.202437
+## x           1.1632003 1.03562916 1.339138</code></pre>
+<p><br></p>
+<p>There are various ways to assess binary models like this, but they are commonly based on classification rates (lets say predicted probability &gt;=0.5 means 1 and &lt; 0.5 means 0), or with something like the ‘Area Under the Receiver Operator Characteristic’ curve (AUC / ROC / C-statistic). This C-statistic, can be interpreted in the same way as R<sup>2</sup>, as how much variation our model explains, but it has a more complicated formal definition.
+<br>
+Firstly, we will look at classification rates using the a ‘confusion matrix’ (epidemiologists call it a ‘2x2 table’) from the <code>caret</code> package, then the C-statistic, using the <code>ModelMetrics</code> package.
+<br></p>
+<pre class="r"><code>predict2&lt;-predict(model2, type=&quot;response&quot;)
+predict2a&lt;-ifelse(predict2 &gt;=0.5, 1, 0)
+
+caret::confusionMatrix(data=as.factor(predict2a), reference=as.factor(dt$y_binom), positive=&quot;1&quot;)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction  0  1
+##          0  3  5
+##          1 13 29
+##                                           
+##                Accuracy : 0.64            
+##                  95% CI : (0.4919, 0.7708)
+##     No Information Rate : 0.68            
+##     P-Value [Acc &gt; NIR] : 0.77797         
+##                                           
+##                   Kappa : 0.0466          
+##                                           
+##  Mcnemar&#39;s Test P-Value : 0.09896         
+##                                           
+##             Sensitivity : 0.8529          
+##             Specificity : 0.1875          
+##          Pos Pred Value : 0.6905          
+##          Neg Pred Value : 0.3750          
+##              Prevalence : 0.6800          
+##          Detection Rate : 0.5800          
+##    Detection Prevalence : 0.8400          
+##       Balanced Accuracy : 0.5202          
+##                                           
+##        &#39;Positive&#39; Class : 1               
+## </code></pre>
+<p>The confusion matrix gives a lot of information. The first table give you the numbers of true positive and negatives, and the number of false positives and negatives. The figures underneath give you various derived figures, such as the accuracy, sensitivity.specificity etc. Wikipedia has a very good resource on what all of these mean: <a href="https://en.Wikipedia.org/wiki/Sensitivity_and_specificity" class="uri">https://en.Wikipedia.org/wiki/Sensitivity_and_specificity</a></p>
+<p>The ‘No Information Rate’ is the accuracy if we simply called all results the majority class (e.g. all positive). The associated p-vale, then tells you if your model is significantly better than predicting the same result for all. In his case, it is, as our p_value is &lt;0.05 (for a 95% significance rule).</p>
+<pre class="r"><code>library(ModelMetrics)
+
+auc(model2)</code></pre>
+<pre><code>## [1] 0.7058824</code></pre>
+<p><br><br></p>
+</div>
+<div id="poisson-model---count-data" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Poisson Model - Count data</h2>
+<p>Now we’ll look at the Poisson model. Poisson distribution is suitable for counts or rates, and uses a natural logarithm (ln) link function, and the inverse of this is <code>exp()</code>. The Poisson regression is therefore modelling, where <span class="math inline">\(\mu =\)</span> expected count of <span class="math inline">\(y\)</span>:
+<span class="math display">\[ log(\mu) = \alpha + \beta x \]</span></p>
+<p>Poisson regression is good for counts, as it cannot go below zero, and is based on integer values. It is skewed when the average count is low, and becomes more normal as the average count increases.
+<br>
+First, lets generate some data:</p>
+<pre class="r"><code>z_pois&lt;-0.03+(0.1 * x)
+pr_pois = exp(z_pois)
+dt$y_pois &lt;- rpois(50,pr_pois)
+
+#Histogram of y_pois and scatter-plot
+gridExtra::grid.arrange(
+
+  ggplot(dt, aes(x=y_pois))+
+    geom_histogram(bins=15, fill=&quot;#00BFC4&quot;, col=1, alpha=0.5)
+,
+  ggplot(dt, aes(y=y_pois, x=x))+
+    geom_point(col=&quot;#00BFC4&quot;)
+
+,nrow=1
+)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/poisson%20model-1.png" width="672" /></p>
+<p>Now lets build a Poisson GLM.</p>
+<pre class="r"><code>model3&lt;-glm(y_pois~x,data=dt, family=&quot;poisson&quot;)
+
+summary(model3)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y_pois ~ x, family = &quot;poisson&quot;, data = dt)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -3.4795  -0.5160   0.0679   0.7437   2.6057  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -0.02328    0.18689  -0.125    0.901    
+## x            0.10317    0.00792  13.026   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 233.791  on 49  degrees of freedom
+## Residual deviance:  68.401  on 48  degrees of freedom
+## AIC: 258.57
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<p>Again, we can compare one model to another (on the same data) using the AIC, where a lower AIC is better. We can also perform likelihood ratio tests on nested models (similar to the f-test described above).</p>
+<p>Our output here is, again, telling us the change in <span class="math inline">\(y\)</span> for <span class="math inline">\(x\)</span> on the link scale. Similar to logistic regression, we can transform our coefficients back using the inverse link function <code>exp()</code>, and we can interpret them as ‘Incidence Rate Ratios’ IRRs. IRRs are multiplicative, i.e. an IRR of 3 would mean each value of <span class="math inline">\(x\)</span> would multiply by 3.</p>
+<pre class="r"><code>exp(cbind(coef(model2), confint(model2))) </code></pre>
+<pre><code>##                            2.5 %   97.5 %
+## (Intercept) 0.1356968 0.01081578 1.202437
+## x           1.1632003 1.03562916 1.339138</code></pre>
+<p><br>
+Let’s also compare our Poisson model to a linear model on the same skewed/Poisson response <span class="math inline">\(y\_pois\)</span>.
+Linear models don’t have a link function or a family, so we don’t need to provide it to the <code>lm</code> function.
+(Strictly, the linear model is a special case of the GLM, where we use and ‘identity’ link function (it is the same as the raw number), and maximum likelihood and OLS would give the same answer).</p>
+<pre class="r"><code>#Liner model of the same thing
+model4&lt;-lm(y_pois~x,data=dt)
+
+summary(model4)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y_pois ~ x, data = dt)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -9.9540 -2.8527  0.2715  2.3297 11.3684 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  -8.8429     2.1756  -4.065 0.000178 ***
+## x             0.9072     0.1092   8.308 7.58e-11 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 4.557 on 48 degrees of freedom
+## Multiple R-squared:  0.5898, Adjusted R-squared:  0.5813 
+## F-statistic: 69.02 on 1 and 48 DF,  p-value: 7.583e-11</code></pre>
+<p><br>
+Our linear model coefficients are very different from the Poisson model, and our R<sup>2</sup> values are very poor (0.5 would indicate no relationship). This is the non-linearity of our data coming into play.<br />
+<br>
+The main way to test Poisson models, other than comparing one against another, it using prediction error. We predict the output from our model, then use a measure of average error. Root mean-squared error (RMSE) and Mean Absolute Error (MAE) are commonly used. Here is a useful Stack Overflow question about them: <a href="https://stats.stackexchange.com/questions/48267/mean-absolute-error-or-root-mean-squared-error" class="uri">https://stats.stackexchange.com/questions/48267/mean-absolute-error-or-root-mean-squared-error</a></p>
+<p>A lower average error indicates better prediction, and a better model. I prefer MAE for Poisson models, as it makes more sense when you have outliers or ‘overdispersion’ (a subject for another day!).</p>
+<pre class="r"><code>library(ModelMetrics)
+
+predict3&lt;-predict(model3, type=&quot;response&quot;)
+
+#In this case, there is no link function so we don&#39;t have to tell it we want the &#39;response&#39; scale rather than the link scale.
+predict4&lt;-predict(model4)
+
+rbind(
+  # Root Means Squared Error (RMSE)
+  paste(&quot;Poisson RMSE = &quot;, rmse(predict3, dt$y_pois)),
+  paste(&quot;Linear RMSE = &quot;,rmse(predict4, dt$y_pois)),
+
+  # Mean Absolute Error (CM&#39;s preferred for poisson data, as it&#39;s less affected by outliers than RMSE is)
+  paste(&quot;Poisson MAE = &quot;, mae(predict3, dt$y_pois)),
+  paste(&quot;Linear MAE = &quot;,mae(predict4, dt$y_pois))
+)</code></pre>
+<pre><code>##      [,1]                              
+## [1,] &quot;Poisson RMSE =  3.20460500158097&quot;
+## [2,] &quot;Linear RMSE =  4.46512261676619&quot; 
+## [3,] &quot;Poisson MAE =  2.38481890693037&quot; 
+## [4,] &quot;Linear MAE =  3.59757329862241&quot;</code></pre>
+<p><br>
+Now lets visualise this, as we did with the linear model. We can see that the linear model (blue) is not a good representation, but the Poisson model (red) is better:</p>
+<pre class="r"><code>ggplot(dt, aes(y=y_pois, x=x))+
+  geom_point(col=&quot;#00BFC4&quot;)+
+  geom_smooth(aes(col=&quot;glm&quot;), method=&quot;glm&quot;, method.args=list(family=&quot;poisson&quot;))+
+  geom_smooth(aes(col=&quot;lm&quot;), method=&quot;lm&quot;)+
+  scale_colour_manual(values = c(&quot;glm&quot; = &quot;red&quot;, &quot;lm&quot;=&quot;blue&quot;))</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;
+## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/plot%20poisson%20output-1.png" width="432" />
+<br></p>
+</div>
+</div>
+<div id="summary" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Summary</h1>
+<p>We started by creating a linear model of <span class="math inline">\(y\)</span> with a single predictor: <span class="math inline">\(x\)</span>. When they are both normally distributed, and have a linear relationship, OLS linear model using <code>lm</code> makes sense, and we have powerful tools to compare them using residuals etc. We can use R<sup>2</sup> to see how much of the variation our model explains.</p>
+<p>We then generalized the linear model to non-linear data/relationship using <code>glm,</code> where a link function transforms our data and models on that scale. We can transform our data back for interpretation, and different measures of accuracy exist for different types of data, often based on prediction error.</p>
+<p>We modelled binary data (similar to mortality or readmission models) using a logistic regression in <code>model2</code>. We checked this with a confusion matrix, and calculated the C-statistic using <code>auc</code> that can be interpreted the same way as R<sup>2</sup>.</p>
+<p>We also modelled count-type data (Skewed/discrete and &gt;=0) using Poisson regression (similar to length-of-stay, or counts of attendance models). The same model fitted using <code>lm</code> performed poorly, and comparison of precision error using MAE allowed is to see the Poisson regression performed better.</p>
+<p>There is much more detail associated with all of these models, but this document provides a starter. Although we have only used a single predictor <span class="math inline">\(x\)</span>, we can use many predictors (<span class="math inline">\(n\)</span>) with by extending our models to:
+<span class="math display">\[y \sim X_0 + x_1 + x_2 + ... X_n\]</span></p>
+<p><br><br></p>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-campbell_developing_2012" class="csl-entry">
+Campbell, Michael J, Richard M Jacques, James Fotheringham, Ravi Maheswaran, and Jon Nicholl. 2012. <span>“Developing a Summary Hospital Mortality Index: Retrospective Analysis in <span>English</span> Hospitals over Five Years.”</span> <em>BMJ</em> 344 (March): e1001. <a href="https://doi.org/gb3r9t">https://doi.org/gb3r9t</a>.
+</div>
+<div id="ref-harrell2015regression" class="csl-entry">
+Harrell, F. E. 2015. <em>Regression <span>Modeling Strategies</span>: <span>With Applications</span> to <span>Linear Models</span>, <span>Logistic</span> and <span>Ordinal Regression</span>, and <span>Survival Analysis</span></em>. Springer <span>Series</span> in <span>Statistics</span>. <span>Springer International Publishing</span>.
+</div>
+<div id="ref-jarman_explaining_1999" class="csl-entry">
+Jarman, B., S. Gault, B. Alves, A. Hider, S. Dolan, A. Cook, B. Hurwitz, and L. I. Iezzoni. 1999. <span>“Explaining Differences in <span>English</span> Hospital Death Rates Using Routinely Collected Data.”</span> <em>BMJ</em> 318 (7197): 1515–20. <a href="https://doi.org/fkkfm9">https://doi.org/fkkfm9</a>.
+</div>
+<div id="ref-mccullaghGeneralizedLinearModels1989" class="csl-entry">
+McCullagh, P., and J. A. Nelder. 1989. <em>Generalized <span>Linear Models</span>, <span>Second Edition</span></em>. <span>Taylor &amp; Francis</span>.
+</div>
+<div id="ref-woodGeneralizedAdditiveModels2017" class="csl-entry">
+Wood, Simon N. 2017. <em>Generalized <span>Additive Models</span>: <span>An Introduction</span> with <span>R</span>, <span>Second Edition</span></em>. 2nd ed. Texts <span>In Statistical Science</span>. Florida, USA: <span>CRC Press</span>.
+</div>
+</div>
+</div>

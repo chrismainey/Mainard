@@ -1,0 +1,217 @@
+---
+title: Introduction to Funnel Plots
+author: Chris Mainey
+date: '2019-05-08'
+slug: introduction-to-funnel-plots
+categories: 
+  - R
+  - SPC
+  - overdispersion
+tags: 
+  - R
+  - Funnel plot
+  - overdispersion
+  - package
+  - SPC
+summary: An introduction to funnel plots, and using the FunnelPlotR package
+bibliography: ../references.bib
+image:
+  caption: ''
+  focal_point: ''
+output:
+  blogdown::html_page:
+    toc: true
+    number_sections: true
+    toc_depth: 1
+  
+---
+
+
+
+<div id="funnel-plots" class="section level2" number="0.1">
+<h2><span class="header-section-number">0.1</span> Funnel plots</h2>
+<p>Funnel plots are a common tool for comparing organisations or units using proportions or standardised rates. A common use of them is for monitoring mortality at hospitals. This is an introductory post on the subject, that gives a little information about them and how they are constructed. It is deliberately light on theory, focussing on use, some of the theory is referenced for interested readers.</p>
+<p>This post also uses a funnel plot function, for indirectly standardised ratios, that I built as part of my PhD work. The function is based on <code>ggplot2</code> <span class="citation">(<a href="#ref-wickhamGgplot2ElegantGraphics2009" role="doc-biblioref">Wickham 2009</a>)</span>, and is available at <a href="https://github.com/chrismainey/FunnelPlotR" class="uri">https://github.com/chrismainey/FunnelPlotR</a>, although it’s a work in progress.</p>
+<p>There are different kinds of funnel plot, but this post focusses on the type used to compare standardised mortality and other similarly constructed indicators .</p>
+</div>
+<div id="why-do-we-use-them" class="section level2" number="0.2">
+<h2><span class="header-section-number">0.2</span> Why do we use them?</h2>
+<div id="rationale" class="section level3" number="0.2.1">
+<h3><span class="header-section-number">0.2.1</span> Rationale</h3>
+<p>How do you go about comparing organisations? We could simply look at indicator data and rank them, but that could be unfair if the conditions are different at each organisation. E.g. every hospital differs in size, the services it offers, and the patients it sees. We might expect a hospital seeing a higher proportion of elderly patients to have a higher mortality rate. Is it fair to compare it to an organisation serving a younger population who may be ‘healthier’ in general? Naively comparing organisations by ranking in league tables has been shown to be a bad idea <span class="citation">(<a href="#ref-goldsteinLeagueTablesTheir1996" role="doc-biblioref">Goldstein and Spiegelhalter 1996</a>; <a href="#ref-lilfordUseMisuseProcess2004" role="doc-biblioref">Lilford et al. 2004</a>)</span>.</p>
+<p>This scenario is not a million miles away from the techniques used in meta-analysis of clinical trial, where we may have trials of different sizes, with different estimates of effect, and differing variances. Some of the techniques applied to meta-analysis have been adapted for healthcare monitoring, including funnel plots and methods to adjust for overdispersion <span class="citation">(<a href="#ref-spiegelhalterFunnelPlotsComparing2005" role="doc-biblioref">Spiegelhalter 2005a</a>, <a href="#ref-spiegelhalterHandlingOverdispersionPerformance2005" role="doc-biblioref">2005b</a>; <a href="#ref-spiegelhalterStatisticalMethodsHealthcare2012" role="doc-biblioref">Spiegelhalter et al. 2012</a>)</span>.</p>
+</div>
+<div id="construction" class="section level3" number="0.2.2">
+<h3><span class="header-section-number">0.2.2</span> Construction</h3>
+<p>If we want to compare a standardised ratio or similar indicator, we can make a plot with the indicator on the Y-axis, and a measure of the unit size on the X-axis. This is commonly the sum of the predicted values for standardised ratios (e.g. the predicted number of cases), or the number of patients/discharges etc. Our centre line, the average value, can be surrounded by ‘control limits,’ a concept from Statistical Process Control. These limits are statistical boundaries to separate natural (‘common-cause’) variation and systematic differences (‘special-cause variation’) <span class="citation">(<a href="#ref-mohammedBristolShipmanClinical2001" role="doc-biblioref">Mohammed et al. 2001</a>)</span>. This is commonly at organisational level, but could be at any aggregation.</p>
+<p>The reason these limits resemble a funnel is due to the effects of size. The expected variation is larger when we are looking at fewer cases. For example, imagine an experiment where we toss an unbiased coin to see the expected value. If we toss that coin twice and both are ‘heads,’ our data is telling us that all coin tosses end up as ‘heads.’ This is not true, and we are making an assumption that we know would be different if we repeated it more times. The margin of error around this is high. So if we performed the same experiment 10, 100 or 1000 times, we would expect it to become 50:50, heads/tails, and the margin of error is proportionally smaller. This is also true of indicators based on counts, like funnel plots. We expect less variation between points as organisations get larger.</p>
+</div>
+<div id="example" class="section level3" number="0.2.3">
+<h3><span class="header-section-number">0.2.3</span> Example:</h3>
+<pre class="r"><code>library(ggplot2)
+library(tidyr)
+
+# Make up some data, as if it was from a regression model with observed and predicted (expected) events.
+dt &lt;- data.frame(observed = c( 15,40,72,28,50, 66, 75),
+                 expected = c( 13,32,75,33,54, 60, 72),
+                 unit = factor(c(&quot;A&quot;,&quot;B&quot;,&quot;c&quot;,&quot;D&quot;,&quot;E&quot;, &quot;F&quot;, &quot;G&quot;))
+)
+
+# Add a ratio (SR) of observed to expected, our indicator 
+dt$SR &lt;- dt$observed / dt$expected
+
+# Scatter plot in ggplot
+a&lt;-ggplot(dt, aes(x=expected, y= SR))+
+  geom_point()
+
+a</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/basicfunnel-1.png" width="672" /></p>
+<pre class="r"><code># Now add a central line, in a ration like this, 1 is the average/expected value.
+a&lt;- a+geom_hline(aes(yintercept=1))
+a</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/basicfunnel-2.png" width="672" /></p>
+<pre class="r"><code># Add a 95% Poisson limit, by using the density function to get the quantile value for each &#39;expected&#39;.
+lkup&lt;-data.frame(id=seq(1, max(dt$expected), 1))
+lkup$Upper&lt;-(qpois(0.975,lambda = lkup$id) - 0.025) / lkup$id
+lkup$lower&lt;-(qpois(0.025,lambda = lkup$id) - 0.975) / lkup$id
+
+lkup&lt;-gather(lkup, key, value,-id)
+
+a+ geom_line(aes(x=id, y=value, col=key), data=lkup)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/basicfunnel-3.png" width="672" /></p>
+<p>You’ll probably notice the ‘jagged’ lines in the plot above. This is because the Poisson distribution is only defined on integers, and most common implementations of Poisson functions make some sort of rounding/guess between points. They are generally poorly defined on low values, but there are other options that I’ll discuss in another future post.</p>
+<p><br></p>
+</div>
+</div>
+<div id="expanding-limits" class="section level2" number="0.3">
+<h2><span class="header-section-number">0.3</span> Expanding limits</h2>
+<p>The methods described above have been developed into a basic R package to draw these plots using <code>ggplot2</code>.
+It also allows users to specify whether they want ‘overdispersed’ limits. I will write another post about overdispersion in the coming weeks, but essentially, we have more variation than we would expect from theory alone. To account for this, we can estimate how much greater the variance in our data is, and expand the funnel limits by this amount.</p>
+<p>Part of this process involves ‘Winsorisation’ of the distribution <span class="citation">(<a href="#ref-spiegelhalterHandlingOverdispersionPerformance2005" role="doc-biblioref">Spiegelhalter 2005b</a>; <a href="#ref-spiegelhalterStatisticalMethodsHealthcare2012" role="doc-biblioref">Spiegelhalter et al. 2012</a>)</span>, where we set the outer most values to a defined percentile to reduce the effects of outliers. This is commonly set to 10% at each end of the distribution, but there is a variant method for this, used in the NHS’ Summary Hospital Mortality Indicator’, where the distribution is truncated instead of Winsorised <span class="citation">(<a href="#ref-clinicalindicatorsteamnhsdigitalSummaryHospitallevelMortality2018" role="doc-biblioref">Clinical Indicators Team 2018</a>)</span>.</p>
+<p>I originally wrote this package to present plots for my PhD thesis, focussed on predicting NRLS incident reporting ratios after risk-adjustment. The overdispersion was particularly high in this case, and differences between the two methods were noticeable, with the SHMI/truncation method appearing better suited.</p>
+<p><br></p>
+</div>
+<div id="application" class="section level2" number="0.4">
+<h2><span class="header-section-number">0.4</span> Application</h2>
+<p>Here we will apply this to some data by picking up the <code>medpar</code> dataset discussed by Hilbe and available in the <code>COUNT</code> package <span class="citation">(<a href="#ref-hilbeModelingCountData2014" role="doc-biblioref">Hilbe 2014</a>)</span>. It is a set of data points from hospitals in Arizona, in 1991, based on US Medicare data. We’ll use the ‘length of stay’ field ’, <code>los</code>, and model it from the other predictors in the data.</p>
+<div id="installation" class="section level3" number="0.4.1">
+<h3><span class="header-section-number">0.4.1</span> Installation</h3>
+<pre class="r"><code>install.packages(&quot;FunnelPlotR&quot;)
+#or
+devtools::install_github(&quot;https://github.com/chrismainey/FunnelPlotR&quot;)</code></pre>
+</div>
+<div id="basic-model-build" class="section level3" number="0.4.2">
+<h3><span class="header-section-number">0.4.2</span> Basic model build</h3>
+<p>We will first load the data and build a simple predictive model, using a Poisson GLM, with a few of the predictors from the dataset. This post is not focussed on modelling techniques, but a Poisson Generalised Linear Model (GLM) is more appropriate for count data than linear regression. The key message, though, is that Poisson models make no adjustment for the variance within the data and are likely to be overdispersed. A more sophisticated approach might use something like a negative binomial or multilevel model (discussed in a later post).</p>
+<p>A little reformatting is required before modelling:</p>
+<pre class="r"><code>library(FunnelPlotR)
+library(COUNT)
+library(ggplot2)
+
+data(medpar)
+medpar$provnum&lt;-factor(medpar$provnum)
+medpar$los&lt;-as.numeric(medpar$los)
+
+mod&lt;- glm(los ~ hmo + died + age80 + factor(type), family=&quot;poisson&quot;, data=medpar)
+summary(mod)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = los ~ hmo + died + age80 + factor(type), family = &quot;poisson&quot;, 
+##     data = medpar)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -5.7309  -1.9554  -0.5529   0.9717  14.5487  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)    2.26875    0.01246 182.011  &lt; 2e-16 ***
+## hmo           -0.07637    0.02393  -3.192  0.00142 ** 
+## died          -0.24574    0.01826 -13.458  &lt; 2e-16 ***
+## age80         -0.02141    0.02050  -1.045  0.29617    
+## factor(type)2  0.24921    0.02099  11.871  &lt; 2e-16 ***
+## factor(type)3  0.74869    0.02627  28.496  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 8901.1  on 1494  degrees of freedom
+## Residual deviance: 7977.7  on 1489  degrees of freedom
+## AIC: 13705
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<p>Now we have a regression that we can use to get a predicted <code>los</code> that we will compare to observed <code>los</code>:</p>
+<pre class="r"><code>medpar$prds&lt;- predict(mod, type=&quot;response&quot;)</code></pre>
+<p><br></p>
+</div>
+<div id="build-plot" class="section level3" number="0.4.3">
+<h3><span class="header-section-number">0.4.3</span> Build plot</h3>
+<p>Now we can build a funnel plot object with standard Poisson limits, and outliers labelled. The function returns a list of the plotted data, the plotted control limit range, and the <code>ggplot</code> object, hence <code>object[3]</code> to call it.</p>
+<pre class="r"><code>funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum
+            , title = &#39;Length of Stay Funnel plot for `medpar` data&#39;, 
+            draw_unadjusted = TRUE, draw_adjusted = FALSE, label = &quot;outlier&quot;, limit=99)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/funnel1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>## A funnel plot object with 54 points of which 25 are outliers. 
+## Plot is not adjusted for overdispersion.</code></pre>
+<p><br></p>
+</div>
+<div id="overdispersion" class="section level3" number="0.4.4">
+<h3><span class="header-section-number">0.4.4</span> Overdispersion</h3>
+<p>That looks like too many outliers! There is more variation in our data than we would expect, and this is referred to as: <strong>overdispersion</strong>.
+So lets check for it: <br>
+The following ratio should be 1 if our data are conforming to Poisson distribution assumption (conditional mean = variance). If it is greater than 1, we have overdispersion:</p>
+<pre class="r"><code>sum(mod$weights * mod$residuals^2)/mod$df.residual</code></pre>
+<pre><code>## [1] 6.240519</code></pre>
+<p>This suggests the variance is 6.24 times the condition mean, and definitely overdispersed.
+This is a huge topic, but applying overdispersed limits using either SHMI or Spiegelhalter methods adjust for this by inflating the limits:</p>
+<pre class="r"><code>funnel_plot(numerator=medpar$los, denominator=medpar$prds, group = medpar$provnum
+            ,  title = &#39;Length of Stay Funnel plot for `medpar` data&#39;
+            , draw_unadjusted = FALSE, draw_adjusted = TRUE, label = &quot;outlier&quot;, limit=99)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/funnel2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>## A funnel plot object with 54 points of which 9 are outliers. 
+## Plot is adjusted for overdispersion.</code></pre>
+<p><br><br>
+Given these adjustments, we now only have nine organisations showing special-cause variation. To interpret this plot properly, we would first investigate these outlying organisations before making any changes to the system/indicator. We should check for possible data quality issues, such as errors, missing model predictors, environmental factors (e.g. one organisation changing computer systems and data standards etc. during the monitoring period), but once these are examined we might suspect issues with care at the hospitals in question. They can then be investigated by local audit and casenote review.</p>
+<p>These methods can be used for any similar indicators, e.g. standardised mortality ratios, readmissions etc.</p>
+<p><br></p>
+</div>
+</div>
+<div id="summary" class="section level2" number="0.5">
+<h2><span class="header-section-number">0.5</span> Summary</h2>
+<p>Funnel plots are useful ways to visualise indicators such as mortality, readmission and length of stay data at hospitals, that presents both the indicator value but also a measure of the size/variance at organisations. They allow limits to be drawn between what we might expect by chance, and what we might consider to be a signal for investigation. Organisations outside the funnel limits should be examined, first for data quality issues and then for issues with process and clinical care. Overdispersion means that these limits are often too strict, but they can be inflated to adjusted for this.</p>
+<p>If you’d like to use my outline <code>ggplot2</code> function, or contribute, please pull or fork it on github: <a href="https://github.com/chrismainey/FunnelPlotR" class="uri">https://github.com/chrismainey/FunnelPlotR</a>, or install from CRAN with <code>install.packages("FunnelPlotR")</code>.</p>
+<p><br></p>
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2>References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-clinicalindicatorsteamnhsdigitalSummaryHospitallevelMortality2018" class="csl-entry">
+Clinical Indicators Team, NHS Digital. 2018. <span>“Summary <span>Hospital</span>-Level <span>Mortality Indicator</span> (<span>SHMI</span>) - <span>Indicator</span> Specification.”</span> <span>NHS Digital</span>.
+</div>
+<div id="ref-goldsteinLeagueTablesTheir1996" class="csl-entry">
+Goldstein, Harvey, and David J. Spiegelhalter. 1996. <span>“League <span>Tables</span> and <span>Their Limitations</span>: <span>Statistical Issues</span> in <span>Comparisons</span> of <span>Institutional Performance</span>.”</span> <em>Journal of the Royal Statistical Society: Series A (Statistics in Society)</em> 159 (3): 385–409. <a href="https://doi.org/chf9kj">https://doi.org/chf9kj</a>.
+</div>
+<div id="ref-hilbeModelingCountData2014" class="csl-entry">
+Hilbe, Joseph M. 2014. <em>Modeling <span>Count Data</span></em>. Cambridge: <span>Cambridge University Press</span>. <a href="https://doi.org/10.1017/CBO9781139236065">https://doi.org/10.1017/CBO9781139236065</a>.
+</div>
+<div id="ref-lilfordUseMisuseProcess2004" class="csl-entry">
+Lilford, R., M. A. Mohammed, D. Spiegelhalter, and R. Thomson. 2004. <span>“Use and Misuse of Process and Outcome Data in Managing Performance of Acute Medical Care: Avoiding Institutional Stigma.”</span> <em>Lancet</em> 363 (9415): 1147–54. <a href="https://doi.org/10.1016/s0140-6736(04)15901-1">https://doi.org/10.1016/s0140-6736(04)15901-1</a>.
+</div>
+<div id="ref-mohammedBristolShipmanClinical2001" class="csl-entry">
+Mohammed, Mohammed A, KK Cheng, Andrew Rouse, and Tom Marshall. 2001. <span>“Bristol, <span>Shipman</span>, and Clinical Governance: <span>Shewhart</span>’s Forgotten Lessons.”</span> <em>The Lancet</em> 357 (9254): 463–67. <a href="https://doi.org/cqjskf">https://doi.org/cqjskf</a>.
+</div>
+<div id="ref-spiegelhalterFunnelPlotsComparing2005" class="csl-entry">
+Spiegelhalter, David J. 2005a. <span>“Funnel Plots for Comparing Institutional Performance.”</span> <em>Stat Med</em> 24 (8): 1185–1202. <a href="https://doi.org/10.1002/sim.1970">https://doi.org/10.1002/sim.1970</a>.
+</div>
+<div id="ref-spiegelhalterHandlingOverdispersionPerformance2005" class="csl-entry">
+———. 2005b. <span>“Handling over-Dispersion of Performance Indicators.”</span> <em>Quality and Safety in Health Care</em> 14 (5): 347–51. <a href="https://doi.org/10.1136/qshc.2005.013755">https://doi.org/10.1136/qshc.2005.013755</a>.
+</div>
+<div id="ref-spiegelhalterStatisticalMethodsHealthcare2012" class="csl-entry">
+Spiegelhalter, David J., Christopher Sherlaw-Johnson, Martin Bardsley, Ian Blunt, Christopher Wood, and Olivia Grigg. 2012. <span>“Statistical Methods for Healthcare Regulation: Rating, Screening and Surveillance.”</span> <em>Journal of the Royal Statistical Society: Series A (Statistics in Society)</em> 175 (1): 1–47. <a href="https://doi.org/10.1111/j.1467-985X.2011.01010.x">https://doi.org/10.1111/j.1467-985X.2011.01010.x</a>.
+</div>
+<div id="ref-wickhamGgplot2ElegantGraphics2009" class="csl-entry">
+Wickham, Hadley. 2009. <em>Ggplot2: <span>Elegant Graphics</span> for <span>Data Analysis</span></em>. New York: <span>Springer-Verlag</span>.
+</div>
+</div>
+</div>

@@ -18,12 +18,21 @@ date_format = "Jan 2006"
 #   Leave `date_end` empty if it's your current employer.
 #   Begin/end multi-line descriptions with 3 quotes `"""`.
 [[experience]]
+  title = "Deputy Director of Specialist Analytics"
+  company = "North Central London Integrate Care Board (NCL ICB)"
+  company_url = "https://nclhealthandcare.org.uk/icb/north-central-london-integrated-care-board/"
+  location = "UK"
+  date_start = "2022-10-01"
+  date_end = ""
+  description = """Leading the specialist analytics team on projects to support the ICB, including modelling, GIS, supporting population health management."""
+
+[[experience]]
   title = "Head of Patient Safety Measurement for Improvement"
   company = "NHS England"
   company_url = "https://www.england.nhs.uk/patient-safety/"
   location = "UK"
   date_start = "2022-04-01"
-  date_end = ""
+  date_end = "2022-10-01"
   description = """Leading the analytical team in patient safety, covering incident reporting, patient safety measurement, and analytical support for national programmes."""
   
 [[experience]]
