@@ -56,7 +56,7 @@ user_groups:
 - Visitors
 ---
 
-Chris Mainey is an data scientist and analytical leader in the UK National Health Service (NHS).  He has led analyticl teams in Patient Safety at NHSE, national benchmarking at University Hospitals Birmingham and has recently joined the specialist analytics team at North Central London ICB.  He has experience in patient safety, public health, clinical networks, acute trust informatics, and leading analytical and data science teams.
+Chris Mainey is a data scientist and analytical leader in the UK National Health Service (NHS).  He has led analytical teams in Patient Safety at NHSE, national benchmarking at University Hospitals Birmingham and has recently joined the specialist analytics team at North Central London ICB.  He has experience in patient safety, public health, clinical networks, acute trust informatics, and leading analytical and data science teams.
 
 Chris' work focuses on modelling NHS data, with strong expertise in R and SQL, and experience with a variety of statistical modelling and machine learning techniques.  He completed his PhD at UCL, on modelling NHS incident reporting data using quantitative methods and NLP/text mining.
 
