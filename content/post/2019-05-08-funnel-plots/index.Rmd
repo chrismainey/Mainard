@@ -36,7 +36,7 @@ Funnel plots are a common tool for comparing organisations or units using propor
 
 This post also uses a funnel plot function, for indirectly standardised ratios, that I built as part of my PhD work.  The function is based on `ggplot2` [@wickhamGgplot2ElegantGraphics2009], and is available at https://github.com/chrismainey/FunnelPlotR, although it's a work in progress.  
 
-There are different kinds of funnel plot, but this post focuses on the type used to compare standardised mortality and other similarly constructed indicators.
+There are different kinds of funnel plot, but this post focuses on the type used to compare standardised mortality and other similarly constructed indicators. 
 
 ## Why do we use them?
 
